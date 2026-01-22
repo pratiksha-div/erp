@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:google_fonts/google_fonts.dart';
 import 'package:sizer/sizer.dart';
 import 'ERP/UI/Pages/Authentication/Login.dart';
 import 'ERP/UI/Pages/Starter/Splash_Screen.dart';

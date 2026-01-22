@@ -212,6 +212,37 @@ class _NewEntryState extends State<NewEntry> {
               child: CircularProgressIndicator(color: ColorConstants.primary),
             ),
           ),
+
+        if (!_isInitialLoading &&
+            _errorMessage == null &&
+            _items.isEmpty)
+          Padding(
+            padding: const EdgeInsets.only(top: 100),
+            child: Center(
+              child: Column(
+                children: [
+                  // Container(
+                  //   padding:EdgeInsets.all(20),
+                  //   decoration: BoxDecoration(
+                  //     borderRadius: BorderRadius.circular(50),
+                  //     color: ColorConstants.primary.withOpacity(.1)
+                  //   ),
+                  //     child: Icon(Icons.close,size: 18,color: ColorConstants.primary.withOpacity(.6),)
+                  // ),
+                  // SizedBox(
+                  //   height: 10,
+                  // ),
+                  Text(
+                    'No records found\nPlease add new entry',
+                     textAlign: TextAlign.center,
+                    style: GoogleFonts.poppins(
+                      color: ColorConstants.primary.withOpacity(.6),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
       ],
     );
   }
