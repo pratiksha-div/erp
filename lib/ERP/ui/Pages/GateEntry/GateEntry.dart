@@ -53,6 +53,7 @@ class _GateEntryState extends State<GateEntry> {
   final List<GateEntryData> _items = [];
   late final GateEntryBloc _entryBloc;
   TextEditingController searchcontroller=TextEditingController();
+  final List<GateEntryData> _visibleItems = [];
 
   @override
   void initState() {
@@ -76,18 +77,32 @@ class _GateEntryState extends State<GateEntry> {
       _isInitialLoading = true;
       _errorMessage = null;
     });
-    _entryBloc.add(FetchGateEntryEvent(start: 0, length: _pageSize));
+    _entryBloc.add(FetchGateEntryEvent(
+        start: 0,
+        length: _pageSize,
+        gateEntry: '',
+        vehicleNo: '',
+        toWarehouse: '',
+        orderedBy: '')
+    );
   }
 
   void _loadMoreData() {
     setState(() => _isLoadingMore = true);
     _entryBloc.add(
-      FetchGateEntryEvent(start: _items.length, length: _pageSize),
+      FetchGateEntryEvent(
+          start: _items.length,
+          length: _pageSize,
+          gateEntry: '',
+          vehicleNo: '',
+          toWarehouse: '',
+          orderedBy: ''),
     );
   }
 
   Future<void> _onRefresh() async {
     _items.clear();
+    _visibleItems.clear();
     // _hasMore = true;
     setState(() {});
     _loadInitialPage();
@@ -273,7 +288,22 @@ class _GateEntryState extends State<GateEntry> {
                             onChanged: (v) {
                               final q = v.trim().toLowerCase();
                               setState(() {
-
+                                _items
+                                  ..clear()
+                                  ..addAll(
+                                    _items.where((p) {
+                                      final grnNo =
+                                      (p.gen_no ?? '')
+                                          .toString()
+                                          .toLowerCase();
+                                      final vehicleNo =
+                                      (p.vehicle_no ?? '')
+                                          .toString()
+                                          .toLowerCase();
+                                      return grnNo.contains(q) ||
+                                          vehicleNo.contains(q);
+                                    }),
+                                  );
                               });
                             },
                           ),

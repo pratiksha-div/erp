@@ -101,7 +101,7 @@ class SubmitAddGoodsReceivedNotesEvent extends AddGoodsReceivedNotesEvent {
    group_id,
    sub_group_id,
    unit,
-    grand_total
+   grand_total
   ];
 }
 

@@ -16,14 +16,30 @@ abstract class GateEntryEvent extends Equatable {
 class FetchGateEntryEvent extends GateEntryEvent {
   final int start;
   final int length;
+  final String gateEntry;
+  final String vehicleNo;
+  final String toWarehouse;
+  final String orderedBy;
 
   const FetchGateEntryEvent({
     required this.start,
     required this.length,
+    required this.gateEntry,
+    required this.vehicleNo,
+    required this.toWarehouse,
+    required this.orderedBy
   });
 
   @override
-  List<Object?> get props => [start, length];
+  List<Object?> get props =>
+  [
+    start,
+    length,
+    gateEntry,
+    vehicleNo,
+    toWarehouse,
+    orderedBy
+  ];
 }
 
 
@@ -76,7 +92,11 @@ class GateEntryBloc extends Bloc<GateEntryEvent, GateEntryState> {
     try {
       final raw = await _service.fetchGateEntryRaw(
           start: event.start,
-          length: event.length
+          length: event.length,
+          gateEntry: event.gateEntry,
+          vehicleNo: event.vehicleNo,
+          toWarehouse: event.toWarehouse,
+          orderedBy: event.orderedBy
       );
       final decoded = jsonDecode(raw);
 

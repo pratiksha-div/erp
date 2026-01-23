@@ -8,7 +8,12 @@ import '../models/AddProjectModel.dart';
 class GateEntryService {
 
   Future<String> fetchGateEntryRaw(
-      {required int start, required int length}) async {
+      {required int start, required int length,
+        required String gateEntry,
+        required String vehicleNo,
+        required String toWarehouse,
+        required String orderedBy
+      }) async {
     final url =
         '${AppConfig.BASE_URL}${AppConfig.Get_Gate_Entry_Url}${AppConfig.reload}';
     final token = await AppUtils().getToken();
@@ -23,6 +28,10 @@ class GateEntryService {
       "companyid": "045748e5-57d7-11eb-b9f1-063127f6ced7",
       "start": start,
       "length": length,
+      "gateEntry":gateEntry,
+      "vehicleNo":vehicleNo,
+      "toWarehouse":toWarehouse,
+      "orderedBy":orderedBy
     };
 
     try {
