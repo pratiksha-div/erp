@@ -147,7 +147,7 @@ class _AddProjectState extends State<AddProject> {
       err_project_type = "Please Select Project Type";
       valid = false;
     }
-    if(selectedStatusId==null || selectedStatusId!.isEmpty){
+    if(selectedstatus==null || selectedstatus!.isEmpty){
       err_status="Please select Status";
       valid=false;
     }
@@ -417,8 +417,7 @@ class _AddProjectState extends State<AddProject> {
                                         employee.EmployeeName ?? '',
                                     onChanged: (val) {
                                       setState(() {
-                                        selectedManagerId =
-                                            val.EmployeeId ?? "";
+                                        selectedManagerId = val.EmployeeId ?? "";
                                       });
                                     },
                                   );
@@ -447,6 +446,7 @@ class _AddProjectState extends State<AddProject> {
                                     onChanged: (val) {
                                       setState(() {
                                         selectedProjectTypeId = val.LookupDataId ?? "";
+                                        err_project_type=null;
                                         // print("selectedProjectTypeId $selectedProjectTypeId");
                                       });
                                     },
@@ -475,6 +475,7 @@ class _AddProjectState extends State<AddProject> {
                               displayText: (t) => t,
                               onChanged: (val) {
                                 selectedstatus = val;
+                                err_status=null;
                                 print("selectedstatus $selectedstatus");
                                 setState(() {});
                               },
