@@ -246,70 +246,70 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
       '''
     );
     final grand_total = (_grnData.grand_total ?? '');
-    print(
-      '''
-       grn_date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}
-       gen_no: ${selectedEntryId},
-       bill_no: ${_grnData.bill_no},
-       challan_no: ${_grnData.challan_no},
-       vehcile_no: ${_grnData.vehicle_no},
-       po_no: ${_grnData.selected_po},
-       from_vendor: ${_grnData.from_vendor},
-       company_name: ${_grnData.company_name},
-       to_warehouse: ${_grnData.to_warehouse},
-       to_warehouse_id: ${_grnData.to_warehouse_id}
-       requested_by: ${_grnData.ordered_by},
-       contact: ${_grnData.contact},
-       item_names: ${itemNames},
-       quantities: ${quantities},
-       received_qty: ${receivedQty},
-       short_qty: ${shortQty},
-       excess_qty: ${excessQty},
-       rejected_qty: ${rejectedQty},
-       accepted_qty: ${acceptedQty},
-       po_balance: ${poBalance},
-       amount: ${amount},
-       item_id: ${itemId},
-       group_id: ${groupId},
-       sub_group_id: ${subGroupId},
-       unit: ${units}
-       rate: ${rate},
-       discount: ${discount},
-       grand_total: ${grand_total}
-      '''
-    );
-    // context.read<AddGoodsReceivedNotesBloc>().add(
-    //   SubmitAddGoodsReceivedNotesEvent(
-    //     grn_date: DateFormat('yyyy-MM-dd').format(_selectedDate!),
-    //     gen_no: selectedEntryId??"",
-    //     bill_no: _grnData.bill_no,
-    //     challan_no: _grnData.challan_no,
-    //     vehcile_no: _grnData.vehicle_no,
-    //     po_no: _grnData.selected_po,
-    //     from_vendor: _grnData.from_vendor,
-    //     company_name: _grnData.company_name,
-    //     to_warehouse: _grnData.to_warehouse,
-    //     to_warehouse_id: _grnData.to_warehouse_id,
-    //     requested_by: _grnData.ordered_by,
-    //     contact: _grnData.contact,
-    //     item_names: itemNames,
-    //     quantities: quantities,
-    //     received_qty: receivedQty,
-    //     short_qty: shortQty,
-    //     excess_qty: excessQty,
-    //     rejected_qty: rejectedQty,
-    //     accepted_qty: acceptedQty,
-    //     po_balance: poBalance,
-    //     rate: rate,
-    //     discount: discount,
-    //     amount: amount,
-    //     item_id: itemId,
-    //     group_id: groupId,
-    //     sub_group_id: subGroupId,
-    //     unit: units,
-    //     grand_total: grand_total
-    //   ),
+    // print(
+    //   '''
+    //    grn_date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}
+    //    gen_no: ${selectedEntryId},
+    //    bill_no: ${_grnData.bill_no},
+    //    challan_no: ${_grnData.challan_no},
+    //    vehcile_no: ${_grnData.vehicle_no},
+    //    po_no: ${_grnData.selected_po},
+    //    from_vendor: ${_grnData.from_vendor},
+    //    company_name: ${_grnData.company_name},
+    //    to_warehouse: ${_grnData.to_warehouse},
+    //    to_warehouse_id: ${_grnData.to_warehouse_id}
+    //    requested_by: ${_grnData.ordered_by},
+    //    contact: ${_grnData.contact},
+    //    item_names: ${itemNames},
+    //    quantities: ${quantities},
+    //    received_qty: ${receivedQty},
+    //    short_qty: ${shortQty},
+    //    excess_qty: ${excessQty},
+    //    rejected_qty: ${rejectedQty},
+    //    accepted_qty: ${acceptedQty},
+    //    po_balance: ${poBalance},
+    //    amount: ${amount},
+    //    item_id: ${itemId},
+    //    group_id: ${groupId},
+    //    sub_group_id: ${subGroupId},
+    //    unit: ${units}
+    //    rate: ${rate},
+    //    discount: ${discount},
+    //    grand_total: ${grand_total}
+    //   '''
     // );
+    context.read<AddGoodsReceivedNotesBloc>().add(
+      SubmitAddGoodsReceivedNotesEvent(
+        grn_date: DateFormat('yyyy-MM-dd').format(_selectedDate!),
+        gen_no: selectedEntryId??"",
+        bill_no: _grnData.bill_no,
+        challan_no: _grnData.challan_no,
+        vehcile_no: _grnData.vehicle_no,
+        po_no: _grnData.selected_po,
+        from_vendor: _grnData.from_vendor,
+        company_name: _grnData.company_name,
+        to_warehouse: _grnData.to_warehouse,
+        to_warehouse_id: _grnData.to_warehouse_id,
+        requested_by: _grnData.ordered_by,
+        contact: _grnData.contact,
+        item_names: itemNames,
+        quantities: quantities,
+        received_qty: receivedQty,
+        short_qty: shortQty,
+        excess_qty: excessQty,
+        rejected_qty: rejectedQty,
+        accepted_qty: acceptedQty,
+        po_balance: poBalance,
+        rate: rate,
+        discount: discount,
+        amount: amount,
+        item_id: itemId,
+        group_id: groupId,
+        sub_group_id: subGroupId,
+        unit: units,
+        grand_total: grand_total
+      ),
+    );
   }
 
   void getDate(String inputDate) {

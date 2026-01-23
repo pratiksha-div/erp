@@ -14,12 +14,35 @@ String formatDate(String inputDate) {
     return inputDate; // fallback to original if invalid
   }
 }
+// String formatEntryDate(String inputDate) {
+//       String input = "February, 08 2025 00:00:00 +0530";
+//       DateTime date = DateFormat("MMMM, dd yyyy HH:mm:ss Z").parse(inputDate);
+//       String formatted = DateFormat("d MMM yyyy").format(date);
+//       return formatted;
+// }
+
 String formatEntryDate(String inputDate) {
-      String input = "February, 08 2025 00:00:00 +0530";
-      DateTime date = DateFormat("MMMM, dd yyyy HH:mm:ss Z").parse(inputDate);
-      String formatted = DateFormat("d MMM yyyy").format(date);
-      return formatted;
+  if (inputDate.isEmpty) return "-";
+
+  DateTime date;
+
+  try {
+    // Case 1: "February, 08 2025 00:00:00 +0530"
+    date = DateFormat(
+      "MMMM, dd yyyy HH:mm:ss Z",
+    ).parse(inputDate);
+  } catch (_) {
+    try {
+      // Case 2: ISO / DateTime.toString()
+      date = DateTime.parse(inputDate);
+    } catch (_) {
+      return "-";
+    }
+  }
+
+  return DateFormat("d MMM yyyy").format(date);
 }
+
 
 String formatMachineDate(String inputDate) {
   if (inputDate == null || inputDate.trim().isEmpty) return "--";
