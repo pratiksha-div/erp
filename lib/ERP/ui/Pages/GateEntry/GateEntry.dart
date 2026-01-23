@@ -3,15 +3,20 @@ import 'dart:developer';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_feather_icons/flutter_feather_icons.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
+import '../../../api/models/DAOGetEmployee.dart';
 import '../../../api/models/DAOGetGateEntry.dart';
 import '../../../api/models/DAOGetPurchaseOrderDetail.dart';
+import '../../../api/models/DAOGetWarehouse.dart';
 import '../../../api/models/DAOPurchaseOrderNumber.dart';
 import '../../../api/services/gate_entry_service.dart';
+import '../../../bloc/DropDownValueBloc/emplyee_list_bloc.dart';
 import '../../../bloc/DropDownValueBloc/purchase_order_number_bloc.dart';
+import '../../../bloc/DropDownValueBloc/warehouse_list_bloc.dart';
 import '../../../bloc/GateEntry/add_purchase_detail_bloc.dart';
 import '../../../bloc/GateEntry/delete_gate_entry_bloc.dart';
 import '../../../bloc/GateEntry/gate_entry_bloc.dart';
@@ -47,18 +52,18 @@ class _GateEntryState extends State<GateEntry> {
   String? _errorMessage;
   final List<GateEntryData> _items = [];
   late final GateEntryBloc _entryBloc;
+  TextEditingController searchcontroller=TextEditingController();
 
   @override
   void initState() {
     super.initState();
-    BlocProvider.of<PurchaseOrderNumberBloc>(
-      context,
-    ).add(FetchPurchaseOrderNumbersEvent());
+    BlocProvider.of<WarehouseBloc>(context).add(FetchWarehouseEvent());
+    BlocProvider.of<EmployeeBloc>(context).add(FetchEmployeesEvent());
+    BlocProvider.of<PurchaseOrderNumberBloc>(context).add(FetchPurchaseOrderNumbersEvent());
     _entryBloc = GateEntryBloc(service: GateEntryService());
     _loadInitialPage();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >=
-              _scrollController.position.maxScrollExtent - 200 &&
+      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
           !_isLoadingMore &&
           _hasMore) {
         _loadMoreData();
@@ -90,7 +95,7 @@ class _GateEntryState extends State<GateEntry> {
 
   @override
   void dispose() {
-    _scrollController.dispose();
+    searchcontroller.dispose();
     _entryBloc.close();
     purchaseOrder.dispose();
     super.dispose();
@@ -222,11 +227,126 @@ class _GateEntryState extends State<GateEntry> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          SizedBox(
+            height: 10,
+          ),
+          Row(
+            children: [
+              Expanded(
+                child: InkWell(
+                  splashColor: Colors.transparent,
+                  highlightColor: Colors.transparent,
+                  onTap: () {},
+                  child: Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 15,
+                      vertical: 0,
+                    ),
+                    decoration: ShapeDecoration(
+                      shape: ContinuousRectangleBorder(
+                        side: BorderSide(
+                          color: Colors.grey.withOpacity(.2),
+                        ),
+                        borderRadius: BorderRadius.circular(30),
+                      ),
+                    ),
+                    child: Row(
+                      children: [
+                        Container(
+                          // padding: const EdgeInsets.all(5),
+                          child: Icon(
+                            FeatherIcons.search,
+                            color: ColorConstants.primary,
+                            size: 15,
+                          ),
+                        ),
+                        const SizedBox(width: 10),
+                        Expanded(
+                          child: TextField(
+                            controller: searchcontroller,
+                            cursorColor: ColorConstants.primary,
+                            decoration: const InputDecoration(
+                              hintText: "Search by gate entry no,vehicle no",
+                              hintStyle: TextStyle(fontSize: 13),
+                              border: InputBorder.none,
+                            ),
+                            onChanged: (v) {
+                              final q = v.trim().toLowerCase();
+                              setState(() {
+
+                              });
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+              SizedBox(
+                width: 10,
+              ),
+              InkWell(
+                onTap: () async {
+                  await showModalBottomSheet(
+                    context: context,
+                    isScrollControlled: true,
+                    backgroundColor: Colors.transparent,
+                    barrierColor: Colors.black.withOpacity(0.6),
+                    builder: (sheetContext) {
+                      return DraggableScrollableSheet(
+                        initialChildSize: 0.5,
+                        minChildSize: 0.3,
+                        maxChildSize: 0.5,
+                        expand: false,
+                        builder: (context, scrollController) {
+                          return ClipRRect(
+                            borderRadius: const BorderRadius.vertical(
+                              top: Radius.circular(20),
+                            ),
+                            child: Container(
+                              color: Colors.white,
+                              child: ShowFilter(
+                                scrollController: scrollController,
+                              ),
+                            ),
+                          );
+                        },
+                      );
+                    },
+                  );
+                },
+                child: Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 10,
+                    vertical: 10,
+                  ),
+                  decoration: ShapeDecoration(
+                    shape: ContinuousRectangleBorder(
+                      side: BorderSide(
+                        color: Colors.grey.withOpacity(.2),
+                      ),
+                      borderRadius: BorderRadius.circular(30),
+                    ),
+                    color: ColorConstants.primary,
+                  ),
+                  child: const Icon(
+                    Icons.tune,
+                    size: 18,
+                    color: Colors.white,
+                  ),
+                ),
+              ),
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
           BlocBuilder<PurchaseOrderNumberBloc, PurchaseOrderNumberState>(
             builder: (context, state) {
               if (state is PurchaseOrderNumberLoadSuccess) {
                 final selectedProject = state.purchaseOrderNumbers.firstWhere(
-                  (data) => data.purchase_order_number == selectedPO,
+                      (data) => data.purchase_order_number == selectedPO,
                   orElse:
                       () => PurchaseOrderNumberData(purchase_order_number: ""),
                 );
@@ -274,15 +394,15 @@ class _GateEntryState extends State<GateEntry> {
                                       controller: scrollController,
                                       padding: EdgeInsets.only(
                                         bottom:
-                                            MediaQuery.of(
-                                              context,
-                                            ).viewInsets.bottom +
+                                        MediaQuery.of(
+                                          context,
+                                        ).viewInsets.bottom +
                                             16,
                                       ),
                                       children: [
                                         PurchaseOrderDetail(
                                           purchaseOrderNo:
-                                              val.purchase_order_number ?? "",
+                                          val.purchase_order_number ?? "",
                                           save: true,
                                           id: "",
                                           callback: () {
@@ -978,23 +1098,12 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                   mainAxisSize: MainAxisSize.min,
                   crossAxisAlignment: CrossAxisAlignment.stretch,
                   children: [
-                    const SizedBox(height: 8),
-                    Center(
-                      child: Container(
-                        width: 40,
-                        height: 4,
-                        decoration: BoxDecoration(
-                          color: Colors.grey[300],
-                          borderRadius: BorderRadius.circular(2),
-                        ),
-                      ),
-                    ),
                     const SizedBox(height: 20),
                     Text(
                       "Purchase Order Number Detail",
                       style: GoogleFonts.lalezar(
                         height: 1,
-                        fontSize: 16,
+                        fontSize: 20,
                         color: ColorConstants.primary,
                         fontWeight: FontWeight.bold,
                       ),
@@ -1122,50 +1231,44 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                           const SizedBox(height: 8),
                           Row(
                             children: [
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment:
-                                      CrossAxisAlignment.start,
-                                  children: [
-                                    cText(
-                                      "Vendor",
+                              Column(
+                                children: [
+                                  cText(
+                                    "Vendor",
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    first.vendor_name ?? "-",
+                                    textAlign: TextAlign.start,
+                                    style: GoogleFonts.poppins(
                                       color: Colors.black,
-                                      fontSize: 12,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      first.vendor_name ?? "-",
-                                      textAlign: TextAlign.start,
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.end,
-                                  children: [
-                                    cText(
-                                      "To Warehouse",
+                              Expanded(child: Text("")),
+                              Column(
+                                children: [
+                                  cText(
+                                    "To Warehouse",
+                                    color: Colors.black,
+                                    fontSize: 12,
+                                  ),
+                                  const SizedBox(height: 4),
+                                  Text(
+                                    first.to_warehouse ?? "-",
+                                    textAlign: TextAlign.end,
+                                    style: GoogleFonts.poppins(
                                       color: Colors.black,
-                                      fontSize: 12,
+                                      fontSize: 14,
+                                      fontWeight: FontWeight.bold,
                                     ),
-                                    const SizedBox(height: 4),
-                                    Text(
-                                      first.to_warehouse ?? "-",
-                                      textAlign: TextAlign.end,
-                                      style: GoogleFonts.poppins(
-                                        color: Colors.black,
-                                        fontSize: 14,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ],
-                                ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
@@ -1434,5 +1537,253 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
         },
       ),
     );
+  }
+}
+
+class ShowFilter extends StatefulWidget {
+  final ScrollController scrollController;
+
+  const ShowFilter({
+    super.key,
+    required this.scrollController,
+  });
+
+
+  @override
+  State<ShowFilter> createState() => _ShowFilterState();
+}
+
+class _ShowFilterState extends State<ShowFilter> {
+
+  String? selectedToWarehouseID;
+  String? selectedIssuedToID;
+
+  @override
+  void initState() {
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return
+      // MultiBlocListener(
+      // listeners: [
+      //
+      // ],
+      // child: BlocBuilder<PurchaseOrderDetailBloc, PurchaseOrderDetailState>(
+      //   builder: (context, state) {
+      //     if (state is PurchaseOrderDetailLoading) {
+      //       return Container(
+      //         height: MediaQuery.of(context).size.height * 0.6,
+      //         decoration: BoxDecoration(
+      //           color: Colors.white,
+      //           borderRadius: BorderRadius.vertical(
+      //             top: Radius.circular(24.0),
+      //           ),
+      //         ),
+      //         child: Center(
+      //           child: CircularProgressIndicator(
+      //             backgroundColor: ColorConstants.primary,
+      //           ),
+      //         ),
+      //       );
+      //     }
+      //     if (state is PurchaseOrderDetailLoadSuccess) {
+      //       final List<PurchaseDetail> details =
+      //           state.purchaseOrderDetail ?? [];
+      //       if (details.isEmpty) {
+      //         return Container(
+      //           decoration: BoxDecoration(
+      //             color: Colors.white,
+      //             borderRadius: BorderRadius.vertical(
+      //               top: Radius.circular(24.0),
+      //             ),
+      //           ),
+      //           padding: const EdgeInsets.all(20),
+      //           child: Column(
+      //             mainAxisSize: MainAxisSize.min,
+      //             children: [
+      //               Text(
+      //                 "No items found",
+      //                 style: GoogleFonts.poppins(),
+      //               ),
+      //               const SizedBox(height: 12),
+      //               PrimaryButton(
+      //                 title: "Close",
+      //                 onAction: () {
+      //                   Navigator.pop(context);
+      //                 },
+      //               ),
+      //             ],
+      //           ),
+      //         );
+      //       }
+      //       final PurchaseDetail first = details.first;
+      //       return
+        Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: const BorderRadius.vertical(
+                  top: Radius.circular(24.0),
+                ),
+              ),
+              child: ListView(
+                controller: widget.scrollController,
+                children: [
+                  Expanded(
+                    child: SingleChildScrollView(
+                      padding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      child: Column(
+                        mainAxisSize: MainAxisSize.min,
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          const SizedBox(height: 20),
+                          Text(
+                            "Search Gate Entries",
+                            style: GoogleFonts.lalezar(
+                              height: 1,
+                              fontSize: 20,
+                              color: ColorConstants.primary,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          cText("Filter results using warehouse and ordered by",color: Colors.black54),
+                          const SizedBox(height: 20),
+                          BlocBuilder<WarehouseBloc, WarehouseState>(
+                            builder: (context, state) {
+                              if (state is WarehouseLoadSuccess) {
+                                // find the coordinator whose id matches the selected id
+                                final selectedToWarehouse =
+                                state.warehouses.firstWhere(
+                                      (coordinator) =>
+                                  coordinator.godown_id ==
+                                      selectedToWarehouseID,
+                                  orElse: () => WarehouseData(
+                                      godown_id: "", godown_name: ""),
+                                );
+                                return Column(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    TransferDropdown<WarehouseData>(
+                                      title: 'To Warehouse',
+                                      hint: 'Select warehouse',
+                                      selectedVal: selectedToWarehouse.godown_name ?? "",
+                                      data: state.warehouses,
+                                      displayText: (data) =>
+                                      data.godown_name ?? '',
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedToWarehouseID = val.godown_id ?? "";
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                          BlocBuilder<EmployeeBloc, EmployeeState>(
+                            builder: (context, state) {
+                              if (state is EmployeeLoadSuccess) {
+                                // find the coordinator whose id matches the selected id
+                                final issuedTo =
+                                state.employees.firstWhere(
+                                      (coordinator) =>
+                                  coordinator.EmployeeId ==
+                                      selectedIssuedToID,
+                                  orElse: () => EmployeeData(
+                                      EmployeeName: "", EmployeeId: ""),
+                                );
+                                return Column(
+                                  crossAxisAlignment:
+                                  CrossAxisAlignment.start,
+                                  children: [
+                                    TransferDropdown<EmployeeData>(
+                                      title: 'Ordered by',
+                                      hint: 'Select Person',
+                                      selectedVal:
+                                      issuedTo.EmployeeName ??
+                                          "",
+                                      data: state.employees,
+                                      displayText: (data) =>
+                                      data.EmployeeName ?? '',
+                                      onChanged: (val) {
+                                        setState(() {
+                                          selectedIssuedToID = val.EmployeeId ?? "";
+                                        });
+                                      },
+                                    ),
+                                  ],
+                                );
+                              }
+                              return const SizedBox.shrink();
+                            },
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                  Container(
+                    padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
+                    child: Row(
+                      children: [
+                        Expanded(
+                          child: PrimaryButton(
+                            title: "Search",
+                            onAction: (){},
+                          ),
+                        ),
+                        Material(
+                          color: Colors.transparent,
+                          shape: ContinuousRectangleBorder(
+                            borderRadius: BorderRadius.circular(30),
+                          ),
+                          child: InkWell(
+                            borderRadius: BorderRadius.circular(30),
+                            onTap: () async {
+                              Navigator.pop(context);
+                            },
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 13,
+                                vertical: 13,
+                              ),
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  colors: [
+                                    ColorConstants.primary,
+                                    ColorConstants.primary.withOpacity(.7),
+                                  ],
+                                  begin: Alignment.topLeft,
+                                  end: Alignment.bottomRight,
+                                ),
+                                border: Border.all(color: Colors.grey.withOpacity(.2)),
+                                borderRadius: BorderRadius.circular(5),
+                              ),
+                              child: const Icon(
+                                Icons.close,
+                                size: 18,
+                                color: Colors.white,
+                              ),
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                ],
+              ),
+            );
+    //       }
+    //       // default fallback (shouldn't reach)
+    //       return const SizedBox.shrink();
+    //     },
+    //   ),
+    // );
   }
 }
