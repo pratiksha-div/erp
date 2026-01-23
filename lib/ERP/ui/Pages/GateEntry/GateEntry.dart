@@ -1432,7 +1432,7 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                     ),
                     const SizedBox(height: 20),
                     if (widget.save)
-                      PrimaryButton(
+                    PrimaryButton(
                         title: "Save",
                         onAction: () async {
                           final List<PurchaseDetail> details =
