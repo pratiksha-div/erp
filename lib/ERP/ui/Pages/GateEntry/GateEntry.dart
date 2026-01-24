@@ -54,6 +54,8 @@ class _GateEntryState extends State<GateEntry> {
   late final GateEntryBloc _entryBloc;
   TextEditingController searchcontroller=TextEditingController();
   final List<GateEntryData> _visibleItems = [];
+  String warehouseName="";
+  String orderedbyName="";
 
   @override
   void initState() {
@@ -64,7 +66,10 @@ class _GateEntryState extends State<GateEntry> {
     _entryBloc = GateEntryBloc(service: GateEntryService());
     _loadInitialPage();
     _scrollController.addListener(() {
-      if (_scrollController.position.pixels >= _scrollController.position.maxScrollExtent - 200 &&
+      if (searchcontroller.text.isNotEmpty) return;
+
+      if (_scrollController.position.pixels >=
+          _scrollController.position.maxScrollExtent - 200 &&
           !_isLoadingMore &&
           _hasMore) {
         _loadMoreData();
@@ -77,33 +82,57 @@ class _GateEntryState extends State<GateEntry> {
       _isInitialLoading = true;
       _errorMessage = null;
     });
-    _entryBloc.add(FetchGateEntryEvent(
+
+    _entryBloc.add(
+      FetchGateEntryEvent(
         start: 0,
         length: _pageSize,
-        gateEntry: '',
-        vehicleNo: '',
-        toWarehouse: '',
-        orderedBy: '')
+        gateEntry: searchcontroller.text,
+        vehicleNo: searchcontroller.text,
+        toWarehouse: warehouseName,
+        orderedBy: orderedbyName,
+      ),
     );
   }
 
   void _loadMoreData() {
     setState(() => _isLoadingMore = true);
+
     _entryBloc.add(
       FetchGateEntryEvent(
-          start: _items.length,
-          length: _pageSize,
-          gateEntry: '',
-          vehicleNo: '',
-          toWarehouse: '',
-          orderedBy: ''),
+        start: _items.length,
+        length: _pageSize,
+        gateEntry: '',
+        vehicleNo: '',
+        toWarehouse: '',
+        orderedBy: '',
+      ),
     );
+  }
+
+  void _applySearch() {
+    final q = searchcontroller.text.trim().toLowerCase();
+
+    _visibleItems
+      ..clear()
+      ..addAll(
+        q.isEmpty
+            ? _items
+            : _items.where((p) {
+          final genNo = (p.gen_no ?? '').toLowerCase();
+          final vehicleNo = (p.vehicle_no ?? '').toLowerCase();
+          return genNo.contains(q) || vehicleNo.contains(q);
+        }),
+      );
   }
 
   Future<void> _onRefresh() async {
     _items.clear();
     _visibleItems.clear();
-    // _hasMore = true;
+    searchcontroller.clear();
+    warehouseName="";
+    orderedbyName="";
+    _hasMore = true;
     setState(() {});
     _loadInitialPage();
   }
@@ -111,8 +140,9 @@ class _GateEntryState extends State<GateEntry> {
   @override
   void dispose() {
     searchcontroller.dispose();
-    _entryBloc.close();
     purchaseOrder.dispose();
+    _entryBloc.close();
+    _scrollController.dispose();
     super.dispose();
   }
 
@@ -139,16 +169,11 @@ class _GateEntryState extends State<GateEntry> {
                     listener: (context, state) {
                       if (state is GateEntryLoadSuccess) {
                         final fetched = state.gateEntry;
-
                         setState(() {
-                          if (_items.isEmpty) {
-                            _items.addAll(fetched);
-                          } else {
-                            _items.addAll(fetched);
-                          }
-                          if (fetched.length < _pageSize) {
-                            _hasMore = false;
-                          }
+                          _items.addAll(fetched);
+                          _applySearch();
+
+                          _hasMore = fetched.length == _pageSize;
                           _isInitialLoading = false;
                           _isLoadingMore = false;
                         });
@@ -218,8 +243,8 @@ class _GateEntryState extends State<GateEntry> {
             ),
           ),
 
-        ..._items.map((item) => _buildItemCard(item)).toList(),
-
+        // ..._items.map((item) => _buildItemCard(item)).toList(),
+        ..._visibleItems.map((item) => _buildItemCard(item)).toList(),
         if (_isLoadingMore)
           const Padding(
             padding: EdgeInsets.all(20),
@@ -267,13 +292,10 @@ class _GateEntryState extends State<GateEntry> {
                     ),
                     child: Row(
                       children: [
-                        Container(
-                          // padding: const EdgeInsets.all(5),
-                          child: Icon(
-                            FeatherIcons.search,
-                            color: ColorConstants.primary,
-                            size: 15,
-                          ),
+                        Icon(
+                          FeatherIcons.search,
+                          color: ColorConstants.primary,
+                          size: 15,
                         ),
                         const SizedBox(width: 10),
                         Expanded(
@@ -288,22 +310,21 @@ class _GateEntryState extends State<GateEntry> {
                             onChanged: (v) {
                               final q = v.trim().toLowerCase();
                               setState(() {
-                                _items
-                                  ..clear()
-                                  ..addAll(
-                                    _items.where((p) {
-                                      final grnNo =
-                                      (p.gen_no ?? '')
-                                          .toString()
-                                          .toLowerCase();
-                                      final vehicleNo =
-                                      (p.vehicle_no ?? '')
-                                          .toString()
-                                          .toLowerCase();
-                                      return grnNo.contains(q) ||
-                                          vehicleNo.contains(q);
-                                    }),
-                                  );
+                                if (q.isEmpty) {
+                                  _visibleItems
+                                    ..clear()
+                                    ..addAll(_items);
+                                } else {
+                                  _visibleItems
+                                    ..clear()
+                                    ..addAll(
+                                      _items.where((p) {
+                                        final genNo = (p.gen_no ?? '').toLowerCase();
+                                        final vehicleNo = (p.vehicle_no ?? '').toLowerCase();
+                                        return genNo.contains(q) || vehicleNo.contains(q);
+                                      }),
+                                    );
+                                }
                               });
                             },
                           ),
@@ -338,6 +359,16 @@ class _GateEntryState extends State<GateEntry> {
                               color: Colors.white,
                               child: ShowFilter(
                                 scrollController: scrollController,
+                                callback: (String? warehouse,String? ordredby){
+                                  setState(() {
+                                    warehouseName=warehouse??"";
+                                    orderedbyName=ordredby??"";
+                                    _items.clear();        // ✅ VERY IMPORTANT
+                                    _visibleItems.clear(); // ✅ VERY IMPORTANT
+                                    _hasMore = true;
+                                  });
+                                  _loadInitialPage();
+                                },
                               ),
                             ),
                           );
@@ -1572,10 +1603,12 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
 
 class ShowFilter extends StatefulWidget {
   final ScrollController scrollController;
+  final void Function(String? warehouse, String? orderedBy) callback;
 
   const ShowFilter({
     super.key,
     required this.scrollController,
+    required this.callback
   });
 
 
@@ -1586,7 +1619,9 @@ class ShowFilter extends StatefulWidget {
 class _ShowFilterState extends State<ShowFilter> {
 
   String? selectedToWarehouseID;
-  String? selectedIssuedToID;
+  String? selectedWarehouse;
+  String? selectedOrderedByID;
+  String? selectedOrderedBy;
 
   @override
   void initState() {
@@ -1657,155 +1692,159 @@ class _ShowFilterState extends State<ShowFilter> {
                   top: Radius.circular(24.0),
                 ),
               ),
-              child: ListView(
-                controller: widget.scrollController,
+              child: Column(
                 children: [
-                  Expanded(
-                    child: SingleChildScrollView(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      child: Column(
-                        mainAxisSize: MainAxisSize.min,
-                        crossAxisAlignment: CrossAxisAlignment.stretch,
-                        children: [
-                          const SizedBox(height: 20),
-                          Text(
-                            "Search Gate Entries",
-                            style: GoogleFonts.lalezar(
-                              height: 1,
-                              fontSize: 20,
-                              color: ColorConstants.primary,
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
-                          cText("Filter results using warehouse and ordered by",color: Colors.black54),
-                          const SizedBox(height: 20),
-                          BlocBuilder<WarehouseBloc, WarehouseState>(
-                            builder: (context, state) {
-                              if (state is WarehouseLoadSuccess) {
-                                // find the coordinator whose id matches the selected id
-                                final selectedToWarehouse =
-                                state.warehouses.firstWhere(
-                                      (coordinator) =>
-                                  coordinator.godown_id ==
-                                      selectedToWarehouseID,
-                                  orElse: () => WarehouseData(
-                                      godown_id: "", godown_name: ""),
-                                );
-                                return Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    TransferDropdown<WarehouseData>(
-                                      title: 'To Warehouse',
-                                      hint: 'Select warehouse',
-                                      selectedVal: selectedToWarehouse.godown_name ?? "",
-                                      data: state.warehouses,
-                                      displayText: (data) =>
-                                      data.godown_name ?? '',
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedToWarehouseID = val.godown_id ?? "";
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                          BlocBuilder<EmployeeBloc, EmployeeState>(
-                            builder: (context, state) {
-                              if (state is EmployeeLoadSuccess) {
-                                // find the coordinator whose id matches the selected id
-                                final issuedTo =
-                                state.employees.firstWhere(
-                                      (coordinator) =>
-                                  coordinator.EmployeeId ==
-                                      selectedIssuedToID,
-                                  orElse: () => EmployeeData(
-                                      EmployeeName: "", EmployeeId: ""),
-                                );
-                                return Column(
-                                  crossAxisAlignment:
-                                  CrossAxisAlignment.start,
-                                  children: [
-                                    TransferDropdown<EmployeeData>(
-                                      title: 'Ordered by',
-                                      hint: 'Select Person',
-                                      selectedVal:
-                                      issuedTo.EmployeeName ??
-                                          "",
-                                      data: state.employees,
-                                      displayText: (data) =>
-                                      data.EmployeeName ?? '',
-                                      onChanged: (val) {
-                                        setState(() {
-                                          selectedIssuedToID = val.EmployeeId ?? "";
-                                        });
-                                      },
-                                    ),
-                                  ],
-                                );
-                              }
-                              return const SizedBox.shrink();
-                            },
-                          ),
-                        ],
-                      ),
+                  SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 20,
+                      vertical: 5,
                     ),
-                  ),
-                  Container(
-                    padding: const EdgeInsets.fromLTRB(20, 40, 20, 20),
-                    child: Row(
+                    child: Column(
+                      mainAxisSize: MainAxisSize.min,
+                      crossAxisAlignment: CrossAxisAlignment.stretch,
                       children: [
-                        Expanded(
-                          child: PrimaryButton(
-                            title: "Search",
-                            onAction: (){},
+                        const SizedBox(height: 20),
+                        Text(
+                          "Search Gate Entries",
+                          style: GoogleFonts.lalezar(
+                            height: 1,
+                            fontSize: 20,
+                            color: ColorConstants.primary,
+                            fontWeight: FontWeight.bold,
                           ),
                         ),
-                        Material(
-                          color: Colors.transparent,
-                          shape: ContinuousRectangleBorder(
-                            borderRadius: BorderRadius.circular(30),
-                          ),
-                          child: InkWell(
-                            borderRadius: BorderRadius.circular(30),
-                            onTap: () async {
-                              Navigator.pop(context);
-                            },
-                            child: Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 13,
-                                vertical: 13,
-                              ),
-                              decoration: BoxDecoration(
-                                gradient: LinearGradient(
-                                  colors: [
-                                    ColorConstants.primary,
-                                    ColorConstants.primary.withOpacity(.7),
-                                  ],
-                                  begin: Alignment.topLeft,
-                                  end: Alignment.bottomRight,
+                        cText("Filter results using warehouse and ordered by",color: Colors.black54),
+                        const SizedBox(height: 20),
+                        BlocBuilder<WarehouseBloc, WarehouseState>(
+                          builder: (context, state) {
+                            if (state is WarehouseLoadSuccess) {
+                              // find the coordinator whose id matches the selected id
+                              final selectedToWarehouse =
+                              state.warehouses.firstWhere(
+                                    (coordinator) =>
+                                coordinator.godown_id ==
+                                    selectedToWarehouseID,
+                                orElse: () => WarehouseData(
+                                    godown_id: "", godown_name: ""),
+                              );
+                              return Column(
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  TransferDropdown<WarehouseData>(
+                                    title: 'To Warehouse',
+                                    hint: 'Select warehouse',
+                                    selectedVal: selectedToWarehouse.godown_name ?? "",
+                                    data: state.warehouses,
+                                    displayText: (data) =>
+                                    data.godown_name ?? '',
+                                    onChanged: (val) {
+                                      setState(() {
+                                        selectedToWarehouseID = val.godown_id ?? "";
+                                        selectedWarehouse = val.godown_name?? "";
+                                        print("selectedWarehouse ${selectedWarehouse}");
+                                      });
+                                    },
+                                  ),
+                                ],
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                        BlocBuilder<EmployeeBloc, EmployeeState>(
+                          builder: (context, state) {
+                            if (state is EmployeeLoadSuccess) {
+                              // find the coordinator whose id matches the selected id
+                              final issuedTo =
+                              state.employees.firstWhere(
+                                    (coordinator) =>
+                                coordinator.EmployeeId ==
+                                    selectedOrderedByID,
+                                orElse: () => EmployeeData(
+                                    EmployeeName: "", EmployeeId: ""),
+                              );
+                              return Column(
+                                crossAxisAlignment:
+                                CrossAxisAlignment.start,
+                                children: [
+                                  TransferDropdown<EmployeeData>(
+                                    title: 'Ordered by',
+                                    hint: 'Select Person',
+                                    selectedVal:
+                                    issuedTo.EmployeeName ??
+                                        "",
+                                    data: state.employees,
+                                    displayText: (data) =>
+                                    data.EmployeeName ?? '',
+                                    onChanged: (val) {
+                                      setState(() {
+                                        selectedOrderedByID = val.EmployeeId ?? "";
+                                        selectedOrderedBy = val.EmployeeName??"";
+                                        print("selectedOrderedBy ${selectedOrderedBy}");
+                                      });
+                                    },
+                                  ),
+                                ],
+                              );
+                            }
+                            return const SizedBox.shrink();
+                          },
+                        ),
+                        Container(
+                          padding: const EdgeInsets.only(top: 40),
+                          child: Row(
+                            children: [
+                              Expanded(
+                                child: PrimaryButton(
+                                  title: "Search",
+                                  onAction: (){
+                                    widget.callback(selectedWarehouse,selectedOrderedBy);
+                                    Navigator.pop(context);
+                                  },
                                 ),
-                                border: Border.all(color: Colors.grey.withOpacity(.2)),
-                                borderRadius: BorderRadius.circular(5),
                               ),
-                              child: const Icon(
-                                Icons.close,
-                                size: 18,
-                                color: Colors.white,
+                              Material(
+                                color: Colors.transparent,
+                                shape: ContinuousRectangleBorder(
+                                  borderRadius: BorderRadius.circular(30),
+                                ),
+                                child: InkWell(
+                                  borderRadius: BorderRadius.circular(30),
+                                  onTap: () async {
+                                    Navigator.pop(context);
+                                  },
+                                  child: Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 13,
+                                      vertical: 13,
+                                    ),
+                                    decoration: BoxDecoration(
+                                      gradient: LinearGradient(
+                                        colors: [
+                                          ColorConstants.primary,
+                                          ColorConstants.primary.withOpacity(.7),
+                                        ],
+                                        begin: Alignment.topLeft,
+                                        end: Alignment.bottomRight,
+                                      ),
+                                      border: Border.all(color: Colors.grey.withOpacity(.2)),
+                                      borderRadius: BorderRadius.circular(5),
+                                    ),
+                                    child: const Icon(
+                                      Icons.close,
+                                      size: 18,
+                                      color: Colors.white,
+                                    ),
+                                  ),
+                                ),
                               ),
-                            ),
+                            ],
                           ),
                         ),
+                        const SizedBox(height: 12)
                       ],
                     ),
                   ),
-                  const SizedBox(height: 12),
                 ],
               ),
             );
