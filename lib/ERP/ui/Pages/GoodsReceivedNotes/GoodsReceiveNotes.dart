@@ -105,7 +105,6 @@ class _GoodsReceivedNotesPageState extends State<GoodsReceivedNotesPage> {
     );
   }
 
-
   Future<void> _onRefresh() async {
     dateFrom = "";
     dateTo = "";
@@ -137,7 +136,6 @@ class _GoodsReceivedNotesPageState extends State<GoodsReceivedNotesPage> {
       ),
     );
   }
-
 
   Future<void> _loadPage({required int start}) async {
     if ((start == 0 && _isInitialLoading) || (start > 0 && _isLoadingMore))

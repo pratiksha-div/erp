@@ -209,24 +209,32 @@ class _GateEntryState extends State<GateEntry> {
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
         _buildHeader(),
-        SizedBox(height: 10),
+        const SizedBox(height: 10),
+
+        // 🔄 Initial loading
         if (_isInitialLoading) const SizedBox(height: 200),
         if (_isInitialLoading)
           const Center(
-            child: CircularProgressIndicator(color: ColorConstants.primary),
+            child: CircularProgressIndicator(
+              color: ColorConstants.primary,
+            ),
           ),
+
+        // ❌ Error state
         if (_errorMessage != null && _items.isEmpty)
           Center(
             child: Column(
               children: [
                 Text("Error: $_errorMessage"),
+                const SizedBox(height: 10),
                 InkWell(
-                  onTap: () {
-                    _loadInitialPage();
-                  },
+                  onTap: _loadInitialPage,
                   child: Container(
                     width: 40.w,
-                    padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 10,
+                    ),
                     decoration: BoxDecoration(
                       border: Border.all(
                         width: 1,
@@ -235,7 +243,10 @@ class _GateEntryState extends State<GateEntry> {
                       borderRadius: BorderRadius.circular(10),
                     ),
                     child: Center(
-                      child: cText("Retry", color: ColorConstants.primary),
+                      child: cText(
+                        "Retry",
+                        color: ColorConstants.primary,
+                      ),
                     ),
                   ),
                 ),
@@ -243,13 +254,43 @@ class _GateEntryState extends State<GateEntry> {
             ),
           ),
 
-        // ..._items.map((item) => _buildItemCard(item)).toList(),
+        // 📭 No data found (AFTER search / filter)
+        if (!_isInitialLoading &&
+            _errorMessage == null &&
+            _visibleItems.isEmpty)
+          Container(
+            padding: const EdgeInsets.only(top: 80),
+            child: Column(
+              children: [
+                Icon(
+                  Icons.search_off,
+                  size: 50,
+                  color: ColorConstants.primary,
+                ),
+                const SizedBox(height: 12),
+                cText(
+                  searchcontroller.text.isNotEmpty ||
+                      warehouseName.isNotEmpty ||
+                      orderedbyName.isNotEmpty
+                      ? "No records found for your search"
+                      : "No records available",
+                  color: ColorConstants.primary,
+                ),
+              ],
+            ),
+          ),
+
+        // 📋 List data
         ..._visibleItems.map((item) => _buildItemCard(item)).toList(),
+
+        // ⏬ Pagination loader
         if (_isLoadingMore)
           const Padding(
             padding: EdgeInsets.all(20),
             child: Center(
-              child: CircularProgressIndicator(color: ColorConstants.primary),
+              child: CircularProgressIndicator(
+                color: ColorConstants.primary,
+              ),
             ),
           ),
       ],

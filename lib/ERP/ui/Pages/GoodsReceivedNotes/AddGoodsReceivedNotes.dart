@@ -25,6 +25,7 @@ enum EditSource { received, rejected, accepted }
 class GRNItem {
   final String name;
   final String unit;
+  final String rate;
   final int orderedQty;
   final TextEditingController receivedQty = TextEditingController();
   final TextEditingController rejectedQty = TextEditingController();
@@ -38,6 +39,7 @@ class GRNItem {
   GRNItem({
     required this.name,
     required this.unit,
+    required this.rate,
     required this.orderedQty,
   });
 
@@ -127,11 +129,13 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
     final names = (data.item_name ?? '').split(',');
     final quantities = (data.quantity ?? '').split(',');
     final units = (data.unit ?? '').split(',');
+    final rates = (data.rate ?? '').split(',');
 
     final length = [
       names.length,
       quantities.length,
-      units.length
+      units.length,
+      rates.length
     ].reduce((a, b) => a < b ? a : b);
 
     return List.generate(length, (i) {
@@ -139,6 +143,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
         name: names[i].trim(),
         orderedQty: int.tryParse(quantities[i].trim()) ?? 0,
         unit: units[i].trim(),
+        rate: rates[i]
       );
       initItem(item);
 
@@ -239,45 +244,46 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
     final groupId = (_grnData.group_id ?? '');
     final subGroupId = (_grnData.sub_group_id ?? '');
     final discount = grnItems.map((e) => '0').join(',');
-    final rate = grnItems.map((e) => '0').join(',');
+    final rate = grnItems.map((e) => e.rate).join(',');
     print(
       '''
       Grand total ${_grnData.grand_total} 
+      rate ${rate} 
       '''
     );
     final grand_total = (_grnData.grand_total ?? '');
-    // print(
-    //   '''
-    //    grn_date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}
-    //    gen_no: ${selectedEntryId},
-    //    bill_no: ${_grnData.bill_no},
-    //    challan_no: ${_grnData.challan_no},
-    //    vehcile_no: ${_grnData.vehicle_no},
-    //    po_no: ${_grnData.selected_po},
-    //    from_vendor: ${_grnData.from_vendor},
-    //    company_name: ${_grnData.company_name},
-    //    to_warehouse: ${_grnData.to_warehouse},
-    //    to_warehouse_id: ${_grnData.to_warehouse_id}
-    //    requested_by: ${_grnData.ordered_by},
-    //    contact: ${_grnData.contact},
-    //    item_names: ${itemNames},
-    //    quantities: ${quantities},
-    //    received_qty: ${receivedQty},
-    //    short_qty: ${shortQty},
-    //    excess_qty: ${excessQty},
-    //    rejected_qty: ${rejectedQty},
-    //    accepted_qty: ${acceptedQty},
-    //    po_balance: ${poBalance},
-    //    amount: ${amount},
-    //    item_id: ${itemId},
-    //    group_id: ${groupId},
-    //    sub_group_id: ${subGroupId},
-    //    unit: ${units}
-    //    rate: ${rate},
-    //    discount: ${discount},
-    //    grand_total: ${grand_total}
-    //   '''
-    // );
+    print(
+      '''
+       grn_date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}
+       gen_no: ${selectedEntryId},
+       bill_no: ${_grnData.bill_no},
+       challan_no: ${_grnData.challan_no},
+       vehcile_no: ${_grnData.vehicle_no},
+       po_no: ${_grnData.selected_po},
+       from_vendor: ${_grnData.from_vendor},
+       company_name: ${_grnData.company_name},
+       to_warehouse: ${_grnData.to_warehouse},
+       to_warehouse_id: ${_grnData.to_warehouse_id}
+       requested_by: ${_grnData.ordered_by},
+       contact: ${_grnData.contact},
+       item_names: ${itemNames},
+       quantities: ${quantities},
+       received_qty: ${receivedQty},
+       short_qty: ${shortQty},
+       excess_qty: ${excessQty},
+       rejected_qty: ${rejectedQty},
+       accepted_qty: ${acceptedQty},
+       po_balance: ${poBalance},
+       amount: ${amount},
+       item_id: ${itemId},
+       group_id: ${groupId},
+       sub_group_id: ${subGroupId},
+       unit: ${units}
+       rate: ${rate},
+       discount: ${discount},
+       grand_total: ${grand_total}
+      '''
+    );
     context.read<AddGoodsReceivedNotesBloc>().add(
       SubmitAddGoodsReceivedNotesEvent(
         grn_date: DateFormat('yyyy-MM-dd').format(_selectedDate!),
@@ -441,6 +447,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                       name: itemNames[i].trim(),
                       orderedQty: int.tryParse(quantities[i]) ?? 0,
                       unit: '',
+                      rate: itemNames[i].trim()
                     );
 
                     initItem(item);
