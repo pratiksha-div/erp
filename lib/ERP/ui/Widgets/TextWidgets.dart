@@ -218,12 +218,12 @@ Widget txtSuggestionList(
   );
 }
 
-Widget errorText(String? text) {
+Widget errorText(String? text,{double leftPadding=15.0}) {
   return Container(
-    padding: const EdgeInsets.only(left: 15),
+    padding:EdgeInsets.only(left: leftPadding),
     child: Text(
       text ?? "",
-      style: TextStyle(color: ColorConstants.redColor, fontSize: 13),
+      style: TextStyle(height:1,color: ColorConstants.redColor, fontSize: 13),
     ),
   );
 }

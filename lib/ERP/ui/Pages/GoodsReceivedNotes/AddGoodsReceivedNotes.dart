@@ -97,6 +97,10 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
   GENData _grnData = GENData();
   List<GRNItem> grnItems = [];
   bool isEditMode =false;
+  String? errDate;
+  String? errEntryNumber;
+  Map<int, String> grnItemErrors = {};
+
 
 
   @override
@@ -160,7 +164,10 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
       lastDate: DateTime(DateTime.now().year + 5),
     );
     if (date != null) {
-      setState(() => _selectedDate = date);
+     setState(() {
+       _selectedDate = date;
+       errDate=null;
+     });
     }
   }
 
@@ -207,29 +214,90 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
     return null;
   }
 
+  bool validateForm() {
+    bool valid = true;
+
+    errDate = null;
+    errEntryNumber = null;
+    grnItemErrors.clear();
+
+    if (_selectedDate == null) {
+      errDate = "Please Select Date*";
+      valid = false;
+    }
+
+    if (selectedEntryId == null) {
+      errEntryNumber = "Please Select Gate Entry Number*";
+      valid = false;
+    }
+
+    for (int i = 0; i < grnItems.length; i++) {
+      final item = grnItems[i];
+
+      final received = double.tryParse(item.receivedQty.text.trim());
+      final rejected = double.tryParse(item.rejectedQty.text.trim());
+      final accepted = double.tryParse(item.acceptedQty.text.trim());
+
+      if (received == null || received <= 0) {
+        grnItemErrors[i] = "Please enter valid Received Qty for ${item.name}*";
+        valid = false;
+        continue;
+      }
+
+      if (rejected == null || rejected < 0) {
+        grnItemErrors[i] = "Please enter valid Rejected Qty for ${item.name}*";
+        valid = false;
+        continue;
+      }
+
+      if (accepted == null || accepted < 0) {
+        grnItemErrors[i] = "Please enter valid Accepted Qty for ${item.name}*";
+        valid = false;
+        continue;
+      }
+
+      if (rejected > received) {
+        grnItemErrors[i] = "Rejected Qty cannot be greater than Received Qty for ${item.name}";
+        valid = false;
+        continue;
+      }
+
+      if ((accepted + rejected) != received) {
+        grnItemErrors[i] = "Accepted + Rejected must equal Received Qty for ${item.name}";
+        valid = false;
+      }
+    }
+
+    setState(() {});
+    return valid;
+  }
   void _onSavePressed() {
-    setState(() { _isSubmitting = true; });
-    final validationError = _validateForm();
-    if (validationError != null) {
-      showDialog(
-        context: context,
-        builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.transparent,
-          child: UploadErrorCard(
-            title: 'Failed',
-            subtitle: validationError,
-            onRetry: () {
-              Navigator.pop(context);
-              setState(() { _isSubmitting = false; });
-            },
-          ),
-        ),
-      );
+    // setState(() { _isSubmitting = true; });
+    if (!validateForm()) {
+      showErrorDialog(context, "Failed", "Please fill required fields");
       return;
     }
+    // final validationError = _validateForm();
+    // if (validationError != null) {
+    //   showDialog(
+    //     context: context,
+    //     builder: (context) => Dialog(
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(20),
+    //       ),
+    //       backgroundColor: Colors.transparent,
+    //       child: UploadErrorCard(
+    //         title: 'Failed',
+    //         subtitle: validationError,
+    //         onRetry: () {
+    //           Navigator.pop(context);
+    //           setState(() { _isSubmitting = false; });
+    //         },
+    //       ),
+    //     ),
+    //   );
+    //   return;
+    // }
     final itemNames = grnItems.map((e) => e.name).join(',');
     final quantities = grnItems.map((e) => e.orderedQty.toString()).join(',');
     final receivedQty = grnItems.map((e) => e.receivedQty.text).join(',');
@@ -473,7 +541,6 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
               }
             },
           ),
-
         ],
         child: BlocBuilder<AddGoodsReceivedNotesBloc, AddGoodsReceivedNotesState>(
           builder: (context, state) {
@@ -491,8 +558,8 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            const SizedBox(height: 30),
-                            Row(
+                          const SizedBox(height: 30),
+                          Row(
                               children: [
                                 CustomDateTimeTextField(
                                   onTap: _pickDate,
@@ -504,7 +571,8 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                                 ),
                               ],
                             ),
-                            /// GE Dropdown
+                          if (errDate != null)errorText(errDate),
+                          const SizedBox(height: 10),
                           BlocBuilder<GateEntryNumberBloc, GateEntryNumberState>(
                             builder: (context, state) {
                               if (state is GateEntryNumberLoadSuccess) {
@@ -543,6 +611,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                                             setState(() {
                                               selectedEntryId = val.gen_id;
                                               selectedEntryNumber = val.gen_no;
+                                              errEntryNumber=null;
                                               grnItems.clear();
                                             });
                                             print("selectedEntryId ${selectedEntryId}");
@@ -565,12 +634,12 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                               return const SizedBox.shrink();
                             },
                           ),
-
+                          if (errEntryNumber != null)errorText(errEntryNumber),
                           const SizedBox(height: 15),
-                            subTitle(
+                          subTitle(
                                 "Mention Bill, Challan, Vehicle, PO, Vendor detail"),
-                            const SizedBox(height: 10),
-                            Row(
+                          const SizedBox(height: 10),
+                          Row(
                               children: [
                                 Expanded(
                                   child: card(
@@ -590,7 +659,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                               ],
                             ),
 
-                            Row(
+                          Row(
                               children: [
                                 Expanded(
                                   child: card(
@@ -610,7 +679,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                               ],
                             ),
 
-                            Row(
+                          Row(
                               children: [
                                 Expanded(
                                   child: card(
@@ -630,34 +699,34 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                               ],
                             ),
 
-                            card(
+                          card(
                               "Ordered by",
                               _grnData.ordered_by ?? "--",
                               Icons.bookmark_added,
-                            ),
+                          ),
 
-                            const SizedBox(height: 20),
+                          const SizedBox(height: 20),
 
                             /// ITEM CARDS
-                            ListView.builder(
+                          ListView.builder(
                               shrinkWrap: true,
                               physics: const NeverScrollableScrollPhysics(),
                               itemCount: grnItems.length,
                               itemBuilder: (context, index) {
                                 final item = grnItems[index];
-                                return buildItemCard(item);
+                                return buildItemCard(item,index);
                               },
-                            ),
+                          ),
 
-                            const SizedBox(height: 40),
-                            if(widget.grn_id.isEmpty)
-                            PrimaryButton(
+                          const SizedBox(height: 40),
+                          if(widget.grn_id.isEmpty)
+                          PrimaryButton(
                               title:
                               _isSubmitting ? "Saving..." : "Save",
                               onAction:
                               _isSubmitting ? () {} : _onSavePressed,
-                            ),
-                            const SizedBox(height: 30),
+                           ),
+                           const SizedBox(height: 30),
                           ],
                         ),
                       ),
@@ -672,7 +741,18 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
     );
   }
 
-  Widget buildItemCard(GRNItem item) {
+  Widget buildItemCard(GRNItem item, int index) {
+    var receivedQtyEmpty = item.receivedQty.text.trim().isEmpty;
+    final rejectedQtyEmpty = item.rejectedQty.text.trim().isEmpty;
+
+    String? errorMessage;
+    if (receivedQtyEmpty) {
+      errorMessage = "Received Qty is required*";
+    } else if (rejectedQtyEmpty) {
+      errorMessage = "Rejected Qty is required*";
+    }
+
+    final hasError = errorMessage != null;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 20),
@@ -688,8 +768,8 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
           Container(
             width: 90.w,
             padding: const EdgeInsets.all(10),
-            decoration: BoxDecoration(
-              gradient: const LinearGradient(
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
                 colors: [
                   ColorConstants.primary,
                   ColorConstants.primary,
@@ -699,7 +779,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
               ),
             ),
             child: Text(
-              "${item.name}",
+              item.name ?? "",
               style: const TextStyle(
                 color: Colors.white,
                 fontWeight: FontWeight.bold,
@@ -713,31 +793,87 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
               children: [
                 row(
                   readOnlyField(
-                      item.orderedQty.toString(), "Ordered Qty"),
-                  inputField(item.receivedQty, "Received Qty",enabled: !isEditMode),
+                    item.orderedQty.toString(),
+                    "Ordered Qty",
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      inputField(
+                        item.receivedQty,
+                        "Received Qty",
+                        enabled: !isEditMode,
+                        bottomMargin: 2,
+                        onChange: (){
+                          receivedQtyEmpty=false;
+                          setState(() {});
+                        }
+                      ),
+
+                      /// ❌ ERROR BELOW RECEIVED QTY
+                      if (hasError && receivedQtyEmpty)
+                        errorText(errorMessage!, leftPadding: 0),
+
+                      const SizedBox(height: 10),
+                    ],
+                  ),
                 ),
+
                 row(
-                  readOnlyField(item.shortQty.text, "Short Qty",
-                      controller: item.shortQty),
-                  readOnlyField(item.excessQty.text, "Excess Qty",
-                      controller: item.excessQty),
+                  readOnlyField(
+                    item.shortQty.text,
+                    "Short Qty",
+                    controller: item.shortQty,
+                  ),
+                  readOnlyField(
+                    item.excessQty.text,
+                    "Excess Qty",
+                    controller: item.excessQty,
+                  ),
                 ),
+
                 row(
-                  inputField(item.rejectedQty, "Rejected Qty",enabled: !isEditMode),
-                  inputField(item.acceptedQty, "Accepted Qty",enabled: !isEditMode), // ✅ editable
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      inputField(
+                        item.rejectedQty,
+                        "Rejected Qty",
+                        enabled: !isEditMode,
+                        bottomMargin: 2,
+                      ),
+
+                      /// ❌ ERROR BELOW REJECTED QTY
+                      if (hasError && !receivedQtyEmpty && rejectedQtyEmpty)
+                        errorText(errorMessage!, leftPadding: 0),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                  inputField(
+                    item.acceptedQty,
+                    "Accepted Qty",
+                    enabled: !isEditMode,
+                  ),
                 ),
-                readOnlyField(item.poBalanceQty.text, "PO Balance",
-                    controller: item.poBalanceQty),
+
+                readOnlyField(
+                  item.poBalanceQty.text,
+                  "PO Balance",
+                  controller: item.poBalanceQty,
+                ),
               ],
             ),
           ),
+
         ],
       ),
     );
   }
 
-  Widget inputField(TextEditingController controller, String title,{bool enabled = true}) {
-    return txt(controller, title, enabled: enabled);
+
+  Widget inputField(TextEditingController controller,
+      String title,{bool enabled = true,double bottomMargin=15.0,final onChange}) {
+    return txt(controller, title, enabled: enabled,bottomMargin: bottomMargin,onChanged: onChange);
   }
 
   Widget readOnlyField(String value, String title,
@@ -779,9 +915,9 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
   }
 
   Widget txt(dynamic controller, String title,
-      {bool enabled = true}) {
+      {bool enabled = true,double bottomMargin=15.0,final onChanged}) {
     return Container(
-      margin: const EdgeInsets.only(bottom: 15),
+      margin:  EdgeInsets.only(bottom: bottomMargin),
       // height: 30,
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -798,12 +934,14 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
               border: Border.all(
                 color: Colors.grey.withOpacity(.6)
               )
-
             ),
             child: TextField(
               controller: controller is String ? TextEditingController(text: controller) : controller,
               enabled: enabled,
               keyboardType: TextInputType.number,
+              onChanged: (val){
+                onChanged();
+              },
               decoration: const InputDecoration(
                 border: InputBorder.none,
                 enabledBorder: InputBorder.none,
@@ -811,8 +949,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                 disabledBorder: InputBorder.none,
                 errorBorder: InputBorder.none,
                 focusedErrorBorder: InputBorder.none,
-                isDense: true,
-                contentPadding: EdgeInsets.zero,
+                isDense: true, contentPadding: EdgeInsets.zero,
               ),
             ),
           ),

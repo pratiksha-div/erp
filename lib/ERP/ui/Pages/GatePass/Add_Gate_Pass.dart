@@ -512,7 +512,7 @@ class _AddGatePassState extends State<AddGatePass> {
   }
 
   void _onSavePressed() {
-    final validationError = _validateForm();
+    // final validationError = _validateForm();
     if (!_validateForm()) {
       showErrorDialog(context, "Failed", "Please fill required fields");
       return;
@@ -521,8 +521,6 @@ class _AddGatePassState extends State<AddGatePass> {
     //   showErrorDialog(context, 'Failed', validationError);
     //   return;
     // }
-
-
     final bool hasDateTime = _selectedDate != null && _selectedTime != null;
     if (!hasDateTime) {
       showDialog(
@@ -1022,6 +1020,9 @@ class _AddGatePassState extends State<AddGatePass> {
                                 ),
                               ],
                               if (selectedTransfer == "Project Type") ...[
+                                SizedBox(
+                                  height: 10,
+                                ),
                                 BlocBuilder<ProjectListBloc, ProjectListState>(
                                   builder: (context, state) {
                                     if (state is ProjectListLoadSuccess) {
@@ -1039,8 +1040,7 @@ class _AddGatePassState extends State<AddGatePass> {
                                             CrossAxisAlignment.start,
                                         children: [
                                           subTitle("Mention To Project",
-                                              leftMargin: 10.0),
-                                          const SizedBox(height: 10),
+                                              leftMargin: 10.0,bottomMargin: 5),
                                           TransferDropdown<ProjectListData>(
                                             title: 'To Project List',
                                             hint: 'Select Project',

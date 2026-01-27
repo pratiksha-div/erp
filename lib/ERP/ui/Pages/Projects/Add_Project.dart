@@ -77,6 +77,7 @@ class _AddProjectState extends State<AddProject> {
     if (picked != null) {
       setState(() {
         _selectedStartDate = picked;
+        err_start_date=null;
 
         if (_selectedEndDate != null &&
             _selectedEndDate!.isBefore(_selectedStartDate!)) {
@@ -143,10 +144,10 @@ class _AddProjectState extends State<AddProject> {
       err_start_date = "Please Select Date";
       valid = false;
     }
-    if (selectedProjectTypeId == null || selectedProjectTypeId!.isEmpty) {
-      err_project_type = "Please Select Project Type";
-      valid = false;
-    }
+    // if (selectedProjectTypeId == null || selectedProjectTypeId!.isEmpty) {
+    //   err_project_type = "Please Select Project Type";
+    //   valid = false;
+    // }
     if(selectedstatus==null || selectedstatus!.isEmpty){
       err_status="Please select Status";
       valid=false;
@@ -163,9 +164,6 @@ class _AddProjectState extends State<AddProject> {
       showErrorDialog(context, "Failed", "Please fill required fields");
       return;
     }
-    setState(() {
-      _isSubmitting = true;
-    });
     print("projectId ${widget.projectId}");
     print("selectedstatus ${selectedstatus}");
     context.read<AddProjectBloc>().add(
@@ -313,7 +311,9 @@ class _AddProjectState extends State<AddProject> {
                                 "Enter Customer Name",
                                 "Customer Name",
                                 onChanged: (value) {
-                                  err_customerName=null;
+                                  setState(() {
+                                    err_customerName=null;
+                                  });
                                   if (value.trim().isEmpty) {
                                     context
                                         .read<RegisteredCustomerBloc>()
@@ -364,7 +364,11 @@ class _AddProjectState extends State<AddProject> {
                           const SizedBox(height: 10),
                             // 🔹 Project Name
                             txtFiled(context, projectName, "Enter Project Name",
-                                "Project Name"),
+                                "Project Name",onChanged: (val){
+                                  setState(() {
+                                    err_projectName=null;
+                                  });
+                                }),
                             if(err_projectName != null)
                               errorText("Please enter project name"),
                             const SizedBox(height: 10),
@@ -483,10 +487,11 @@ class _AddProjectState extends State<AddProject> {
                             if(err_status != null)
                              errorText("Please select status"),
                              // Divider(color: Colors.grey.withOpacity(.4)),
-                            const SizedBox(height: 5),
+                            const SizedBox(height: 10),
                             // 🔹 Dates
                             subTitle("Mention start and end date"),
                             Row(
+                              crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
                                 Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -497,6 +502,8 @@ class _AddProjectState extends State<AddProject> {
                                           ? 'Start Date'
                                           : DateFormat("d MMMM y")
                                           .format(_selectedStartDate!),
+                                      title: "Start Date",
+                                      showTitle: true,
                                       icon: Icons.calendar_month,
                                     ),
                                     if(err_start_date != null)
@@ -510,15 +517,15 @@ class _AddProjectState extends State<AddProject> {
                                       ? 'End Date'
                                       : DateFormat("d MMMM y")
                                       .format(_selectedEndDate!),
+                                  showTitle: true,
+                                  title: "End Date",
                                   icon: Icons.calendar_month,
                                 ),
                               ],
                             ),
-                            const SizedBox(height: 5),
+                            const SizedBox(height: 10),
                             // 🔹 Description
-                            txtFiled(context, description, "Enter Description",
-                                "Project Description",
-                                maxLines: 3),
+                            txtFiled(context, description, "Enter Description", "Project Description", maxLines: 3),
                             const SizedBox(height: 10),
                             BlocBuilder<AllStatesBloc, AllStatesState>(
                               builder: (context, state) {
