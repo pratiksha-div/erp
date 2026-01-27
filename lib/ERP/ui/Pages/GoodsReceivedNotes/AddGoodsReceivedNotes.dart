@@ -1,4 +1,3 @@
-import 'dart:developer';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
@@ -100,8 +99,6 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
   String? errDate;
   String? errEntryNumber;
   Map<int, String> grnItemErrors = {};
-
-
 
   @override
   void initState() {
@@ -271,6 +268,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
     setState(() {});
     return valid;
   }
+
   void _onSavePressed() {
     // setState(() { _isSubmitting = true; });
     if (!validateForm()) {
@@ -869,7 +867,6 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
       ),
     );
   }
-
 
   Widget inputField(TextEditingController controller,
       String title,{bool enabled = true,double bottomMargin=15.0,final onChange}) {
