@@ -105,9 +105,9 @@ class _AllProjectsState extends State<AllProjects> {
     _visibleItems.clear();
     setState(() {});
     _loadPage(start: 0);
-    while (_isInitialLoading) {
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
+    // while (_isInitialLoading) {
+    //   await Future.delayed(const Duration(milliseconds: 50));
+    // }
   }
 
   @override
@@ -123,8 +123,11 @@ class _AllProjectsState extends State<AllProjects> {
 
   @override
   Widget build(BuildContext context) {
-    return BlocProvider<ProjectBloc>.value(
-      value: _projectBloc,
+    return MultiBlocProvider(
+      providers: [
+        BlocProvider<ProjectBloc>.value(value: _projectBloc,),
+        BlocProvider<DeleteProjectBloc>(create: (_) => DeleteProjectBloc(),),
+      ],
       child: Scaffold(
         backgroundColor: ColorConstants.background,
         body: SafeArea(
@@ -145,11 +148,7 @@ class _AllProjectsState extends State<AllProjects> {
                         final newItems = state.projects;
                         records_total=state.recordsTotal;
                         setState(() {
-                          if (_allItems.isEmpty) {
-                            _allItems.addAll(newItems);
-                          } else {
-                            _allItems.addAll(newItems);
-                          }
+                          _allItems.addAll(newItems);
                           // update visible list depending on search query
                           final q = searchController.text.trim().toLowerCase();
                           if (q.isEmpty) {
@@ -168,7 +167,9 @@ class _AllProjectsState extends State<AllProjects> {
                           }
                           _isInitialLoading = false;
                           _isLoadingMore = false;
-                          if (newItems.length < _pageSize) _hasMore = false;
+                          // if (newItems.length < _pageSize) _hasMore = false;
+                          _hasMore = _allItems.length < records_total;
+
                         });
                       } else if (state is ProjectLoadFailure) {
                         setState(() {
@@ -364,13 +365,13 @@ class _AllProjectsState extends State<AllProjects> {
 
         // load more indicator
         if (_hasMore) {
-          if (!_isLoadingMore) {
-            WidgetsBinding.instance.addPostFrameCallback((_) {
-              if (!mounted) return;
-              // extra guard so we don't schedule repeatedly
-              if (!_isLoadingMore) _loadPage(start: _allItems.length);
-            });
-          }
+          // if (!_isLoadingMore) {
+          //   WidgetsBinding.instance.addPostFrameCallback((_) {
+          //     if (!mounted) return;
+          //     // extra guard so we don't schedule repeatedly
+          //     if (!_isLoadingMore) _loadPage(start: _allItems.length);
+          //   });
+          // }
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
             child: Center(child: CircularProgressIndicator(
@@ -406,15 +407,14 @@ class _AllProjectsState extends State<AllProjects> {
       splashColor: Colors.transparent,
       onTap: () async {
         final result = await Utils.navigateTo(
-          context,
-          AddProject(projectId: i.project_id ?? ""),
+          context, AddProject(projectId: i.project_id ?? ""),
         );
         if(result == "true")
         {
           print('Project added successfully, fetching the updated list...');
           _onRefresh();
         }
-        },
+      },
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(10),
@@ -446,17 +446,21 @@ class _AllProjectsState extends State<AllProjects> {
                 Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
+                    if(i.project_start_date!.isNotEmpty)
                     Text(
                       formatDate(i.project_start_date ?? DateTime.now().toString()),
                       style: GoogleFonts.poppins(
+                        height: 1,
                         fontSize: 12,
                         color: Colors.black.withOpacity(.6),
                         fontWeight: FontWeight.bold,
                       ),
                     ),
+                    if(i.project_manager!.isNotEmpty)
                     Text(
                       "${i.project_manager}",
                       style: GoogleFonts.poppins(
+                        height: 1,
                         fontSize: 14,
                         color: ColorConstants.primary,
                         fontWeight: FontWeight.bold,
@@ -499,6 +503,7 @@ class _AllProjectsState extends State<AllProjects> {
                     child: Text(
                       '${i.customerName}',
                       style: GoogleFonts.poppins(
+                        height: 1,
                         fontSize: 13,
                         color: Colors.grey,
                         fontWeight: FontWeight.w600,
@@ -529,6 +534,7 @@ class _AllProjectsState extends State<AllProjects> {
               Text(
                 desc,
                 style: GoogleFonts.poppins(
+                  height: 1,
                   fontSize: 12,
                   color: Colors.grey,
                   fontWeight: FontWeight.w500,
@@ -542,6 +548,8 @@ class _AllProjectsState extends State<AllProjects> {
             ],
             Row(
               children: [
+                if(i.project_type!.isNotEmpty)
+                ...[
                 Text(
                   "Type : ",
                   style: GoogleFonts.poppins(
@@ -557,7 +565,8 @@ class _AllProjectsState extends State<AllProjects> {
                     color: ColorConstants.primary,
                     fontWeight: FontWeight.w500,
                   ),
-                ),
+                 ),
+                ],
                 Expanded(child: Text("")),
                 Icon(Icons.edit, color: Colors.grey, size: 15),
                 const SizedBox(width: 20),
