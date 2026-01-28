@@ -30,14 +30,12 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
   final TextEditingController searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
-  // paging
   static const int _pageSize = 10;
   bool _isLoadingMore = false;
   bool _hasMore = true;
   bool _isInitialLoading = false;
   String? _error;
 
-  // data
   final List<MachineReadingData> _allItems = []; // master list accumulated from pages
   final List<MachineReadingData> _visibleItems = []; // filtered by search
 
@@ -45,8 +43,6 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
   late final DeleteMachineReadingBloc _deleteBloc;
 
   Timer? _debounce;
-
-  // optimistic removal rollback storage
   MachineReadingData? _lastRemovedItem;
   int? _lastRemovedIndex;
 
@@ -111,14 +107,15 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
     setState(() {});
     _loadPage(start: 0);
     // wait until initial load finished
-    while (_isInitialLoading) {
-      await Future.delayed(const Duration(milliseconds: 50));
-    }
+    // while (_isInitialLoading) {
+    //   await Future.delayed(const Duration(milliseconds: 50));
+    // }
   }
 
   @override
   void dispose() {
     _debounce?.cancel();
+    _controller.dispose();
     searchController.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
@@ -749,16 +746,14 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
         Text(title, style: GoogleFonts.poppins(fontSize: 10)),
         const SizedBox(height: 2),
         value != null && value.isNotEmpty
-            ? Text(
-          value,
-          maxLines: 1,
-          overflow: TextOverflow.ellipsis,
-          style: GoogleFonts.poppins(
-              fontSize: 12, fontWeight: FontWeight.bold),
-        )
-            : BlinkingText(
-          text: placeholder ?? "",
-          style: GoogleFonts.poppins(
+            ?Text(
+             value,
+             maxLines: 1,
+             overflow: TextOverflow.ellipsis,
+             style: GoogleFonts.poppins(fontSize: 12, fontWeight: FontWeight.bold),
+         ):BlinkingText(
+            text: placeholder ?? "",
+            style: GoogleFonts.poppins(
             fontSize: 12,
             height: 1,
             color: Colors.black,
@@ -774,7 +769,6 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
         padding: const EdgeInsets.symmetric(horizontal: 5),
         child: SizedBox(height: 20, width: 1, child: ColoredBox(color: show?Colors.black:Colors.grey)),
       );
-
 
 }
 

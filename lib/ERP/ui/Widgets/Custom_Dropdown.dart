@@ -227,7 +227,7 @@ class _TransferDropdownState<T> extends State<TransferDropdown<T>> {
                                             minVerticalPadding: 0,
                                             contentPadding: EdgeInsets.zero,
                                             title: Text(
-                                              titleText,
+                                              "${titleText}",
                                               style: GoogleFonts.poppins(
                                                 fontSize: 13,
                                                 color: Colors.black.withOpacity(.6),

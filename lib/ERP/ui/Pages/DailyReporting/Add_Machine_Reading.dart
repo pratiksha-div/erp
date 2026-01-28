@@ -487,9 +487,13 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                       return TransferDropdown<VehicleData>(
                                         title: 'Vehicle Name',
                                         hint: 'Select Vehicle Name',
-                                        selectedVal: selectedVehicleName.VehicleName ?? '',
+                                        // selectedVal: selectedVehicleName.VehicleName ?? '',
+                                        selectedVal: selectedVehicleName.VehicleName!.isNotEmpty
+                                            ? "${selectedVehicleName.VehicleName} (${selectedVehicleName.VehicleNo})"
+                                            : "",
                                         data: state.data,
                                         displayText: (data) => data.VehicleName ?? '',
+                                        subDisplayText: (data) => data.VehicleNo ?? '',
                                         onChanged: (val) {
                                           setState(() {
                                             _selectedVechicleNameId = val.VehicleID ?? '';

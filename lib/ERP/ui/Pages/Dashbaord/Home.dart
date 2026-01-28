@@ -108,10 +108,9 @@ class _HomeState extends State<Home> {
                     mr_logo(),
                     mrTitle("MR Constructions"),
                     subTitle("Project Monitoring and Entry System"),
-                    const SizedBox(height: 5),
                     subTxt("A smart platform to manage project data, daily reports,"
                         " and gate entries in one unified dashboard."),
-                    const SizedBox(height: 15),
+                    const SizedBox(height: 10),
                     Container(
                       width: double.infinity,
                       padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 0),
