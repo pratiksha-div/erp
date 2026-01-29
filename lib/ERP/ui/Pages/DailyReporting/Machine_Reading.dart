@@ -46,9 +46,9 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
   MachineReadingData? _lastRemovedItem;
   int? _lastRemovedIndex;
 
-  late AnimationController _controller;
-  late Animation<double> _opacity;
-  late Animation<double> _scale;
+  // late AnimationController _controller;
+  // late Animation<double> _opacity;
+  // late Animation<double> _scale;
 
   @override
   void initState() {
@@ -60,18 +60,18 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
     _loadPage(start: 0);
     _scrollController.addListener(_onScroll);
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: Duration(milliseconds: 900),
-    )..repeat(reverse: true);
-
-    _opacity = Tween<double>(begin: 0.4, end: 5).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
-
-    _scale = Tween<double>(begin: 0.97, end: 1.00).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    );
+    // _controller = AnimationController(
+    //   vsync: this,
+    //   duration: Duration(milliseconds: 900),
+    // )..repeat(reverse: true);
+    //
+    // _opacity = Tween<double>(begin: 0.4, end: 5).animate(
+    //   CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    // );
+    //
+    // _scale = Tween<double>(begin: 0.97, end: 1.00).animate(
+    //   CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    // );
   }
 
   void _onScroll() {
@@ -115,7 +115,7 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
   @override
   void dispose() {
     _debounce?.cancel();
-    _controller.dispose();
+    // _controller.dispose();
     searchController.dispose();
     _scrollController.removeListener(_onScroll);
     _scrollController.dispose();
@@ -213,9 +213,7 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
                             // Server confirmed delete. Clear optimistic storage and refresh list from server
                             _lastRemovedItem = null;
                             _lastRemovedIndex = null;
-                            Fluttertoast.showToast(
-                              msg:'Reading Deleted',
-                            );
+                            Fluttertoast.showToast(msg:'Reading Deleted');
                             // It's safe to refresh to re-sync with server
                             _onRefresh();
                           } else if (state is DeleteMachineReadingFailed) {
@@ -374,43 +372,54 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
     // total items in list view:
     final int extra = 2 + (_hasMore ? 1 : 0); // header + spacer + optional load-more
     final int totalCount = _visibleItems.length + extra;
-
-    return ListView.separated(
+    return ListView.builder(
       controller: _scrollController,
       itemCount: totalCount,
-      separatorBuilder: (_, __) => const SizedBox(height: 8),
       itemBuilder: (context, index) {
-        // HEADER (index 0)
+        /// HEADER
         if (index == 0) {
-          return header;
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: header,
+          );
         }
 
-        // data items start at index 2 -> map to _visibleItems[ index - 2 ]
+        /// DATA STARTS FROM INDEX 2
         final dataIndex = index - 2;
 
-        if (dataIndex < _visibleItems.length && dataIndex >= 0) {
-          final i = _visibleItems[dataIndex];
-          return _buildProjectCard(i);
+        /// LIST ITEM
+        if (dataIndex >= 0 && dataIndex < _visibleItems.length) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: _buildProjectCard(_visibleItems[dataIndex]),
+          );
         }
 
-        // If we reach here, this must be the "load more" indicator (when _hasMore is true)
+        /// LOAD MORE INDICATOR
         if (_hasMore && dataIndex == _visibleItems.length) {
           if (!_isLoadingMore) {
             WidgetsBinding.instance.addPostFrameCallback((_) {
               if (!mounted) return;
-              if (!_isLoadingMore) _loadPage(start: _allItems.length);
+              if (!_isLoadingMore) {
+                _loadPage(start: _allItems.length);
+              }
             });
           }
+
           return const Padding(
             padding: EdgeInsets.symmetric(vertical: 16),
-            child: Center(child: CircularProgressIndicator(color: ColorConstants.primary)),
+            child: Center(
+              child: CircularProgressIndicator(
+                color: ColorConstants.primary,
+              ),
+            ),
           );
         }
 
-        // fallback (shouldn't happen), return empty container
         return const SizedBox.shrink();
       },
     );
+
   }
 
   Widget _buildProjectCard(MachineReadingData i) {
@@ -455,7 +464,6 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
         //     offset: const Offset(0, 6),
         //   ),
         // ]:null,
-
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
@@ -642,7 +650,7 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
           Row(
             children: [
               if (i.total_run.toString().isNotEmpty)
-                ...[
+              ...[
                   Text(
                     "Total run : ",
                     style: GoogleFonts.poppins(
@@ -657,7 +665,8 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
                       color: Colors.black,
                       fontWeight: FontWeight.bold,
                     ),
-                  ),],
+                  ),
+              ],
               Expanded(child: Text("")),
               Icon(Icons.edit, color: shouldAnimate?Colors.black:Colors.grey, size: 15),
               const SizedBox(width: 10),
@@ -694,13 +703,12 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
                                 .read<DeleteMachineReadingBloc>()
                                 .add(SubmitDeleteMachineReadingEvent(readingid: i.readingid));
                             Navigator.of(sheetContext).pop();
-                            _onRefresh();
+                            // _onRefresh();
                           },
                         ),
                       );
                     },
                   );
-
                 },
                 child: Container(
                   padding: EdgeInsets.only(left: 10),
@@ -715,16 +723,18 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
     );
 
     /// 🔥 APPLY BLINK ANIMATION TO WHOLE CARD
+    // if (shouldAnimate) {
+    //   cardContent = FadeTransition(
+    //     opacity: _opacity,
+    //     child: ScaleTransition(
+    //       scale: _scale,
+    //       child: cardContent,
+    //     ),
+    //   );
+    // }
     if (shouldAnimate) {
-      cardContent = FadeTransition(
-        opacity: _opacity,
-        child: ScaleTransition(
-          scale: _scale,
-          child: cardContent,
-        ),
-      );
+      cardContent = BlinkingCard(child: cardContent);
     }
-
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
@@ -818,3 +828,54 @@ class _BlinkingTextState extends State<BlinkingText>
     );
   }
 }
+
+class BlinkingCard extends StatefulWidget {
+  final Widget child;
+
+  const BlinkingCard({super.key, required this.child});
+
+  @override
+  State<BlinkingCard> createState() => _BlinkingCardState();
+}
+
+class _BlinkingCardState extends State<BlinkingCard>
+    with SingleTickerProviderStateMixin {
+  late final AnimationController _controller;
+  late final Animation<double> _opacity;
+  late final Animation<double> _scale;
+
+  @override
+  void initState() {
+    super.initState();
+    _controller = AnimationController(
+      vsync: this,
+      duration: const Duration(milliseconds: 900),
+    )..repeat(reverse: true);
+
+    _opacity = Tween<double>(begin: 0.4, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+
+    _scale = Tween<double>(begin: 0.97, end: 1.0).animate(
+      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _controller.dispose();
+    super.dispose();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return FadeTransition(
+      opacity: _opacity,
+      child: ScaleTransition(
+        scale: _scale,
+        child: widget.child,
+      ),
+    );
+  }
+}
+

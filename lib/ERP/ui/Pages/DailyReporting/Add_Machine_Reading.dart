@@ -294,7 +294,6 @@ class _AddMachineReadingState extends State<AddMachineReading> {
             BlocListener<MachineReadingByIDBloc, MachineReadingByIDState>(
               listener: (context, state) {
                 if (state is MachineReadingByIDLoadSuccess) {
-                  // choose which element from the list to use (first example)
                   if(widget.id!=""){
                     final reading = state.machineReadingByID.isNotEmpty
                         ? state.machineReadingByID.first
@@ -343,7 +342,6 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                             child: Column(
                               crossAxisAlignment: CrossAxisAlignment.start,
                               children: [
-
                                 // subTitle("Tracks machine reading across daily operations."),
                                 // const SizedBox(height: 20),
                                 BlocBuilder<ProjectListBloc, ProjectListState>(
@@ -380,10 +378,6 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                     return const SizedBox.shrink();
                                   },
                                 ),
-                                // date
-                                // Divider(
-                                //   color: Colors.grey.withOpacity(.2),
-                                // ),
                                 const SizedBox(height: 10),
                                 subTitle("Mention machine Start,End Time and Date"),
                                 const SizedBox(height: 10),
@@ -409,10 +403,6 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                     ],
                                   ),
                                 ),
-                                Text(
-                                  "Select Date",
-                                  style: const TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500),
-                                ),
                                 Row(
                                   children: [
                                     // tapping will call _pickDate via the CustomTextField onTap
@@ -424,10 +414,6 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                   ],
                                 ),
                                 txtFiled(context,spentTime, "Enter spent time", "Spent Time"),
-                                // const SizedBox(height: 10),
-                                // Divider(
-                                //   color: Colors.grey.withOpacity(.2),
-                                // ),
                                 const SizedBox(height: 10),
                                 BlocConsumer<VendorNameBloc, VendorNameState>(
                                   listener: (context, state) {},
@@ -448,7 +434,6 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                           TransferDropdown<VendorData>(
                                             title: 'Vendor/Contractor Name',
                                             hint: 'Select Vendor Name',
-                                            // selectedVal: _selectedVendorId ?? '',
                                             selectedVal: selectedVendor.contractorName ?? '',
                                             data: state.vendorNames,
                                             displayText: (data) => data.contractorName ?? '',
@@ -510,10 +495,6 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                   },
                                 ),
                                 const SizedBox(height: 10),
-                                // Divider(
-                                //   color: Colors.grey.withOpacity(.2),
-                                // ),
-                                // const SizedBox(height: 10),
                                 subTitle("Mention start and stop reading",),
                                 const SizedBox(height: 10),
                                 txtFiled(context,startReading, "Enter reading on start", "Reading on Start", onChanged: (val) => _calculateTotalRun(),),

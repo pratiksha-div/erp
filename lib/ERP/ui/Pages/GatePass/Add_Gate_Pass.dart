@@ -70,7 +70,6 @@ class MaterialLine {
   }
 }
 
-
 class MaterialEntry {
   final TextEditingController quantityController;
   TimeOfDay? outTime;
@@ -589,18 +588,18 @@ class _AddGatePassState extends State<AddGatePass> {
     final List<String> subCategoryList = [];
     final List<String> differenceBalanceList = [];
     String quantity = "";
-    String used_quantity = "";
+    String usedQuantity = "";
     String scrap = "";
     String rate = "";
     String unit = "";
-    String current_balance = "";
+    String currentBalance = "";
     bool showQuality = false;
     double qty = 0.0;
     double usedQty = 0.0;
     double scrapQty = 0.0;
     String vehicleNameNo = "";
     String toProjectName = "";
-    String from_Warehouse = "";
+    String fromWarehouse = "";
     String toWarehouse = "";
 
     final List<String> outTimeList = [];
@@ -608,7 +607,7 @@ class _AddGatePassState extends State<AddGatePass> {
     for (final entry in materialEntries) {
       outTimeList.add(entry.outTime?.format(context) ?? '');
 
-      from_Warehouse = entry.selectedFromWarehouseId ?? "";
+      fromWarehouse = entry.selectedFromWarehouseId ?? "";
       // fromWarehouseLists = selectedFromWarehouseProjectListID ?? "";
       if (transferTypeTop == "Warehouse Type") {
         toWarehouse = selectedToWarehouseID ?? "";
@@ -627,14 +626,14 @@ class _AddGatePassState extends State<AddGatePass> {
               : (entry.selectedMaterialId ?? "");
 
           quantity = line.quantityController.text.trim();
-          used_quantity = line.usedQuantityController.text.trim();
+          usedQuantity = line.usedQuantityController.text.trim();
           scrap = line.scrapController.text.trim();
           rate = line.rateController.text.trim();
           unit = line.selectedUnit ?? "";
-          current_balance = line.remainingBalance.toString();
+          currentBalance = line.remainingBalance.toString();
           showQuality = line.showQualityFields;
           qty = double.tryParse(quantity) ?? 0.0;
-          usedQty = double.tryParse(used_quantity) ?? 0.0;
+          usedQty = double.tryParse(usedQuantity) ?? 0.0;
           scrapQty = double.tryParse(scrap) ?? 0.0;
           double bal = qty - (usedQty + scrapQty);
           if (bal < 0) bal = 0.0;
@@ -654,31 +653,16 @@ class _AddGatePassState extends State<AddGatePass> {
           materialsIdList.add(materialUsedID.replaceAll(',', ''));
           issuedMaterialsList.add(materialUsed.replaceAll(',', ''));
           quantityList.add(quantity.isEmpty ? "0" : quantity);
-          usedQuantityList.add(used_quantity.isEmpty ? "0" : used_quantity);
+          usedQuantityList.add(usedQuantity.isEmpty ? "0" : usedQuantity);
           scrapList.add(scrap.isEmpty ? "0" : scrap);
           rateList.add(rate.isEmpty ? "0" : rate);
           amountList.add(amount);
           consumedFlagList.add(showQuality ? "1" : "0");
           unitList.add(unit.replaceAll(',', ''));
-          currentBalanceList.add(current_balance);
+          currentBalanceList.add(currentBalance);
           categoryList.add(category.replaceAll(',', ''));
           subCategoryList.add(subCategory.replaceAll(',', ''));
           differenceBalanceList.add(balance.toString());
-          // KEEP per-line print (user requested prints not removed) — updated variables
-          //   print('''
-          //  ---- SUBMITTING GATE PASS (entry-line) ----
-          //  transferType:${transferTypeTop == "Warehouse Type" ? "warehouse_type" : "project_type"},
-          //  date:$dateTimeStr,
-          //  toProject:$toProjectName,
-          //  toWarehouse:$toWarehouse,
-          //  vehicleNameNo:$vehicleNameNoTop,
-          //  issuedTo:$issuedToTop,
-          //  issuedBy:$issuedByTop,
-          //  gatePass:$gatePassNoTop,
-          //  description:$descTop,
-          //  fromWarehouse:$from_Warehouse,
-          //  --------------------------------------
-          // ''');
         }
       }
     }
@@ -697,10 +681,8 @@ class _AddGatePassState extends State<AddGatePass> {
     final String categoryCsv = categoryList.join(',');
     final String subCategoryCsv = subCategoryList.join(',');
     final String differenceBalanceCsv = differenceBalanceList.join(',');
-    // OUT-TIME CSV now corresponds to entries (one value per entry)
     final String outTimeCsv = outTimeList.join(',');
 
-    // Aggregated CSV print (keeps original-style output but aggregated)
     String stripAmPm(String timeString) {
       final cleaned = timeString.replaceAll(
           RegExp(r'\s?(AM|PM)$', caseSensitive: false), '');
@@ -710,27 +692,26 @@ class _AddGatePassState extends State<AddGatePass> {
       return "$hour:$minute";
     }
 
-    // print('''
-    //  ---- SUBMITTING GATE PASS (AGGREGATED) ----
-    //  date: $dateTimeStr
-    //  materialsId: $materialsIdCsv
-    //  issuedMaterials: $issuedMaterialsCsv
-    //  quantity: $quantityCsv
-    //  usedQuantity: $usedQuantityCsv
-    //  scrap: $scrapCsv
-    //  rate: $rateCsv
-    //  amount: $amountCsv
-    //  consumedFlags: $consumedFlagCsv
-    //  units: $unitCsv
-    //  currentBalances: $currentBalanceCsv
-    //  categories: $categoryCsv
-    //  subCategories: $subCategoryCsv
-    //  differenceBalances: $differenceBalanceCsv
-    //  outTimes: ${stripAmPm(outTimeCsv)}
-    //  -------------------------------------------
-    // ''');
+    print('''
+     ---- SUBMITTING GATE PASS (AGGREGATED) ----
+     date: $dateTimeStr
+     materialsId: $materialsIdCsv
+     issuedMaterials: $issuedMaterialsCsv
+     quantity: $quantityCsv
+     usedQuantity: $usedQuantityCsv
+     scrap: $scrapCsv
+     rate: $rateCsv
+     amount: $amountCsv
+     consumedFlags: $consumedFlagCsv
+     units: $unitCsv
+     currentBalances: $currentBalanceCsv
+     categories: $categoryCsv
+     subCategories: $subCategoryCsv
+     differenceBalances: $differenceBalanceCsv
+     outTimes: ${stripAmPm(outTimeCsv)}
+     -------------------------------------------
+    ''');
 
-    // Now submit the event with all fields populated
     context.read<AddNewGatePassBloc>().add(
           SubmitAddNewGatePassEvent(
             transferType: transferTypeTop == "Warehouse Type"
@@ -744,7 +725,7 @@ class _AddGatePassState extends State<AddGatePass> {
             issuedBy: issuedByTop,
             gatePass: gatePassNoTop,
             description: descTop,
-            fromWarehouse: from_Warehouse ?? "",
+            fromWarehouse: fromWarehouse ?? "",
             outTime: stripAmPm(outTimeCsv),
             materialsId: materialsIdCsv,
             issuedMaterials: issuedMaterialsCsv,
@@ -773,7 +754,7 @@ class _AddGatePassState extends State<AddGatePass> {
               unit: $unit,
               currentBalance: $currentBalanceCsv,
               quantity: $quantityCsv,
-              fromWarehouse: $from_Warehouse,
+              fromWarehouse: $fromWarehouse,
               toWarehouse: $toWarehouse,
               ''');
       context.read<AddWarehouseTransferBloc>().add(
@@ -786,7 +767,7 @@ class _AddGatePassState extends State<AddGatePass> {
               unit: unit,
               currentBalance: currentBalanceCsv,
               quantity: quantityCsv,
-              fromWarehouse: from_Warehouse,
+              fromWarehouse: fromWarehouse,
               towarehouse: toWarehouse,
             ),
           );
@@ -800,14 +781,14 @@ class _AddGatePassState extends State<AddGatePass> {
                issued_by_id: $issuedByTop,
                gatePass: $gatePassNoTop,
                description: $descTop,
-               fromWarehouse: $from_Warehouse,
+               fromWarehouse: $fromWarehouse,
                outTime: $outTimeCsv,
                materialsId: $materialsIdCsv,
                issuedMaterials: $issuedMaterialsCsv,
                currentBalance: $currentBalanceCsv
                quantity: $quantityCsv
                unit: $unitCsv
-              ''');
+         ''');
         context.read<AddWarehouseToProjectBloc>().add(
           SubmitAddWarehouseToProjectEvent(
               project_id: toProjectName,
@@ -817,13 +798,14 @@ class _AddGatePassState extends State<AddGatePass> {
               issued_by_id: issuedByTop,
               gatePass: gatePassNoTop,
               description: descTop,
-              fromWarehouse: from_Warehouse,
+              fromWarehouse: fromWarehouse,
               outTime: stripAmPm(outTimeCsv),
               materialsId: materialsIdCsv,
               issuedMaterials: issuedMaterialsCsv,
               currentBalance: currentBalanceCsv,
               quantity: quantityCsv,
-              unit: unitCsv),
+              unit: unitCsv
+          ),
         );
     }
   }
@@ -1892,7 +1874,7 @@ class _AddGatePassState extends State<AddGatePass> {
                                       Padding(
                                           padding: const EdgeInsets.only(left: 10, bottom: 8),
                                           child: errorText(err_materialEntry[i]),
-                                        ),
+                                      ),
                                       const SizedBox(height: 10),
                                       // Out time + remove button row
                                       Row(
@@ -1911,7 +1893,6 @@ class _AddGatePassState extends State<AddGatePass> {
                                                   fontWeight: FontWeight.w500,
                                                 ),
                                               ),
-                                              const SizedBox(height: 6),
                                               CustomDateTimeTextField(
                                                 showTitle: false,
                                                 onTap: () =>
@@ -1964,8 +1945,7 @@ class _AddGatePassState extends State<AddGatePass> {
                                       const SizedBox(height: 8),
                                     ],
                                   ),
-                                ),
-
+                              ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [

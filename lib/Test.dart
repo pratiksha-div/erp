@@ -1,1839 +1,922 @@
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:fluttertoast/fluttertoast.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:sizer/sizer.dart';
-// import 'ERP/UI/Pages/DailyReporting/Add_New_Entry.dart';
-// import 'ERP/UI/Utils/colors_constants.dart';
-// import 'ERP/UI/Utils/utils.dart';
-// import 'ERP/UI/Widgets/Bottom_Sheet.dart';
-// import 'ERP/UI/Widgets/Custom_appbar.dart';
-// import 'ERP/UI/Widgets/Date_Formate.dart';
-// import 'ERP/UI/Widgets/TextWidgets.dart';
-// import 'ERP/api/models/DAOGetNewEntries.dart';
-// import 'ERP/api/services/add_new_entry.dart';
-// import 'ERP/bloc/DailyReporting/delete_new_entry_bloc.dart';
-// import 'ERP/bloc/DailyReporting/get_new_entry_bloc.dart';
-//
-// class NewEntry extends StatefulWidget {
-//   const NewEntry({super.key});
-//
-//   @override
-//   State<NewEntry> createState() => _NewEntryState();
-// }
-//
-// class _NewEntryState extends State<NewEntry> {
-//   final ScrollController _scrollController = ScrollController();
-//
-//   static const int _pageSize = 10;
-//
-//   bool _isInitialLoading = false;
-//   bool _isLoadingMore = false;
-//   bool _hasMore = true;
-//   String? _errorMessage;
-//
-//   final List<NewEntryData> _items = [];
-//   NewEntryData? _lastRemovedItem;
-//
-//   late final NewEntryBloc _newEntryBloc;
-//   late final DeleteNewEntryBloc _deleteNewEntryBloc;
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//
-//     _newEntryBloc = NewEntryBloc(service: NewEntryService());
-//     _deleteNewEntryBloc = DeleteNewEntryBloc();
-//
-//     _loadInitialPage();
-//
-//     _scrollController.addListener(() {
-//       if (_scrollController.position.pixels >=
-//           _scrollController.position.maxScrollExtent - 200 &&
-//           !_isLoadingMore &&
-//           _hasMore) {
-//         _loadMore();
-//       }
-//     });
-//   }
-//
-//   void _loadInitialPage() {
-//     setState(() {
-//       _isInitialLoading = true;
-//       _errorMessage = null;
-//     });
-//
-//     _newEntryBloc.add(
-//       FetchNewEntrysEvent(start: 0, length: _pageSize),
-//     );
-//   }
-//
-//   void _loadMore() {
-//     _isLoadingMore = true;
-//     _newEntryBloc.add(
-//       FetchNewEntrysEvent(start: _items.length, length: _pageSize),
-//     );
-//   }
-//
-//   Future<void> _onRefresh() async {
-//     setState(() {
-//       _items.clear();
-//       _hasMore = true;
-//       _isInitialLoading = true;
-//       _errorMessage = null;
-//     });
-//
-//     _newEntryBloc.add(
-//       FetchNewEntrysEvent(start: 0, length: _pageSize),
-//     );
-//   }
-//
-//   @override
-//   void dispose() {
-//     _scrollController.dispose();
-//     _newEntryBloc.close();
-//     _deleteNewEntryBloc.close();
-//     super.dispose();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     return MultiBlocProvider(
-//       providers: [
-//         BlocProvider.value(value: _newEntryBloc),
-//         BlocProvider.value(value: _deleteNewEntryBloc),
-//       ],
-//       child: Scaffold(
-//         backgroundColor: ColorConstants.background,
-//         body: SafeArea(
-//           child: Padding(
-//             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-//             child: MultiBlocListener(
-//               listeners: [
-//                 BlocListener<NewEntryBloc, NewEntryState>(
-//                   listener: (_, state) {
-//                     if (state is NewEntryLoadSuccess) {
-//                       setState(() {
-//                         if (_isInitialLoading) _items.clear();
-//                         _items.addAll(state.newEntry);
-//
-//                         _hasMore = state.newEntry.length == _pageSize;
-//                         _isInitialLoading = false;
-//                         _isLoadingMore = false;
-//                       });
-//                     }
-//
-//                     if (state is NewEntryLoadFailure) {
-//                       setState(() {
-//                         _isInitialLoading = false;
-//                         _isLoadingMore = false;
-//                         _errorMessage = state.message;
-//                       });
-//                     }
-//                   },
-//                 ),
-//                 BlocListener<DeleteNewEntryBloc, DeleteNewEntryState>(
-//                   listener: (_, state) {
-//                     if (state is DeleteNewEntrySuccess) {
-//                       Fluttertoast.showToast(msg: "Entry deleted");
-//                       _lastRemovedItem = null;
-//                       _onRefresh();
-//                     }
-//
-//                     if (state is DeleteNewEntryFailed) {
-//                       if (_lastRemovedItem != null) {
-//                         setState(() {
-//                           _items.insert(0, _lastRemovedItem!);
-//                         });
-//                       }
-//                       Fluttertoast.showToast(msg: state.message);
-//                     }
-//                   },
-//                 ),
-//               ],
-//               child: Column(
-//                 children: [
-//                   CustomAppbar(
-//                     context,
-//                     title: "New Entry List",
-//                     subTitle: "Smart, fast, and secure gate entry",
-//                   ),
-//                   Expanded(
-//                     child: RefreshIndicator(
-//                       onRefresh: _onRefresh,
-//                       color: ColorConstants.primary,
-//                       child: _buildList(),
-//                     ),
-//                   ),
-//                 ],
-//               ),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Widget _buildList() {
-//     if (_errorMessage != null && _items.isEmpty) {
-//       return Center(
-//         child: Column(
-//           mainAxisAlignment: MainAxisAlignment.center,
-//           children: [
-//             Text(_errorMessage!),
-//             TextButton(onPressed: _loadInitialPage, child: const Text("Retry")),
-//           ],
-//         ),
-//       );
-//     }
-//
-//     return ListView.builder(
-//       controller: _scrollController,
-//       physics: const AlwaysScrollableScrollPhysics(),
-//       itemCount: _items.length + 2,
-//       itemBuilder: (_, index) {
-//         if (index == 0) return _buildHeader();
-//
-//         if (index == _items.length + 1) {
-//           if (_isLoadingMore) {
-//             return const Padding(
-//               padding: EdgeInsets.all(20),
-//               child: Center(
-//                 child:
-//                 CircularProgressIndicator(color: ColorConstants.primary),
-//               ),
-//             );
-//           }
-//           return const SizedBox.shrink();
-//         }
-//
-//         return _buildItemCard(_items[index - 1]);
-//       },
-//     );
-//   }
-//
-//   Widget _buildHeader() {
-//     return Padding(
-//       padding: const EdgeInsets.symmetric(vertical: 20),
-//       child: InkWell(
-//         onTap: () async {
-//           final result =
-//           await Utils.navigateTo(context, AddNewEntry(id: ""));
-//           if (result == "true") _onRefresh();
-//         },
-//         child: Container(
-//           width: 80.w,
-//           padding: const EdgeInsets.symmetric(vertical: 15),
-//           decoration: BoxDecoration(
-//             borderRadius: BorderRadius.circular(30),
-//             gradient: LinearGradient(
-//               colors: [ColorConstants.primary, ColorConstants.secondary],
-//             ),
-//           ),
-//           child: Center(
-//             child: Text(
-//               "Add New Entry",
-//               style: txt_bold(color: Colors.black, textSize: 12),
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Widget _buildItemCard(NewEntryData i) {
-//     final type = (i.lookupvalue ?? '').toLowerCase();
-//
-//     Color fg = ColorConstants.primary;
-//     Color bg = fg.withOpacity(.2);
-//
-//     if (type == 'permanent employee') {
-//       fg = ColorConstants.green;
-//       bg = fg.withOpacity(.2);
-//     } else if (type == 'contractor') {
-//       fg = ColorConstants.lightBlueColor;
-//       bg = fg.withOpacity(.2);
-//     }
-//
-//     return InkWell(
-//       onTap: () async {
-//         final result = await Utils.navigateTo(
-//           context,
-//           AddNewEntry(id: i.work_detail_id ?? ""),
-//         );
-//         if (result == "true") _onRefresh();
-//       },
-//       child: Container(
-//         margin: const EdgeInsets.only(bottom: 10),
-//         padding: const EdgeInsets.all(15),
-//         decoration: BoxDecoration(
-//           color: Colors.white,
-//           borderRadius: BorderRadius.circular(20),
-//         ),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             if ((i.lookupvalue ?? '').isNotEmpty)
-//               Align(
-//                 alignment: Alignment.topRight,
-//                 child: _typeChip(i.lookupvalue!, fg, bg),
-//               ),
-//             const SizedBox(height: 10),
-//             _titleSection(i),
-//             const SizedBox(height: 10),
-//             if ((i.notes ?? '').isNotEmpty) cText(i.notes),
-//             const SizedBox(height: 10),
-//             _footerRow(i),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Widget _typeChip(String text, Color fg, Color bg) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 5),
-//       decoration: BoxDecoration(
-//         color: bg,
-//         borderRadius: BorderRadius.circular(15),
-//       ),
-//       child: Text(
-//         text,
-//         style: GoogleFonts.poppins(
-//           fontSize: 10,
-//           color: fg,
-//           fontWeight: FontWeight.bold,
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Widget _titleSection(NewEntryData i) {
-//     return Row(
-//       children: [
-//         Container(
-//           height: 30,
-//           width: 5,
-//           decoration: BoxDecoration(
-//             borderRadius: BorderRadius.circular(10),
-//             gradient: LinearGradient(
-//               colors: [
-//                 ColorConstants.primary,
-//                 ColorConstants.secondary,
-//               ],
-//             ),
-//           ),
-//         ),
-//         const SizedBox(width: 10),
-//         Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Text(
-//               i.employeename ?? i.empName ?? "",
-//               style: GoogleFonts.poppins(
-//                 fontSize: 14,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             if ((i.projectname ?? '').isNotEmpty)
-//               SizedBox(
-//                 width: 200,
-//                 child: Text(
-//                   i.projectname!,
-//                   style: GoogleFonts.poppins(
-//                     fontSize: 13,
-//                     color: Colors.black54,
-//                   ),
-//                 ),
-//               ),
-//           ],
-//         ),
-//       ],
-//     );
-//   }
-//
-//   Widget _footerRow(NewEntryData i) {
-//     return Row(
-//       children: [
-//         if ((i.entryDate ?? '').isNotEmpty) ...[
-//           const Text("Entry Date: "),
-//           Text(
-//             formatEntryDate(i.entryDate!),
-//             style: GoogleFonts.poppins(
-//               color: ColorConstants.primary,
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//         ],
-//         const Spacer(),
-//         const Icon(Icons.edit, size: 15, color: Colors.grey),
-//         const SizedBox(width: 20),
-//         InkWell(
-//           onTap: () => _showDeleteSheet(i),
-//           child: const Icon(Icons.close, size: 15, color: Colors.grey),
-//         ),
-//       ],
-//     );
-//   }
-//
-//   void _showDeleteSheet(NewEntryData i) {
-//     showModalBottomSheet(
-//       context: context,
-//       backgroundColor: Colors.transparent,
-//       builder: (sheetContext) {
-//         return OnDelete(
-//           title1: 'Delete Gate Entry',
-//           title2: 'Are you sure you want to delete this entry?',
-//           onCancel: () => Navigator.pop(sheetContext),
-//           onConfirm: () {
-//             _lastRemovedItem = i;
-//             setState(() {
-//               _items.remove(i);
-//             });
-//             context.read<DeleteNewEntryBloc>().add(
-//               SubmitDeleteNewEntryEvent(
-//                 work_detail_id: i.work_detail_id ?? "",
-//               ),
-//             );
-//             Navigator.pop(sheetContext);
-//           },
-//         );
-//       },
-//     );
-//   }
-// }
-
 import 'package:flutter/material.dart';
-import 'package:google_fonts/google_fonts.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:fluttertoast/fluttertoast.dart';
+import 'package:intl/intl.dart';
 import 'package:sizer/sizer.dart';
-
 import 'ERP/UI/Utils/colors_constants.dart';
+import 'ERP/UI/Utils/date_picker.dart';
+import 'ERP/UI/Widgets/Cards.dart';
+import 'ERP/UI/Widgets/Custom_Button.dart';
+import 'ERP/UI/Widgets/Custom_Date_Time_Picker.dart';
+import 'ERP/UI/Widgets/Custom_Dialog.dart';
+import 'ERP/UI/Widgets/Custom_Dropdown.dart';
+import 'ERP/UI/Widgets/Custom_appbar.dart';
+import 'ERP/UI/Widgets/TextWidgets.dart';
+import 'ERP/api/models/DAOGetGENDetail.dart';
+import 'ERP/api/models/DAOGetGENumber.dart';
+import 'ERP/bloc/DropDownValueBloc/gate_entry_number_bloc.dart';
+import 'ERP/bloc/GoodsReceivedNotesBloc/add_goods_received_notes_bloc.dart';
+import 'ERP/bloc/GoodsReceivedNotesBloc/goods_received_notes_by_id_bloc.dart';
+import 'ERP/bloc/GoodsReceivedNotesBloc/grn_detail_by_id_bloc.dart';
 
-void main() {
-  runApp(const MyApp());
-}
+enum EditSource { received, rejected, accepted }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class GRNItem {
+  final String name;
+  final String unit;
+  final int orderedQty;
+  final TextEditingController receivedQty = TextEditingController();
+  final TextEditingController rejectedQty = TextEditingController();
+  final TextEditingController acceptedQty = TextEditingController();
+  final TextEditingController shortQty = TextEditingController();
+  final TextEditingController excessQty = TextEditingController();
+  final TextEditingController amount = TextEditingController();
+  final TextEditingController poBalanceQty = TextEditingController();
+  final TextEditingController rate=TextEditingController();
 
-  @override
-  Widget build(BuildContext context) {
-    return Sizer(
-      builder: (context, orientation, deviceType) {
-        return MaterialApp(
-          debugShowCheckedModeBanner: false,
-          title: 'Blinking Text Demo',
-          home: const TestBlinkingTextPage(),
-        );
-      },
-    );
+
+  EditSource lastEdited = EditSource.received;
+
+  GRNItem({
+    required this.name,
+    required this.unit,
+    required this.orderedQty,
+  });
+
+  void calculate() {
+    final received = int.tryParse(receivedQty.text) ?? 0;
+    final acceptedInput = int.tryParse(acceptedQty.text) ?? 0;
+    final rejectedInput = int.tryParse(rejectedQty.text) ?? 0;
+
+    int accepted;
+    int rejected;
+
+    /// 🔹 Decide calculation path
+    if (lastEdited == EditSource.accepted) {
+      accepted = acceptedInput.clamp(0, received);
+      rejected = (received - accepted).clamp(0, received);
+      // rejectedQty.text = rejected.toString();
+    } else {
+      rejected = rejectedInput.clamp(0, received);
+      accepted = (received - rejected).clamp(0, received);
+      acceptedQty.text = accepted.toString();
+    }
+
+    /// 🔹 Short / Excess
+    if (received < orderedQty) {
+      shortQty.text = (orderedQty - received).toString();
+      excessQty.text = '0';
+    } else if (received > orderedQty) {
+      excessQty.text = (received - orderedQty).toString();
+      shortQty.text = '0';
+    } else {
+      shortQty.text = '0';
+      excessQty.text = '0';
+    }
+    /// 🔹 PO Balance
+    final poBalance = (orderedQty - accepted).clamp(0, orderedQty);
+    poBalanceQty.text = poBalance.toString();
   }
 }
 
-/* ------------------ BlinkingText Widget ------------------ */
-
-class BlinkingText extends StatefulWidget {
-  final String text;
-  final TextStyle style;
-  final Duration duration;
-
-  const BlinkingText({
-    super.key,
-    required this.text,
-    required this.style,
-    this.duration = const Duration(milliseconds: 900),
-  });
+class AddGoodsReceivedNotes extends StatefulWidget {
+  AddGoodsReceivedNotes({super.key,required this.grn_id});
+  String grn_id;
 
   @override
-  State<BlinkingText> createState() => _BlinkingTextState();
+  State<AddGoodsReceivedNotes> createState() => _AddGoodsReceivedNotesState();
 }
 
-class _BlinkingTextState extends State<BlinkingText>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _opacity;
-  late Animation<double> _scale;
+class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
+  DateTime? _selectedDate;
+  bool _isSubmitting = false;
+
+  String? selectedEntryNumber;
+  String? selectedEntryId;
+
+  GENData _grnData = GENData();
+  List<GRNItem> grnItems = [];
+  bool isEditMode =false;
+  String? errDate;
+  String? errEntryNumber;
+  Map<int, String> grnItemErrors = {};
+  TextEditingController remark=TextEditingController();
 
   @override
   void initState() {
     super.initState();
+    context.read<GateEntryNumberBloc>().add(FetchGateEntryNumbersEvent());
+    BlocProvider.of<GRNDetailByIDBloc>(context).add(FetchGRNDetailByIDEvent(grn_id: widget.grn_id));
+    print("GRN ID: ${widget.grn_id}");
+    isEditMode = widget.grn_id.isNotEmpty;
+  }
 
-    _controller = AnimationController(
-      vsync: this,
-      duration: widget.duration,
-    )..repeat(reverse: true);
+  void initItem(GRNItem item) {
+    item.receivedQty.addListener(() {
+      item.lastEdited = EditSource.received;
+      item.calculate();
+    });
 
-    _opacity = Tween<double>(begin: 0.5, end: 1.0).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+    item.rejectedQty.addListener(() {
+      item.lastEdited = EditSource.rejected;
+      item.calculate();
+    });
+
+    item.acceptedQty.addListener(() {
+      item.lastEdited = EditSource.accepted;
+      item.calculate();
+    });
+  }
+
+  List<GRNItem> _buildItems(GENData data) {
+    final names = (data.item_name ?? '').split(',');
+    final quantities = (data.quantity ?? '').split(',');
+    final units = (data.unit ?? '').split(',');
+    final rates = (data.rate ?? '').split(',');
+
+    final length = [
+      names.length,
+      quantities.length,
+      units.length,
+      rates.length
+    ].reduce((a, b) => a < b ? a : b);
+
+    return List.generate(length, (i) {
+      final item = GRNItem(
+        name: names[i].trim(),
+        orderedQty: int.tryParse(quantities[i].trim()) ?? 0,
+        unit: units[i].trim(),
+        // rate: rates[i]
+      );
+      initItem(item);
+
+      return item;
+    });
+  }
+
+  Future<void> _pickDate() async {
+    DateTime now = DateTime.now();
+    final date = await showAppDatePicker(
+      context: context,
+      initialDate: _selectedDate ?? now,
+      firstDate: DateTime(2000),
+      lastDate: DateTime(DateTime.now().year + 5),
     );
+    if (date != null) {
+      setState(() {
+        _selectedDate = date;
+        errDate=null;
+      });
+    }
+  }
 
-    _scale = Tween<double>(begin: 0.97, end: 1.03).animate(
-      CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
+  bool validateForm() {
+    bool valid = true;
+
+    errDate = null;
+    errEntryNumber = null;
+    grnItemErrors.clear();
+
+    if (_selectedDate == null) {
+      errDate = "Please Select Date*";
+      valid = false;
+    }
+
+    if (selectedEntryId == null) {
+      errEntryNumber = "Please Select Gate Entry Number*";
+      valid = false;
+    }
+
+    for (int i = 0; i < grnItems.length; i++) {
+      final item = grnItems[i];
+
+      final received = double.tryParse(item.receivedQty.text.trim());
+      final rejected = double.tryParse(item.rejectedQty.text.trim());
+      final accepted = double.tryParse(item.acceptedQty.text.trim());
+
+
+      if (received == null || received <= 0) {
+        grnItemErrors[i] = "Please enter valid Received Qty for ${item.name}*";
+        valid = false;
+        continue;
+      }
+
+      if (rejected == null || rejected < 0) {
+        grnItemErrors[i] = "Please enter valid Rejected Qty for ${item.name}*";
+        valid = false;
+        continue;
+      }
+
+      if (accepted == null || accepted < 0) {
+        grnItemErrors[i] = "Please enter valid Accepted Qty for ${item.name}*";
+        valid = false;
+        continue;
+      }
+
+      if (rejected > received) {
+        grnItemErrors[i] = "Rejected Qty cannot be greater than Received Qty for ${item.name}";
+        valid = false;
+        continue;
+      }
+
+      if ((accepted + rejected) != received) {
+        grnItemErrors[i] = "Accepted + Rejected must equal Received Qty for ${item.name}";
+        valid = false;
+      }
+    }
+
+    setState(() {});
+    return valid;
+  }
+
+  void _onSavePressed() {
+    // setState(() { _isSubmitting = true; });
+    if (!validateForm()) {
+      showErrorDialog(context, "Failed", "Please fill required fields");
+      return;
+    }
+    // final validationError = _validateForm();
+    // if (validationError != null) {
+    //   showDialog(
+    //     context: context,
+    //     builder: (context) => Dialog(
+    //       shape: RoundedRectangleBorder(
+    //         borderRadius: BorderRadius.circular(20),
+    //       ),
+    //       backgroundColor: Colors.transparent,
+    //       child: UploadErrorCard(
+    //         title: 'Failed',
+    //         subtitle: validationError,
+    //         onRetry: () {
+    //           Navigator.pop(context);
+    //           setState(() { _isSubmitting = false; });
+    //         },
+    //       ),
+    //     ),
+    //   );
+    //   return;
+    // }
+    final itemNames = grnItems.map((e) => e.name).join(',');
+    final quantities = grnItems.map((e) => e.orderedQty.toString()).join(',');
+    final receivedQty = grnItems.map((e) => e.receivedQty.text).join(',');
+    final shortQty = grnItems.map((e) => e.shortQty.text).join(',');
+    final excessQty = grnItems.map((e) => e.excessQty.text).join(',');
+    final rejectedQty = grnItems.map((e) => e.rejectedQty.text.isNotEmpty ? e.rejectedQty.text : '0').join(',');
+    final acceptedQty = grnItems.map((e) => e.acceptedQty.text).join(',');
+    final poBalance = grnItems.map((e) => e.poBalanceQty.text).join(',');
+    final units = grnItems.map((e) => e.unit).join(',');
+    final amount = grnItems.map((e) => '0').join(',');
+    final itemId = (_grnData.item_id ?? '');
+    final groupId = (_grnData.group_id ?? '');
+    final subGroupId = (_grnData.sub_group_id ?? '');
+    final discount = grnItems.map((e) => '0').join(',');
+    final rate = grnItems.map((e) => e.rate.text.isNotEmpty? e.rate.text:'0').join(',');
+    print(
+        '''
+      Grand total ${_grnData.grand_total} 
+      rate ${rate}
+      '''
     );
+    final grand_total = (_grnData.grand_total ?? '');
+    print(
+       '''
+       grn_date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}
+       gen_no: ${selectedEntryId},
+       bill_no: ${_grnData.bill_no},
+       challan_no: ${_grnData.challan_no},
+       vehcile_no: ${_grnData.vehicle_no},
+       po_no: ${_grnData.selected_po},
+       from_vendor: ${_grnData.from_vendor},
+       company_name: ${_grnData.company_name},
+       to_warehouse: ${_grnData.to_warehouse},
+       to_warehouse_id: ${_grnData.to_warehouse_id}
+       requested_by: ${_grnData.ordered_by},
+       contact: ${_grnData.contact},
+       item_names: ${itemNames},
+       quantities: ${quantities},
+       received_qty: ${receivedQty},
+       short_qty: ${shortQty},
+       excess_qty: ${excessQty},
+       rejected_qty: ${rejectedQty},
+       accepted_qty: ${acceptedQty},
+       po_balance: ${poBalance},
+       item_id: ${itemId},
+       group_id: ${groupId},
+       sub_group_id: ${subGroupId},
+       unit: ${units}
+       discount: ${discount},
+       amount: ${amount},
+       rate: ${rate},
+       grand_total: ${grand_total},
+       remarks:${remark.text}
+      '''
+    );
+    // context.read<AddGoodsReceivedNotesBloc>().add(
+    //   SubmitAddGoodsReceivedNotesEvent(
+    //       grn_date: DateFormat('yyyy-MM-dd').format(_selectedDate!),
+    //       gen_no: selectedEntryId??"",
+    //       bill_no: _grnData.bill_no,
+    //       challan_no: _grnData.challan_no,
+    //       vehcile_no: _grnData.vehicle_no,
+    //       po_no: _grnData.selected_po,
+    //       from_vendor: _grnData.from_vendor,
+    //       company_name: _grnData.company_name,
+    //       to_warehouse: _grnData.to_warehouse,
+    //       to_warehouse_id: _grnData.to_warehouse_id,
+    //       requested_by: _grnData.ordered_by,
+    //       contact: _grnData.contact,
+    //       item_names: itemNames,
+    //       quantities: quantities,
+    //       received_qty: receivedQty,
+    //       short_qty: shortQty,
+    //       excess_qty: excessQty,
+    //       rejected_qty: rejectedQty,
+    //       accepted_qty: acceptedQty,
+    //       po_balance: poBalance,
+    //       rate: rate,
+    //       discount: discount,
+    //       amount: amount,
+    //       item_id: itemId,
+    //       group_id: groupId,
+    //       sub_group_id: subGroupId,
+    //       unit: units,
+    //       grand_total: grand_total,
+    //       remarks: remark.text
+    //   ),
+    // );
+  }
+
+  void getDate(String inputDate) {
+    if (inputDate.isEmpty) return;
+    DateFormat inputFormat = DateFormat("MMMM, dd yyyy HH:mm:ss Z");
+    try {
+      DateTime parsedDate = inputFormat.parse(inputDate);
+      DateFormat outputFormat = DateFormat("yyyy-MM-dd HH:mm:ss.SSS");
+      String formattedDate = outputFormat.format(parsedDate);
+      print(formattedDate);
+      _selectedDate = parsedDate;
+    } catch (e) {
+      print('Error parsing date: $e');
+    }
   }
 
   @override
   void dispose() {
-    _controller.dispose();
+    for (final item in grnItems) {
+      item.receivedQty.dispose();
+      item.rejectedQty.dispose();
+      item.acceptedQty.dispose();
+    }
+    remark.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    return FadeTransition(
-      opacity: _opacity,
-      child: ScaleTransition(
-        scale: _scale,
-        child: Container(
-          height: 100,
-          padding: EdgeInsets.symmetric(
-            horizontal: 20.sp,
-            vertical: 12.sp,
+    return Scaffold(
+      backgroundColor: ColorConstants.background,
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<AddGoodsReceivedNotesBloc, AddGoodsReceivedNotesState>(
+            listener: (context, state) {
+              if (state is AddGoodsReceivedNotesSuccess) {
+                setState(() {
+                  _isSubmitting = false;
+                });
+
+                showConfirmDialog(
+                  context: context,
+                  title: "Success",
+                  message: "GRN saved successfully!",
+                  content: state.grn_no,
+                  confirmText: "Ok",
+                  callback: () {
+                    Navigator.of(context).pop(); // closes dialog
+                    Navigator.of(context).pop(true); // pops screen ✅
+                  },
+                );
+                Fluttertoast.showToast(msg: state.message);
+              }
+
+              else if (state is AddGoodsReceivedNotesFailed) {
+                setState(() {
+                  _isSubmitting = false;
+                });
+
+                showDialog(
+                  context: context,
+                  barrierDismissible: false,
+                  builder: (context) => Dialog(
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(20),
+                    ),
+                    backgroundColor: Colors.transparent,
+                    child: UploadErrorCard(
+                      title: "Failed to Add Goods Received Notes",
+                      subtitle: state.message,
+                      onRetry: () {
+                        Navigator.pop(context);
+                      },
+                    ),
+                  ),
+                );
+              }
+            },
           ),
-          decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(5),
-            gradient: const LinearGradient(
-              begin: Alignment.topRight,
-              end: Alignment.bottomRight,
-              colors: [
-                Color(0xFFF6CD95),
-                Color(0xFFFFF5F5),
+          BlocListener<GoodsReceivedNotesByIDBloc, GoodsReceivedNotesByIDState>(
+            listener: (context, state) {
+              if (state is GoodsReceivedNotesByIDLoadSuccess) {
+                setState(() {
+                  _grnData = state.goodsReceivedNotesByID.first;
+                  grnItems = _buildItems(_grnData);
+                });
+              }
+            },
+          ),
+          BlocListener<GRNDetailByIDBloc, GRNDetailByIDState>(
+            listener: (context, state) {
+              if (state is GRNDetailByIDLoadSuccess &&
+                  widget.grn_id.isNotEmpty &&
+                  state.GRNDetailByID.isNotEmpty) {
+
+                final detail = state.GRNDetailByID.first;
+
+                setState(() {
+                  getDate(detail.grn_date ?? "");
+                  selectedEntryId = detail.gen_id;
+                  selectedEntryNumber = detail.gen_no;
+                  remark.text = detail.remarks??"";
+
+                  _grnData = GENData(
+                    bill_no: detail.bill_no,
+                    challan_no: detail.challan_no,
+                    vehicle_no: detail.vehicle_no,
+                    selected_po: detail.po_no,
+                    from_vendor: detail.from_vendor,
+                    to_warehouse: detail.to_warehouse,
+                    ordered_by: detail.requested_by,
+                    contact: detail.contact,
+                  );
+
+                  grnItems.clear();
+                  final itemNames = (detail.item_name ?? '').split(',');
+                  final quantities = (detail.quantity ?? '').split(',');
+                  final receivedQty = (detail.received_qty ?? '').split(',');
+                  final acceptedQty = (detail.accepted_qty ?? '').split(',');
+                  final rejectedQty = (detail.rejected_qty ?? '').split(',');
+                  final shortQty = (detail.short_qty ?? '').split(',');
+                  final excessQty = (detail.excess_qty ?? '').split(',');
+                  final poBalanceQty = (detail.po_balance ?? '').split(',');
+                  final rate = (detail.rate ?? "").split(',');
+
+                  for (int i = 0; i < itemNames.length; i++) {
+                    final item = GRNItem(
+                      name: itemNames[i].trim(),
+                      orderedQty: int.tryParse(quantities[i]) ?? 0,
+                      unit: '',
+                      // rate: itemNames[i].trim()
+                    );
+
+                    initItem(item);
+
+                    // 🔒 disable calculations
+                    // item.isInitializing = true;
+
+                    item.receivedQty.text = receivedQty[i];
+                    item.acceptedQty.text = acceptedQty[i];
+                    item.rejectedQty.text = rejectedQty[i];
+                    item.shortQty.text = shortQty[i];
+                    item.excessQty.text = excessQty[i];
+                    item.poBalanceQty.text = poBalanceQty[i];
+                    item.rate.text = rate[i];
+                    item.lastEdited = EditSource.accepted;
+                    // item.isInitializing = false;
+                    grnItems.add(item);
+                  }
+                });
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<AddGoodsReceivedNotesBloc, AddGoodsReceivedNotesState>(
+          builder: (context, state) {
+            return SafeArea(
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+                child: Column(
+                  children: [
+                    CustomAppbar(
+                      context, title: "Add Goods Received Notes",
+                      subTitle: "Record received goods efficiently",
+                    ),
+                    Expanded(
+                      child: SingleChildScrollView(
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const SizedBox(height: 30),
+                            Row(
+                              children: [
+                                CustomDateTimeTextField(
+                                  onTap: _pickDate,
+                                  hint: _selectedDate == null
+                                      ? '-- Date: --'
+                                      : DateFormat("d MMMM y")
+                                      .format(_selectedDate!),
+                                  icon: Icons.calendar_month,
+                                ),
+                              ],
+                            ),
+                            if (errDate != null)errorText(errDate),
+                            const SizedBox(height: 10),
+                            BlocBuilder<GateEntryNumberBloc, GateEntryNumberState>(
+                              builder: (context, state) {
+                                if (state is GateEntryNumberLoadSuccess) {
+                                  final selectedGEN = state.gateEntryNumbers.firstWhere(
+                                        (element) => element.gen_id == selectedEntryId,
+                                    orElse: () => GENumberData(gen_no: "", gen_id: ""),
+                                  );
+
+                                  final bool isDisabled = widget.grn_id.isNotEmpty;
+
+                                  return Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      subTitle(
+                                        "Mention Gate Entry Number",
+                                        leftMargin: 10.0,
+                                        bottomMargin: 5,
+                                      ),
+                                      /// Optional: visually indicate disabled state
+                                      Opacity(
+                                        opacity: isDisabled ? 0.6 : 1.0,
+                                        child: IgnorePointer(
+                                          ignoring: isDisabled,
+                                          child: TransferDropdown<GENumberData>(
+                                            title: 'GE Number',
+                                            hint: 'Select GE Number',
+                                            selectedVal: selectedGEN.gen_no?.isNotEmpty == true
+                                                ? selectedGEN.gen_no!
+                                                : "",
+                                            data: state.gateEntryNumbers,
+                                            displayText: (data) => data.gen_no ?? '',
+                                            onChanged: isDisabled
+                                                ? null
+                                                : (val) {
+                                              setState(() {
+                                                selectedEntryId = val.gen_id;
+                                                selectedEntryNumber = val.gen_no;
+                                                errEntryNumber=null;
+                                                grnItems.clear();
+                                              });
+                                              print("selectedEntryId ${selectedEntryId}");
+
+                                              context
+                                                  .read<GoodsReceivedNotesByIDBloc>()
+                                                  .add(
+                                                FetchGoodsReceivedNotesByIDEvent(
+                                                  gen_id: selectedEntryId ?? "",
+                                                ),
+                                              );
+                                            },
+                                          ),
+                                        ),
+                                      ),
+                                    ],
+                                  );
+                                }
+
+                                return const SizedBox.shrink();
+                              },
+                            ),
+                            if (errEntryNumber != null)errorText(errEntryNumber),
+                            const SizedBox(height: 5),
+                            txtFiled(context,remark, "Add remark here...", "Remark", maxLines: 3),
+                            const SizedBox(height: 15),
+                            subTitle(
+                                "Mention Bill, Challan, Vehicle, PO, Vendor detail"),
+                            const SizedBox(height: 10),
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: card(
+                                    "Bill Number",
+                                    _grnData.bill_no ?? "--",
+                                    Icons.scoreboard,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: card(
+                                    "Challan Number",
+                                    _grnData.challan_no ?? "--",
+                                    Icons.looks_3,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: card(
+                                    "Vehicle Number",
+                                    _grnData.vehicle_no ?? "--",
+                                    Icons.time_to_leave,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: card(
+                                    "PO Number",
+                                    _grnData.selected_po ?? "--",
+                                    Icons.beenhere,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            Row(
+                              children: [
+                                Expanded(
+                                  child: card(
+                                    "From Vendor",
+                                    _grnData.from_vendor ?? "--",
+                                    Icons.diversity_2,
+                                  ),
+                                ),
+                                const SizedBox(width: 10),
+                                Expanded(
+                                  child: card(
+                                    "To Warehouse",
+                                    _grnData.to_warehouse ?? "--",
+                                    Icons.apartment,
+                                  ),
+                                ),
+                              ],
+                            ),
+
+                            card(
+                              "Ordered by",
+                              _grnData.ordered_by ?? "--",
+                              Icons.bookmark_added,
+                            ),
+
+                            const SizedBox(height: 20),
+
+                            /// ITEM CARDS
+                            ListView.builder(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: grnItems.length,
+                              itemBuilder: (context, index) {
+                                final item = grnItems[index];
+                                return buildItemCard(item,index);
+                              },
+                            ),
+
+                            const SizedBox(height: 40),
+                            if(widget.grn_id.isEmpty)
+                              PrimaryButton(
+                                title:
+                                _isSubmitting ? "Saving..." : "Save",
+                                onAction:
+                                _isSubmitting ? () {} : _onSavePressed,
+                              ),
+                            const SizedBox(height: 30),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget buildItemCard(GRNItem item, int index) {
+    var receivedQtyEmpty = item.receivedQty.text.trim().isEmpty;
+    final rejectedQtyEmpty = item.rejectedQty.text.trim().isEmpty;
+    String? errorMessage;
+    if (receivedQtyEmpty) {
+      errorMessage = "Received Qty is required*";
+    } else if (rejectedQtyEmpty) {
+      errorMessage = "Rejected Qty is required*";
+    }
+
+    final hasError = errorMessage != null;
+
+    return Container(
+      margin: const EdgeInsets.only(bottom: 20),
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(10),
+        border: Border.all(
+          color: ColorConstants.primary.withOpacity(.2),
+        ),
+      ),
+      child: Column(
+        children: [
+          /// HEADER
+          Container(
+            width: 90.w,
+            padding: const EdgeInsets.all(10),
+            decoration: const BoxDecoration(
+              gradient: LinearGradient(
+                colors: [
+                  ColorConstants.primary,
+                  ColorConstants.primary,
+                  ColorConstants.primary,
+                  ColorConstants.secondary,
+                ],
+              ),
+            ),
+            child: Text(
+              item.name ?? "",
+              style: const TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
+          ),
+
+          Padding(
+            padding: const EdgeInsets.all(15),
+            child: Column(
+              children: [
+                row(
+                  readOnlyField(
+                    item.orderedQty.toString(),
+                    "Ordered Quantity",
+                  ),
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      inputField(
+                          item.receivedQty,
+                          "Received Quantity",
+                          enabled: !isEditMode,
+                          bottomMargin: 2,
+                          onChange: (){
+                            receivedQtyEmpty=false;
+                            setState(() {});
+                          }
+                      ),
+
+                      /// ❌ ERROR BELOW RECEIVED QTY
+                      if (hasError && receivedQtyEmpty)
+                        errorText(errorMessage!, leftPadding: 0),
+
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                ),
+
+                row(
+                  readOnlyField(
+                    item.shortQty.text,
+                    "Short Quantity",
+                    controller: item.shortQty,
+                  ),
+                  readOnlyField(
+                    item.excessQty.text,
+                    "Excess Quantity",
+                    controller: item.excessQty,
+                  ),
+                ),
+
+                row(
+                  Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      inputField(
+                        item.rejectedQty,
+                        "Rejected Quantity",
+                        enabled: !isEditMode,
+                        bottomMargin: 2,
+                      ),
+                      if (hasError && !receivedQtyEmpty && rejectedQtyEmpty)
+                        errorText(errorMessage!, leftPadding: 0),
+                      const SizedBox(height: 10),
+                    ],
+                  ),
+                  inputField(
+                    item.acceptedQty,
+                    "Accepted Quantity",
+                    enabled: !isEditMode,
+                  ),
+                ),
+
+                row(
+                  inputField(item.rate,"Rate"),
+                  readOnlyField(
+                    item.amount.text,
+                    "Amount",
+                    controller: item.amount,
+                  ),
+                ),
+                readOnlyField(
+                  item.poBalanceQty.text,
+                  "PO Balance",
+                  controller: item.poBalanceQty,
+                ),
               ],
             ),
-            boxShadow: [
-              BoxShadow(
-                color: ColorConstants.primary.withOpacity(0.25),
-                blurRadius: 12,
-                offset: const Offset(0, 6),
+          ),
+
+        ],
+      ),
+    );
+  }
+
+  Widget inputField(TextEditingController controller,
+      String title,{bool enabled = true,double bottomMargin=15.0,final onChange}) {
+    return txt(controller, title, enabled: enabled,bottomMargin: bottomMargin,onChanged: onChange);
+  }
+
+  Widget readOnlyField(String value, String title,
+      {TextEditingController? controller}) {
+    return field(
+      controller ?? TextEditingController(text: value),
+      title,
+      enabled: false,
+    );
+  }
+
+  Widget field(TextEditingController controller, String title,
+      {required bool enabled}) {
+    return Container(
+      margin: const EdgeInsets.only(bottom: 15),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title, style: const TextStyle(fontSize: 14, color: Colors.black54)),
+          const SizedBox(height: 5),
+          Container(
+            decoration: BoxDecoration(
+              color: Colors.grey.withOpacity(.1),
+              borderRadius: BorderRadius.circular(5),
+            ),
+            child: TextField(
+              controller: controller,
+              enabled: enabled,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                filled: true,
               ),
-            ],
+            ),
           ),
-          child: Row(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              Text(widget.text, style: widget.style),
-            ],
+        ],
+      ),
+    );
+  }
+
+  Widget txt(dynamic controller, String title,
+      {bool enabled = true,double bottomMargin=15.0,final onChanged}) {
+    return Container(
+      margin:  EdgeInsets.only(bottom: bottomMargin),
+      // height: 30,
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(title,
+              style: const TextStyle(
+                  fontSize: 14, color: Colors.black54)),
+          const SizedBox(height: 5),
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 5,vertical: 5),
+            height: 40,
+            decoration: BoxDecoration(
+                borderRadius: BorderRadius.circular(5),
+                border: Border.all(
+                    color: Colors.grey.withOpacity(.6)
+                )
+            ),
+            child: TextField(
+              controller: controller is String ? TextEditingController(text: controller) : controller,
+              enabled: enabled,
+              keyboardType: TextInputType.number,
+              onChanged: (val){
+                onChanged;
+              },
+              decoration: const InputDecoration(
+                border: InputBorder.none,
+                enabledBorder: InputBorder.none,
+                focusedBorder: InputBorder.none,
+                disabledBorder: InputBorder.none,
+                errorBorder: InputBorder.none,
+                focusedErrorBorder: InputBorder.none,
+                isDense: true, contentPadding: EdgeInsets.zero,
+              ),
+            ),
           ),
-        ),
+
+        ],
       ),
     );
   }
 }
-
-/* ------------------ Test Screen ------------------ */
-
-class TestBlinkingTextPage extends StatelessWidget {
-  const TestBlinkingTextPage({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Blinking Text Test"),
-      ),
-      body: Center(
-        child: BlinkingText(
-          text: "Enter end time",
-          style: GoogleFonts.poppins(
-            fontSize: 16.sp,
-            color: Colors.red,
-            fontWeight: FontWeight.w600,
-          ),
-        ),
-      ),
-    );
-  }
-}
-
-// import 'dart:async';
-// import 'package:flutter/material.dart';
-// import 'package:flutter_bloc/flutter_bloc.dart';
-// import 'package:flutter_feather_icons/flutter_feather_icons.dart';
-// import 'package:google_fonts/google_fonts.dart';
-// import 'package:intl/intl.dart';
-// import 'package:sizer/sizer.dart';
-// import '../../../api/models/DAOGetGatePass.dart';
-// import '../../../api/services/add_gate_pass_service.dart';
-// import '../../../bloc/GatePass/delete_gate_pass_bloc.dart';
-// import '../../../bloc/GatePass/delete_gate_pass_project_bloc.dart';
-// import '../../../bloc/GatePass/delete_gate_pass_warehouse_bloc.dart';
-// import '../../../bloc/GatePass/gate_pass_bloc.dart';
-// import '../../Utils/utils.dart';
-// import '../../Widgets/Bottom_Sheet.dart';
-// import '../../Widgets/Custom_Date_Time_Picker.dart';
-// import '../../Widgets/Custom_Dropdown.dart';
-// import '../../Widgets/Custom_appbar.dart';
-// import '../../Widgets/Date_Formate.dart';
-// import '../../Widgets/TextWidgets.dart';
-// import '../../Utils/colors_constants.dart';
-// import 'Add_Gate_Pass.dart';
-// import 'Gate_Pass_Detail.dart';
-//
-// class GatePass extends StatefulWidget {
-//   const GatePass({super.key});
-//
-//   @override
-//   State<GatePass> createState() => _GatePassState();
-// }
-//
-// class _GatePassState extends State<GatePass> {
-//   final TextEditingController searchController = TextEditingController();
-//   final ScrollController _scrollController = ScrollController();
-//   DateTime? _selectedFromDate;
-//   DateTime? _selectedToDate;
-//   final transferType = ['Warehouse Type', 'Project Type'];
-//   String selectedTransfer = "";
-//   // paging
-//   static const int _pageSize = 10;
-//   bool _isLoadingMore = false;
-//   bool _hasMore = true;
-//   bool _isInitialLoading = false;
-//   String? _error;
-//
-//   // data
-//   final List<GatePassData> _allItems = []; // master list accumulated from pages
-//   final List<GatePassData> _visibleItems = []; // filtered by search
-//
-//   late final GatePassBloc _GatePassBloc;
-//
-//   Timer? _debounce;
-//
-//   // filters (server-side)
-//   String gatePass = "";
-//   String itemSelected = "";
-//   String transferSelected = "";
-//   String dateFrom = "";
-//   String dateTo = "";
-//
-//   // delete blocs (page-level)
-//   late final DeleteGatePassBloc _deleteGatePassBloc;
-//   late final DeleteGatePassProjectBloc _deleteGatePassProjectBloc;
-//   late final DeleteGatePassWarehouseBloc _deleteGatePassWarehouseBloc;
-//
-//   // optimistic rollback storage
-//   GatePassData? _lastRemovedItem;
-//   int? _lastRemovedIndex;
-//
-//   // pending deletes tracker — will contain keys like "gatepass","project","warehouse"
-//   final Set<String> _pendingDeletes = {};
-//
-//   @override
-//   void initState() {
-//     super.initState();
-//     final service = GatePassService();
-//     _GatePassBloc = GatePassBloc(service: service);
-//
-//     // create delete blocs
-//     _deleteGatePassBloc = DeleteGatePassBloc();
-//     _deleteGatePassProjectBloc = DeleteGatePassProjectBloc();
-//     _deleteGatePassWarehouseBloc = DeleteGatePassWarehouseBloc();
-//
-//     // search debounce
-//     searchController.addListener(() {
-//       if (_debounce?.isActive ?? false) _debounce!.cancel();
-//       _debounce = Timer(const Duration(milliseconds: 300), () {
-//         _applyLocalSearch();
-//       });
-//     });
-//
-//     _loadPage(start: 0);
-//     _scrollController.addListener(_onScroll);
-//   }
-//
-//   void _applyLocalSearch() {
-//     final q = searchController.text.trim().toLowerCase();
-//     setState(() {
-//       if (q.isEmpty) {
-//         _visibleItems
-//           ..clear()
-//           ..addAll(_allItems);
-//       } else {
-//         _visibleItems
-//           ..clear()
-//           ..addAll(_allItems.where((p) {
-//             final gate = (p.gate_pass ?? '').toString().toLowerCase();
-//             final material = (p.issued_material ?? '').toString().toLowerCase();
-//             final fromWh =
-//             (p.from_warehouse_name ?? '').toString().toLowerCase();
-//             final toWh = (p.to_warehouse_name ?? '').toString().toLowerCase();
-//             final proj = (p.to_project_name ?? '').toString().toLowerCase();
-//             final transfer = (p.transfer_type ?? '').toString().toLowerCase();
-//             final outTime = (p.out_time ?? '').toString().toLowerCase();
-//
-//             return gate.contains(q) ||
-//                 material.contains(q) ||
-//                 fromWh.contains(q) ||
-//                 toWh.contains(q) ||
-//                 proj.contains(q) ||
-//                 transfer.contains(q) ||
-//                 outTime.contains(q);
-//           }));
-//       }
-//     });
-//   }
-//
-//   void _onScroll() {
-//     if (!_scrollController.hasClients || _isLoadingMore || !_hasMore) return;
-//     final maxScroll = _scrollController.position.maxScrollExtent;
-//     final current = _scrollController.position.pixels;
-//     if (current >= (maxScroll - 300)) {
-//       _loadPage(start: _allItems.length);
-//     }
-//   }
-//
-//   Future<void> _loadPage({required int start}) async {
-//     // defensive: avoid duplicate loads
-//     if ((start == 0 && _isInitialLoading) || (start > 0 && _isLoadingMore)) {
-//       return;
-//     }
-//
-//     if (start == 0) {
-//       if (!mounted) return;
-//       setState(() {
-//         _isInitialLoading = true;
-//         _error = null;
-//       });
-//     } else {
-//       if (!mounted) return;
-//       setState(() {
-//         _isLoadingMore = true;
-//       });
-//     }
-//
-//     _GatePassBloc.add(FetchGatePasssEvent(
-//       start: start,
-//       length: _pageSize,
-//       from: dateFrom,
-//       to: dateTo,
-//       gate_pass_number: gatePass,
-//       transferType: transferSelected,
-//       item: itemSelected,
-//     ));
-//   }
-//
-//   Future<void> _onRefresh() async {
-//     dateFrom = "";
-//     dateTo = "";
-//     _selectedFromDate = null;
-//     _selectedToDate = null;
-//     selectedTransfer = "";
-//     transferSelected = "";
-//     _hasMore = true;
-//     _allItems.clear();
-//     _visibleItems.clear();
-//     searchController.text = "";
-//     setState(() {});
-//     _loadPage(start: 0);
-//
-//     // wait until initial load finished
-//     while (_isInitialLoading) {
-//       await Future.delayed(const Duration(milliseconds: 50));
-//     }
-//   }
-//
-//   @override
-//   void dispose() {
-//     _debounce?.cancel();
-//     searchController.dispose();
-//     _scrollController.removeListener(_onScroll);
-//     _scrollController.dispose();
-//     _GatePassBloc.close();
-//     _deleteGatePassBloc.close();
-//     _deleteGatePassProjectBloc.close();
-//     _deleteGatePassWarehouseBloc.close();
-//     super.dispose();
-//   }
-//
-//   void _clearPendingDeletes() {
-//     _pendingDeletes.clear();
-//   }
-//
-//   @override
-//   Widget build(BuildContext context) {
-//     // Provide GatePassBloc + delete blocs to subtree
-//     return MultiBlocProvider(
-//       providers: [
-//         BlocProvider<GatePassBloc>.value(value: _GatePassBloc),
-//         BlocProvider<DeleteGatePassBloc>.value(value: _deleteGatePassBloc),
-//         BlocProvider<DeleteGatePassProjectBloc>.value(
-//             value: _deleteGatePassProjectBloc),
-//         BlocProvider<DeleteGatePassWarehouseBloc>.value(
-//             value: _deleteGatePassWarehouseBloc),
-//       ],
-//       child: Scaffold(
-//         backgroundColor: ColorConstants.background,
-//         body: SafeArea(
-//           child: Container(
-//             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
-//             child: Column(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 CustomAppbar(context,
-//                     title: "Gate Pass", subTitle: "View and manage all gate passes"),
-//                 Expanded(
-//                   child: MultiBlocListener(
-//                     listeners: [
-//                       BlocListener<GatePassBloc, GatePassState>(
-//                         listener: (context, state) {
-//                           if (state is GatePassLoadSuccess) {
-//                             final newItems = state.GatePass ?? [];
-//                             setState(() {
-//                               // append new items (avoid duplicates)
-//                               for (var ni in newItems) {
-//                                 final exists = _allItems.any(
-//                                         (e) => e.gatepass_id == ni.gatepass_id);
-//                                 if (!exists) _allItems.add(ni);
-//                               }
-//
-//                               // update visible list using local search box
-//                               final q =
-//                               searchController.text.trim().toLowerCase();
-//                               if (q.isEmpty) {
-//                                 _visibleItems
-//                                   ..clear()
-//                                   ..addAll(_allItems);
-//                               } else {
-//                                 _visibleItems
-//                                   ..clear()
-//                                   ..addAll(_allItems.where((p) {
-//                                     final gate = (p.gate_pass ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final material = (p.issued_material ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final fromWh = (p.from_warehouse_name ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final toWh = (p.to_warehouse_name ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final proj = (p.to_project_name ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final transfer = (p.transfer_type ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final outTime = (p.out_time ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//
-//                                     return gate.contains(q) ||
-//                                         material.contains(q) ||
-//                                         fromWh.contains(q) ||
-//                                         toWh.contains(q) ||
-//                                         proj.contains(q) ||
-//                                         transfer.contains(q) ||
-//                                         outTime.contains(q);
-//                                   }));
-//                               }
-//
-//                               // clear loading flags
-//                               _isInitialLoading = false;
-//                               _isLoadingMore = false;
-//
-//                               // pagination
-//                               if (newItems.length < _pageSize) {
-//                                 _hasMore = false;
-//                               } else {
-//                                 _hasMore = true;
-//                               }
-//                             });
-//                           } else if (state is GatePassLoadFailure) {
-//                             setState(() {
-//                               _isInitialLoading = false;
-//                               _isLoadingMore = false;
-//                               _error = state.message;
-//                             });
-//                           }
-//                         },
-//                       ),
-//                       BlocListener<DeleteGatePassBloc, DeleteGatePassState>(
-//                         listener: (context, state) {
-//                           if (state is DeleteGatePassSuccess) {
-//                             // Remove 'gatepass' from pending. If no more pending, refresh.
-//                             _pendingDeletes.remove('gatepass');
-//                             if (_pendingDeletes.isEmpty) {
-//                               // all deletes done -> refresh
-//                               _lastRemovedItem = null;
-//                               _lastRemovedIndex = null;
-//                               _onRefresh();
-//                             }
-//                           } else if (state is DeleteGatePassFailed) {
-//                             // rollback optimistic removal if present
-//                             if (_lastRemovedItem != null) {
-//                               setState(() {
-//                                 final idx = _lastRemovedIndex ?? 0;
-//                                 final insertIndex = (idx <= _allItems.length)
-//                                     ? idx
-//                                     : _allItems.length;
-//                                 _allItems.insert(
-//                                     insertIndex, _lastRemovedItem!);
-//                                 // reapply visible filter
-//                                 _applyLocalSearch();
-//                               });
-//                               _lastRemovedItem = null;
-//                               _lastRemovedIndex = null;
-//                             }
-//                             _clearPendingDeletes();
-//                           }
-//                         },
-//                       ),
-//                       BlocListener<DeleteGatePassProjectBloc,
-//                           DeleteGatePassProjectState>(
-//                         listener: (context, state) {
-//                           if (state is DeleteGatePassProjectSuccess) {
-//                             _pendingDeletes.remove('project');
-//                             if (_pendingDeletes.isEmpty) {
-//                               _lastRemovedItem = null;
-//                               _lastRemovedIndex = null;
-//                               _onRefresh();
-//                             }
-//                           } else if (state is DeleteGatePassProjectFailed) {
-//                             // rollback
-//                             if (_lastRemovedItem != null) {
-//                               setState(() {
-//                                 final idx = _lastRemovedIndex ?? 0;
-//                                 final insertIndex = (idx <= _allItems.length)
-//                                     ? idx
-//                                     : _allItems.length;
-//                                 _allItems.insert(
-//                                     insertIndex, _lastRemovedItem!);
-//                                 _applyLocalSearch();
-//                               });
-//                               _lastRemovedItem = null;
-//                               _lastRemovedIndex = null;
-//                             }
-//                             _clearPendingDeletes();
-//                           }
-//                         },
-//                       ),
-//                       BlocListener<DeleteGatePassWarehouseBloc,
-//                           DeleteGatePassWarehouseState>(
-//                         listener: (context, state) {
-//                           if (state is DeleteGatePassWarehouseSuccess) {
-//                             _pendingDeletes.remove('warehouse');
-//                             if (_pendingDeletes.isEmpty) {
-//                               _lastRemovedItem = null;
-//                               _lastRemovedIndex = null;
-//                               _onRefresh();
-//                             }
-//                           } else if (state is DeleteGatePassWarehouseFailed) {
-//                             if (_lastRemovedItem != null) {
-//                               setState(() {
-//                                 final idx = _lastRemovedIndex ?? 0;
-//                                 final insertIndex = (idx <= _allItems.length)
-//                                     ? idx
-//                                     : _allItems.length;
-//                                 _allItems.insert(
-//                                     insertIndex, _lastRemovedItem!);
-//                                 _applyLocalSearch();
-//                               });
-//                               _lastRemovedItem = null;
-//                               _lastRemovedIndex = null;
-//                             }
-//                             _clearPendingDeletes();
-//                           }
-//                         },
-//                       ),
-//                     ],
-//                     child: RefreshIndicator(
-//                       color: ColorConstants.primary,
-//                       backgroundColor: Colors.white,
-//                       onRefresh: _onRefresh,
-//                       child: _buildBody(),
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           ),
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Widget _buildBody() {
-//     final header = Container(
-//       padding: const EdgeInsets.only(bottom: 10, left: 10, right: 10, top: 20),
-//       margin: const EdgeInsets.only(top: 20),
-//       decoration: BoxDecoration(
-//         color: Colors.white,
-//         borderRadius: BorderRadius.circular(5),
-//       ),
-//       child: Column(
-//         children: [
-//           Row(
-//             children: [
-//               Expanded(
-//                 child: InkWell(
-//                   splashColor: Colors.transparent,
-//                   highlightColor: Colors.transparent,
-//                   onTap: () {},
-//                   child: Container(
-//                     padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 0),
-//                     decoration: ShapeDecoration(
-//                       shape: ContinuousRectangleBorder(
-//                           side: BorderSide(color: Colors.grey.withOpacity(.2)),
-//                           borderRadius: BorderRadius.circular(30)),
-//                     ),
-//                     child: Row(
-//                       children: [
-//                         Container(
-//                             child: Icon(FeatherIcons.search,
-//                                 color: ColorConstants.primary, size: 15)),
-//                         const SizedBox(width: 10),
-//                         Expanded(
-//                           child: TextField(
-//                             controller: searchController,
-//                             cursorColor: ColorConstants.primary,
-//                             decoration: const InputDecoration(
-//                               hintText: "Search by item and gate pass",
-//                               hintStyle: TextStyle(
-//                                   fontSize: 13
-//                               ),
-//                               border: InputBorder.none,
-//                             ),
-//                             onChanged: (v) {
-//                               final q = v.trim().toLowerCase();
-//                               setState(() {
-//                                 _visibleItems
-//                                   ..clear()
-//                                   ..addAll(_allItems.where((p) {
-//                                     final gate = (p.gate_pass ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final material = (p.issued_material ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final fromWh = (p.from_warehouse_name ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final toWh = (p.to_warehouse_name ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final proj = (p.to_project_name ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final transfer = (p.transfer_type ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//                                     final outTime = (p.out_time ?? '')
-//                                         .toString()
-//                                         .toLowerCase();
-//
-//                                     return gate.contains(q) ||
-//                                         material.contains(q) ||
-//                                         fromWh.contains(q) ||
-//                                         toWh.contains(q) ||
-//                                         proj.contains(q) ||
-//                                         transfer.contains(q) ||
-//                                         outTime.contains(q);
-//                                   }));
-//                               });
-//                             },
-//                           ),
-//                         ),
-//                       ],
-//                     ),
-//                   ),
-//                 ),
-//               ),
-//               const SizedBox(width: 10),
-//               InkWell(
-//                 onTap: () async {
-//                   final result = await Utils.navigateTo(
-//                     context,
-//                     AddGatePassPage(id: ""),
-//                   );
-//                   if (result == "true") {
-//                     _onRefresh();
-//                   }
-//                 },
-//                 child: Container(
-//                   padding:
-//                   const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
-//                   decoration: ShapeDecoration(
-//                       shape: ContinuousRectangleBorder(
-//                           side: BorderSide(color: Colors.grey.withOpacity(.2)),
-//                           borderRadius: BorderRadius.circular(30)),
-//                       color: ColorConstants.primary),
-//                   child: const Icon(Icons.add, size: 18, color: Colors.white),
-//                 ),
-//               )
-//             ],
-//           ),
-//           const SizedBox(height: 12),
-//           Row(
-//             children: [
-//               Expanded(
-//                 child: CustomDateTimeTextField(
-//                   onTap: _pickFromDate,
-//                   hint: _selectedFromDate == null
-//                       ? '-- From Date --'
-//                       : DateFormat("d MMMM y").format(_selectedFromDate!),
-//                   icon: Icons.calendar_month,
-//                 ),
-//               ),
-//               const SizedBox(width: 10),
-//               Expanded(
-//                 child: CustomDateTimeTextField(
-//                   onTap: _pickToDate,
-//                   hint: _selectedToDate == null
-//                       ? '-- To Date --'
-//                       : DateFormat("d MMMM y").format(_selectedToDate!),
-//                   icon: Icons.calendar_month,
-//                 ),
-//               ),
-//             ],
-//           ),
-//           TransferDropdown<String>(
-//             title: "Transfer Type",
-//             hint: 'Select Transfer Type',
-//             selectedVal: selectedTransfer,
-//             data: transferType,
-//             displayText: (t) => t,
-//             onChanged: (val) {
-//               selectedTransfer = val;
-//               _applyFiltersAndReload();
-//             },
-//           ),
-//         ],
-//       ),
-//     );
-//
-//     // If still initial loading, show header + spinner
-//     if (_isInitialLoading && _allItems.isEmpty) {
-//       return ListView(
-//         physics: const AlwaysScrollableScrollPhysics(),
-//         children: [
-//           header,
-//           const SizedBox(height: 30),
-//           const Center(
-//               child: CircularProgressIndicator(color: ColorConstants.primary)),
-//         ],
-//       );
-//     }
-//
-//     if (_error != null && _allItems.isEmpty) {
-//       return ListView(
-//         physics: const AlwaysScrollableScrollPhysics(),
-//         children: [
-//           header,
-//           const SizedBox(height: 30),
-//           Center(
-//             child: Column(
-//               children: [
-//                 Text('Error: $_error'),
-//                 const SizedBox(height: 12),
-//                 InkWell(
-//                   onTap: () {
-//                     _loadPage(start: 0);
-//                   },
-//                   child: Container(
-//                     width: 40.w,
-//                     padding: const EdgeInsets.symmetric(
-//                         horizontal: 10, vertical: 10),
-//                     decoration: BoxDecoration(
-//                       border:
-//                       Border.all(width: 1, color: ColorConstants.primary),
-//                       borderRadius: BorderRadius.circular(10),
-//                     ),
-//                     child: Center(
-//                         child: cText("Retry", color: ColorConstants.primary)),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           )
-//         ],
-//       );
-//     }
-//
-//     final bool filtersApplied = (searchController.text.trim().isNotEmpty) ||
-//         selectedTransfer != null ||
-//         _selectedFromDate != null ||
-//         _selectedToDate != null;
-//
-//     if (!_isInitialLoading && _visibleItems.isEmpty) {
-//       if (filtersApplied) {
-//         return ListView(
-//           physics: const AlwaysScrollableScrollPhysics(),
-//           children: [
-//             header,
-//             const SizedBox(height: 30),
-//             Center(
-//               child: Column(
-//                 children: [
-//                   Container(
-//                       padding:
-//                       EdgeInsets.symmetric(horizontal: 20, vertical: 20),
-//                       decoration: BoxDecoration(
-//                           borderRadius: BorderRadius.circular(100),
-//                           color: ColorConstants.primary.withOpacity(.07)),
-//                       child: const Icon(Icons.search_off,
-//                           size: 20, color: ColorConstants.primary)),
-//                   const SizedBox(height: 12),
-//                   Text('No records found for search result',
-//                       style: GoogleFonts.poppins(
-//                           color: ColorConstants.primary.withOpacity(.6))),
-//                   const SizedBox(height: 12),
-//                   Row(
-//                     mainAxisAlignment: MainAxisAlignment.center,
-//                     children: [
-//                       InkWell(
-//                         onTap: () {
-//                           _onRefresh();
-//                         },
-//                         child: Container(
-//                           width: 40.w,
-//                           padding: const EdgeInsets.symmetric(
-//                               horizontal: 10, vertical: 10),
-//                           decoration: BoxDecoration(
-//                             border: Border.all(
-//                                 width: 1, color: ColorConstants.primary),
-//                             borderRadius: BorderRadius.circular(10),
-//                           ),
-//                           child: Center(
-//                               child: cText("Clear filters",
-//                                   color: ColorConstants.primary)),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 ],
-//               ),
-//             )
-//           ],
-//         );
-//       }
-//       return ListView(
-//         physics: const AlwaysScrollableScrollPhysics(),
-//         children: [
-//           header,
-//           const SizedBox(height: 30),
-//           Center(
-//             child: Column(
-//               children: [
-//                 const Icon(Icons.inbox, size: 48, color: Colors.grey),
-//                 const SizedBox(height: 12),
-//                 Text('No gate pass records found',
-//                     style: GoogleFonts.poppins(color: Colors.black54)),
-//                 const SizedBox(height: 8),
-//                 InkWell(
-//                   onTap: () {
-//                     setState(() {
-//                       _hasMore = true;
-//                       _isInitialLoading = true;
-//                       _allItems.clear();
-//                       _visibleItems.clear();
-//                     });
-//                     _loadPage(start: 0);
-//                   },
-//                   child: Container(
-//                     width: 40.w,
-//                     padding: const EdgeInsets.symmetric(
-//                         horizontal: 10, vertical: 10),
-//                     decoration: BoxDecoration(
-//                       border:
-//                       Border.all(width: 1, color: ColorConstants.primary),
-//                       borderRadius: BorderRadius.circular(10),
-//                     ),
-//                     child: Center(
-//                         child: cText("Reload", color: ColorConstants.primary)),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//           )
-//         ],
-//       );
-//     }
-//
-//     final int extra =
-//         2 + (_hasMore ? 1 : 0); // header + spacer + optional load-more
-//     final int totalCount = _visibleItems.length + extra;
-//
-//     return ListView.separated(
-//         controller: _scrollController,
-//         itemCount: totalCount,
-//         separatorBuilder: (_, __) => const SizedBox(height: 8),
-//         itemBuilder: (context, index) {
-//           if (index == 0) {
-//             return header;
-//           }
-//           if (index == 1) {
-//             return const SizedBox(height: 10);
-//           }
-//           final dataIndex = index - 2;
-//           if (dataIndex < _visibleItems.length && dataIndex >= 0) {
-//             final i = _visibleItems[dataIndex];
-//             return _buildProjectCard(i);
-//           }
-//           if (_hasMore && dataIndex == _visibleItems.length) {
-//             if (!_isLoadingMore) {
-//               WidgetsBinding.instance.addPostFrameCallback((_) {
-//                 if (!mounted) return;
-//                 if (!_isLoadingMore) _loadPage(start: _allItems.length);
-//               });
-//             }
-//             return const Padding(
-//               padding: EdgeInsets.symmetric(vertical: 16),
-//               child: Center(
-//                   child:
-//                   CircularProgressIndicator(color: ColorConstants.primary)),
-//             );
-//           }
-//           return const SizedBox.shrink();
-//         });
-//   }
-//
-//   Widget _buildProjectCard(GatePassData i) {
-//
-//     bool allEmpty =
-//         (i.gate_pass == null || i.gate_pass.toString().trim().isEmpty) &&
-//             ((i.to_project_name ?? '').toString().trim().isEmpty) &&
-//             ((i.from_warehouse_name ?? '').toString().trim().isEmpty) &&
-//             ((i.to_warehouse_name ?? '').toString().trim().isEmpty) &&
-//             ((i.out_time ?? '').toString().trim().isEmpty) &&
-//             ((i.quantity ?? '').toString()=="0") &&
-//             ((i.issued_material ?? '').toString()=="0") &&
-//             ((i.transfer_type ?? '').toString().trim().isEmpty);
-//
-//     if (allEmpty) {
-//       return const SizedBox.shrink();
-//     }
-//
-//     return InkWell(
-//       highlightColor: Colors.transparent,
-//       splashColor: Colors.transparent,
-//       onTap: () async {
-//         final result = await Utils.navigateTo(context, GatePassDetail(data: i));
-//         if (result == "true") {
-//           _onRefresh();
-//         }
-//       },
-//       child: Container(
-//         margin: const EdgeInsets.only(bottom: 10),
-//         decoration: BoxDecoration(
-//           borderRadius: BorderRadius.circular(20),
-//           color: Colors.white.withOpacity(0.8),
-//         ),
-//         padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
-//         child: Column(
-//           crossAxisAlignment: CrossAxisAlignment.start,
-//           children: [
-//             Row(
-//               children: [
-//                 if ((i.date ?? '').toString().isNotEmpty)
-//                   ...[Text(
-//                     "Added on: ",
-//                     style: GoogleFonts.poppins(
-//                       fontSize: 12,
-//                       color: ColorConstants.primary,
-//                     ),
-//                   ),
-//                     Text(
-//                       formatEntryDate(i.date ?? DateTime.now().toString()),
-//                       style: GoogleFonts.poppins(
-//                         fontSize: 12,
-//                         color: Colors.black.withOpacity(.6),
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),],
-//                 Expanded(child: Text("")),
-//                 if ((i.gate_pass ?? '').toString().trim().isNotEmpty) ...[
-//                   Container(
-//                     width: 120,
-//                     child: Text(
-//                       " Gno. ${i.gate_pass} ",
-//                       overflow: TextOverflow.ellipsis,
-//                       textAlign: TextAlign.end,
-//                       style: GoogleFonts.poppins(
-//                         fontSize: 16,
-//                         color: ColorConstants.primary,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                   ),
-//                 ]
-//               ],
-//             ),
-//             Divider(
-//               color: Colors.grey.withOpacity(.2),
-//             ),
-//             Row(
-//               crossAxisAlignment: CrossAxisAlignment.start,
-//               children: [
-//                 if(i.from_warehouse_name.toString().isNotEmpty)
-//                   ...[ Column(
-//                     children: [
-//                       Text(
-//                         "From Warehouse ",
-//                         style: GoogleFonts.poppins(
-//                           fontSize: 10,
-//                           color: Colors.grey,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                       Container(
-//                         width: 120,
-//                         child: Text(
-//                           "${i.from_warehouse_name ?? "-"}",
-//                           textAlign: TextAlign.center,
-//                           style: GoogleFonts.poppins(
-//                             fontSize: 14,
-//                             color: Colors.black.withOpacity(.8),
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                     Expanded(child: Text("")),
-//                     Container(
-//                       padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-//                       decoration: BoxDecoration(
-//                         color: Colors.grey.withOpacity(.1),
-//                         borderRadius: BorderRadius.circular(100),
-//                       ),
-//                       child: Icon(
-//                         Icons.arrow_forward,
-//                         color: Colors.grey,
-//                         size: 12,
-//                       ),
-//                     ),
-//                     Expanded(child: Text("")),],
-//                 Column(
-//                   children: [
-//                     Text(
-//                       (i.transfer_type == "project_type" ||
-//                           i.transfer_type == "Project Type")
-//                           ? "Project"
-//                           : " To Warehouse",
-//                       style: GoogleFonts.poppins(
-//                         fontSize: 10,
-//                         color: Colors.grey,
-//                         fontWeight: FontWeight.bold,
-//                       ),
-//                     ),
-//                     Container(
-//                       width: 120,
-//                       child: Text(
-//                         (i.transfer_type == "project_type" ||
-//                             i.transfer_type == "Project Type")
-//                             ? " ${i.to_project_name ?? "-"}"
-//                             : "${i.to_warehouse_name ?? "-"}",
-//                         textAlign: TextAlign.center,
-//                         style: GoogleFonts.poppins(
-//                           fontSize: 14,
-//                           color: Colors.black.withOpacity(.8),
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                     )
-//                   ],
-//                 ),
-//               ],
-//             ),
-//             SizedBox(
-//               height: 10,
-//             ),
-//             Row(
-//               children: [
-//                 if ((i.issued_material ?? '').toString().trim().isNotEmpty)
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.start,
-//                     children: [
-//                       Text(
-//                         "Material: ",
-//                         style: GoogleFonts.poppins(
-//                           fontSize: 12,
-//                           color: Colors.black.withOpacity(.8),
-//                         ),
-//                       ),
-//                       Container(
-//                         width: 40.w,
-//                         child: Text(
-//                           "${i.issued_material}",
-//                           style: GoogleFonts.poppins(
-//                             height: 1,
-//                             fontSize: 14,
-//                             color: ColorConstants.primary,
-//                             fontWeight: FontWeight.bold,
-//                           ),
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 const Expanded(child: SizedBox()),
-//                 if ((i.out_time ?? '').toString().trim().isNotEmpty)
-//                   Column(
-//                     crossAxisAlignment: CrossAxisAlignment.center,
-//                     children: [
-//                       Text(
-//                         "Out time",
-//                         style: GoogleFonts.poppins(
-//                           fontSize: 10,
-//                           color: Colors.black,
-//                         ),
-//                       ),
-//                       Text(
-//                         "${i.out_time}",
-//                         style: GoogleFonts.poppins(
-//                           fontSize: 18,
-//                           color: Colors.black,
-//                           fontWeight: FontWeight.bold,
-//                         ),
-//                       ),
-//                     ],
-//                   ),
-//                 const SizedBox(width: 10),
-//                 Container(
-//                   height: 35,
-//                   width: 5,
-//                   decoration: BoxDecoration(
-//                     borderRadius: BorderRadius.circular(10),
-//                     gradient: LinearGradient(
-//                       colors: [
-//                         ColorConstants.primary,
-//                         ColorConstants.secondary,
-//                       ],
-//                       begin: Alignment.topCenter,
-//                       end: Alignment.bottomCenter,
-//                     ),
-//                   ),
-//                 ),
-//               ],
-//             ),
-//             Row(
-//               mainAxisAlignment: MainAxisAlignment.end,
-//               children: [
-//                 Builder(builder: (_) {
-//                   final quantityStr = (i.quantity ?? '').toString().trim();
-//                   if (quantityStr.isNotEmpty)
-//                     return values("Issued Quantity", quantityStr);
-//                   return const SizedBox.shrink();
-//                 }),
-//                 const Expanded(child: SizedBox()),
-//                 const Icon(Icons.visibility, color: Colors.grey, size: 15),
-//                 const SizedBox(width: 10),
-//                 Container(
-//                   height: 10,
-//                   width: 1,
-//                   color: Colors.grey.withOpacity(.6),
-//                 ),
-//                 const SizedBox(width: 10),
-//                 InkWell(
-//                     onTap: () {
-//                       final parentContext = context;
-//                       showModalBottomSheet(
-//                         context: parentContext,
-//                         isScrollControlled: true,
-//                         backgroundColor: Colors.transparent,
-//                         barrierColor: Colors.black.withOpacity(0.6),
-//                         builder: (sheetContext) {
-//                           return BlocProvider.value(
-//                             // pass existing gatepass delete bloc into the sheet subtree
-//                             value: parentContext.read<DeleteGatePassBloc>(),
-//                             child: OnDelete(
-//                               title1: 'Delete Gate Pass',
-//                               title2:
-//                               'Are you sure you want to delete this gate pass?',
-//                               onCancel: () {
-//                                 Navigator.of(sheetContext).pop();
-//                               },
-//                               onConfirm: () {
-//                                 // Save last removed item + index for rollback
-//                                 _lastRemovedIndex = _allItems.indexWhere(
-//                                         (e) => e.gatepass_id == i.gatepass_id);
-//                                 if (_lastRemovedIndex == -1)
-//                                   _lastRemovedIndex = null;
-//                                 _lastRemovedItem = i;
-//
-//                                 // Optimistic local remove (so UI is snappy)
-//                                 setState(() {
-//                                   _allItems.removeWhere((element) =>
-//                                   element.gatepass_id == i.gatepass_id);
-//                                   _visibleItems.removeWhere((element) =>
-//                                   element.gatepass_id == i.gatepass_id);
-//                                 });
-//
-//                                 // Track pending deletes
-//                                 _pendingDeletes.add('gatepass');
-//                                 if (i.transfer_type == "warehouse_type") {
-//                                   _pendingDeletes.add('warehouse');
-//                                 } else {
-//                                   _pendingDeletes.add('project');
-//                                 }
-//
-//                                 // Dispatch delete events to provided blocs (they are provided at page level)
-//                                 parentContext.read<DeleteGatePassBloc>().add(
-//                                     SubmitDeleteGatePassEvent(
-//                                         gatepass_id: i.gatepass_id ?? ""));
-//                                 if (i.transfer_type == "warehouse_type") {
-//                                   print(i.transfer_type);
-//                                   print('''
-//                                     from_warehouse_id: ${i.from_warehouse_id},
-//                                     to_warehouse_id: ${i.to_warehouse_id},
-//                                     issued_material: ${i.issued_material},
-//                                     quantity: ${i.quantity},
-//                                     ''');
-//                                   parentContext
-//                                       .read<DeleteGatePassWarehouseBloc>()
-//                                       .add(
-//                                     SubmitDeleteGatePassWarehouseEvent(
-//                                       from_warehouse_id: i.from_warehouse_id,
-//                                       to_warehouse_id: i.to_warehouse_id,
-//                                       issued_material: i.issued_material,
-//                                       quantity: i.quantity,
-//                                     ),
-//                                   );
-//                                 } else {
-//                                   print(i.transfer_type);
-//                                   print('''
-//                                   gate_pass: ${i.gate_pass},
-//                                   from_warehouse_id: ${i.from_warehouse_id},
-//                                   to_project_id: ${i.to_project_id},
-//                                   issued_material: ${i.issued_material},
-//                                   quantity: ${i.quantity},
-//                                   out_time: ${i.out_time},
-//                                   consumed: ${i.consumed},
-//                                   date: ${i.date},
-//                                     ''');
-//                                   parentContext
-//                                       .read<DeleteGatePassProjectBloc>()
-//                                       .add(
-//                                     SubmitDeleteGatePassProjectEvent(
-//                                         gate_pass: i.gate_pass,
-//                                         from_warehouse_id: i.from_warehouse_id,
-//                                         to_project_name: i.to_project_id,
-//                                         issued_material: i.issued_material,
-//                                         quantity: i.quantity,
-//                                         out_time: i.out_time,
-//                                         consumed: i.consumed,
-//                                         date: i.date
-//                                     ),
-//                                   );
-//                                 }
-//                                 Navigator.of(sheetContext).pop();
-//                               },
-//                             ),
-//                           );
-//                         },
-//                       );
-//                     },
-//                     child: const Icon(Icons.close, color: Colors.grey, size: 15)
-//                 )
-//               ],
-//             ),
-//           ],
-//         ),
-//       ),
-//     );
-//   }
-//
-//   Widget values(String title, String val) {
-//     return Container(
-//       padding: const EdgeInsets.symmetric(horizontal: 10),
-//       child: Column(
-//         children: [
-//           Text(
-//             title,
-//             style: GoogleFonts.poppins(
-//               fontSize: 10,
-//               color: Colors.black.withOpacity(.6),
-//             ),
-//           ),
-//           Text(
-//             val,
-//             style: GoogleFonts.poppins(
-//               fontSize: 14,
-//               color: Colors.black.withOpacity(.6),
-//               fontWeight: FontWeight.bold,
-//             ),
-//           ),
-//         ],
-//       ),
-//     );
-//   }
-//
-//   void _applyDateFilterAndReload() {
-//     dateFrom = _selectedFromDate != null
-//         ? DateFormat('yyyy-MM-dd').format(_selectedFromDate!)
-//         : "";
-//     dateTo = _selectedToDate != null
-//         ? DateFormat('yyyy-MM-dd').format(_selectedToDate!)
-//         : "";
-//
-//     _hasMore = true;
-//     _allItems.clear();
-//     _visibleItems.clear();
-//     _error = null;
-//
-//     if (mounted) setState(() {});
-//
-//     _loadPage(start: 0);
-//   }
-//
-//   void _applyFiltersAndReload() {
-//     if (selectedTransfer == "Warehouse Type") {
-//       transferSelected = "warehouse_type";
-//     } else {
-//       transferSelected = "project_type";
-//     }
-//     _hasMore = true;
-//     _allItems.clear();
-//     _visibleItems.clear();
-//     _error = null;
-//
-//     if (mounted) setState(() {});
-//     _loadPage(start: 0);
-//   }
-//
-//   Future<void> _pickFromDate() async {
-//     DateTime initial = _selectedFromDate ?? DateTime.now();
-//     final date = await showDatePicker(
-//       context: context,
-//       initialDate: initial,
-//       firstDate: DateTime(2000),
-//       lastDate: DateTime(DateTime.now().year + 5),
-//       builder: (context, child) {
-//         return Theme(
-//           data: Theme.of(context).copyWith(
-//             dividerColor: Colors.grey.withOpacity(.6),
-//             colorScheme: ColorScheme.light(
-//               primary: ColorConstants.primary,
-//               onPrimary: Colors.white,
-//               onSurface: Colors.black,
-//             ),
-//             textTheme: const TextTheme(
-//               titleLarge: TextStyle(
-//                 color: ColorConstants.primary,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             datePickerTheme: DatePickerThemeData(
-//               dividerColor: Colors.grey.withOpacity(.6),
-//               dayBackgroundColor: MaterialStateProperty.resolveWith((states) {
-//                 if (states.contains(MaterialState.selected)) {
-//                   return ColorConstants.primary;
-//                 }
-//                 return null;
-//               }),
-//               dayForegroundColor: MaterialStateProperty.resolveWith((states) {
-//                 if (states.contains(MaterialState.selected)) {
-//                   return Colors.white;
-//                 }
-//                 return Colors.black;
-//               }),
-//               dayShape: MaterialStateProperty.resolveWith((states) {
-//                 if (states.contains(MaterialState.selected)) {
-//                   return RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(8),
-//                     side: const BorderSide(color: Colors.white, width: 2),
-//                   );
-//                 }
-//                 return RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(8),
-//                 );
-//               }),
-//             ),
-//             textButtonTheme: TextButtonThemeData(
-//               style: TextButton.styleFrom(
-//                 foregroundColor: ColorConstants.primary,
-//               ),
-//             ),
-//           ),
-//           child: child!,
-//         );
-//       },
-//     );
-//
-//     if (date != null) {
-//       setState(() {
-//         _selectedFromDate = date;
-//         if (_selectedToDate == null ||
-//             _selectedToDate!.isBefore(_selectedFromDate!)) {
-//           _selectedToDate = _selectedFromDate;
-//         }
-//       });
-//
-//       _applyDateFilterAndReload();
-//     }
-//   }
-//
-//   Future<void> _pickToDate() async {
-//     DateTime initial = _selectedToDate ?? (_selectedFromDate ?? DateTime.now());
-//     final date = await showDatePicker(
-//       context: context,
-//       initialDate: initial,
-//       firstDate: _selectedFromDate ?? DateTime(2000),
-//       lastDate: DateTime(DateTime.now().year + 5),
-//       builder: (context, child) {
-//         return Theme(
-//           data: Theme.of(context).copyWith(
-//             dividerColor: Colors.grey.withOpacity(.6),
-//             colorScheme: ColorScheme.light(
-//               primary: ColorConstants.primary,
-//               onPrimary: Colors.white,
-//               onSurface: Colors.black,
-//             ),
-//             textTheme: const TextTheme(
-//               titleLarge: TextStyle(
-//                 color: ColorConstants.primary,
-//                 fontWeight: FontWeight.bold,
-//               ),
-//             ),
-//             datePickerTheme: DatePickerThemeData(
-//               dividerColor: Colors.grey.withOpacity(.6),
-//               dayBackgroundColor: MaterialStateProperty.resolveWith((states) {
-//                 if (states.contains(MaterialState.selected)) {
-//                   return ColorConstants.primary;
-//                 }
-//                 return null;
-//               }),
-//               dayForegroundColor: MaterialStateProperty.resolveWith((states) {
-//                 if (states.contains(MaterialState.selected)) {
-//                   return Colors.white;
-//                 }
-//                 return Colors.black;
-//               }),
-//               dayShape: MaterialStateProperty.resolveWith((states) {
-//                 if (states.contains(MaterialState.selected)) {
-//                   return RoundedRectangleBorder(
-//                     borderRadius: BorderRadius.circular(8),
-//                     side: const BorderSide(color: Colors.white, width: 2),
-//                   );
-//                 }
-//                 return RoundedRectangleBorder(
-//                   borderRadius: BorderRadius.circular(8),
-//                 );
-//               }),
-//             ),
-//             textButtonTheme: TextButtonThemeData(
-//               style: TextButton.styleFrom(
-//                 foregroundColor: ColorConstants.primary,
-//               ),
-//             ),
-//           ),
-//           child: child!,
-//         );
-//       },
-//     );
-//
-//     if (date != null) {
-//       setState(() {
-//         _selectedToDate = date;
-//         if (_selectedFromDate == null ||
-//             _selectedFromDate!.isAfter(_selectedToDate!)) {
-//           _selectedFromDate = _selectedToDate;
-//         }
-//       });
-//
-//       _applyDateFilterAndReload();
-//     }
-//   }
-//
-// }
-

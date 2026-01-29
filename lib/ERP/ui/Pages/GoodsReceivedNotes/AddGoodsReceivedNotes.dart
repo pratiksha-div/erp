@@ -33,6 +33,7 @@ class GRNItem {
   final TextEditingController excessQty = TextEditingController();
   final TextEditingController poBalanceQty = TextEditingController();
 
+
   EditSource lastEdited = EditSource.received;
 
   GRNItem({
@@ -99,6 +100,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
   String? errDate;
   String? errEntryNumber;
   Map<int, String> grnItemErrors = {};
+  TextEditingController remark=TextEditingController();
 
   @override
   void initState() {
@@ -168,49 +170,6 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
     }
   }
 
-  String? _validateForm() {
-    if (_selectedDate == null) {
-      return 'Please Select Date';
-    }
-
-    if (selectedEntryId == null || selectedEntryId!.isEmpty) {
-      return 'Please Select GE Number';
-    }
-
-    for (int i = 0; i < grnItems.length; i++) {
-      final item = grnItems[i];
-
-      final receivedText = item.receivedQty.text;
-      final rejectedText = item.rejectedQty.text;
-      final acceptedText = item.acceptedQty.text;
-
-      final received = double.tryParse(receivedText);
-      final rejected = double.tryParse(rejectedText);
-      final accepted = double.tryParse(acceptedText);
-
-      if (received == null || received <= 0) {
-        return 'Please enter valid Received Qty for ${item.name}';
-      }
-
-      if (rejected == null || rejected < 0) {
-        return 'Please select valid rejected Qty for ${item.name}';
-      }
-
-      if (rejected > received) {
-        return 'Rejected Qty cannot be greater than Received Qty for ${item.name}';
-      }
-
-      if (accepted == null || accepted < 0) {
-        return 'Please enter valid Accepted Qty for ${item.name}';
-      }
-
-      if ((accepted + rejected) != received) {
-        return 'Accepted + Rejected Qty must equal Received Qty for ${item.name}';
-      }
-    }
-    return null;
-  }
-
   bool validateForm() {
     bool valid = true;
 
@@ -275,27 +234,6 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
       showErrorDialog(context, "Failed", "Please fill required fields");
       return;
     }
-    // final validationError = _validateForm();
-    // if (validationError != null) {
-    //   showDialog(
-    //     context: context,
-    //     builder: (context) => Dialog(
-    //       shape: RoundedRectangleBorder(
-    //         borderRadius: BorderRadius.circular(20),
-    //       ),
-    //       backgroundColor: Colors.transparent,
-    //       child: UploadErrorCard(
-    //         title: 'Failed',
-    //         subtitle: validationError,
-    //         onRetry: () {
-    //           Navigator.pop(context);
-    //           setState(() { _isSubmitting = false; });
-    //         },
-    //       ),
-    //     ),
-    //   );
-    //   return;
-    // }
     final itemNames = grnItems.map((e) => e.name).join(',');
     final quantities = grnItems.map((e) => e.orderedQty.toString()).join(',');
     final receivedQty = grnItems.map((e) => e.receivedQty.text).join(',');
@@ -305,19 +243,37 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
     final acceptedQty = grnItems.map((e) => e.acceptedQty.text).join(',');
     final poBalance = grnItems.map((e) => e.poBalanceQty.text).join(',');
     final units = grnItems.map((e) => e.unit).join(',');
-    final amount = grnItems.map((e) => '0').join(',');
+    // final amount = grnItems.map((e) => '0').join(',');
     final itemId = (_grnData.item_id ?? '');
     final groupId = (_grnData.group_id ?? '');
     final subGroupId = (_grnData.sub_group_id ?? '');
     final discount = grnItems.map((e) => '0').join(',');
-    final rate = grnItems.map((e) => e.rate).join(',');
-    print(
-      '''
-      Grand total ${_grnData.grand_total} 
-      rate ${rate} 
-      '''
-    );
-    final grand_total = (_grnData.grand_total ?? '');
+    final rate = grnItems.map((e) => e.rate.toString()).join(',');
+    final amounts = grnItems.map((e) {
+      final double rate =
+          double.tryParse(e.rate.toString()) ?? 0;
+
+      final double acceptedQty =
+          double.tryParse(e.acceptedQty.text) ?? 0;
+
+      final double amount = rate * acceptedQty;
+      return amount.toStringAsFixed(2);
+    }).join(',');
+
+    final double grandTotal = grnItems.fold(0.0, (total, e) {
+      final double rate =
+          double.tryParse(e.rate.toString()) ?? 0;
+
+      final double acceptedQty =
+          double.tryParse(e.acceptedQty.text) ?? 0;
+
+      return total + (rate * acceptedQty);
+    });
+
+    final amount = amounts;
+    final grand_total = grandTotal.toStringAsFixed(2);
+
+    // final grand_total = (_grnData.grand_total ?? '');
     print(
       '''
        grn_date: ${DateFormat('yyyy-MM-dd').format(_selectedDate!)}
@@ -338,16 +294,17 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
        short_qty: ${shortQty},
        excess_qty: ${excessQty},
        rejected_qty: ${rejectedQty},
-       accepted_qty: ${acceptedQty},
        po_balance: ${poBalance},
-       amount: ${amount},
        item_id: ${itemId},
        group_id: ${groupId},
        sub_group_id: ${subGroupId},
        unit: ${units}
+       discount: ${discount},  
        rate: ${rate},
-       discount: ${discount},
-       grand_total: ${grand_total}
+       accepted_qty: ${acceptedQty}, 
+       amount: ${amount},   
+       grand_total: ${grand_total},
+       remarks:${remark.text}
       '''
     );
     context.read<AddGoodsReceivedNotesBloc>().add(
@@ -379,7 +336,8 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
         group_id: groupId,
         sub_group_id: subGroupId,
         unit: units,
-        grand_total: grand_total
+        grand_total: grand_total,
+        remarks: remark.text
       ),
     );
   }
@@ -469,20 +427,11 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                 final detail = state.GRNDetailByID.first;
 
                 setState(() {
-                  // =====================
-                  // DATE (same as you did)
-                  // =====================
                   getDate(detail.grn_date ?? "");
-
-                  // =====================
-                  // GE NUMBER (same as you did)
-                  // =====================
                   selectedEntryId = detail.gen_id;
                   selectedEntryNumber = detail.gen_no;
+                  remark.text = detail.remarks??"";
 
-                  // =====================
-                  // HEADER DATA (NEW)
-                  // =====================
                   _grnData = GENData(
                     bill_no: detail.bill_no,
                     challan_no: detail.challan_no,
@@ -494,11 +443,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                     contact: detail.contact,
                   );
 
-                  // =====================
-                  // ITEM DATA (PURE BINDING)
-                  // =====================
                   grnItems.clear();
-
                   final itemNames = (detail.item_name ?? '').split(',');
                   final quantities = (detail.quantity ?? '').split(',');
                   final receivedQty = (detail.received_qty ?? '').split(',');
@@ -527,8 +472,6 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                     item.shortQty.text = shortQty[i];
                     item.excessQty.text = excessQty[i];
                     item.poBalanceQty.text = poBalanceQty[i];
-
-                    // backend is source of truth
                     item.lastEdited = EditSource.accepted;
 
                     // item.isInitializing = false;
@@ -589,7 +532,6 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                                       leftMargin: 10.0,
                                       bottomMargin: 5,
                                     ),
-
                                     /// Optional: visually indicate disabled state
                                     Opacity(
                                       opacity: isDisabled ? 0.6 : 1.0,
@@ -618,7 +560,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                                                 .read<GoodsReceivedNotesByIDBloc>()
                                                 .add(
                                               FetchGoodsReceivedNotesByIDEvent(
-                                                gatepass_id: selectedEntryId ?? "",
+                                                gen_id: selectedEntryId ?? "",
                                               ),
                                             );
                                           },
@@ -633,6 +575,8 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                             },
                           ),
                           if (errEntryNumber != null)errorText(errEntryNumber),
+                          const SizedBox(height: 5),
+                          txtFiled(context,remark, "Add remark here...", "Remark", maxLines: 3),
                           const SizedBox(height: 15),
                           subTitle(
                                 "Mention Bill, Challan, Vehicle, PO, Vendor detail"),
@@ -792,14 +736,14 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                 row(
                   readOnlyField(
                     item.orderedQty.toString(),
-                    "Ordered Qty",
+                    "Ordered Quantity",
                   ),
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
                       inputField(
                         item.receivedQty,
-                        "Received Qty",
+                        "Received Quantity",
                         enabled: !isEditMode,
                         bottomMargin: 2,
                         onChange: (){
@@ -820,12 +764,12 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                 row(
                   readOnlyField(
                     item.shortQty.text,
-                    "Short Qty",
+                    "Short Quantity",
                     controller: item.shortQty,
                   ),
                   readOnlyField(
                     item.excessQty.text,
-                    "Excess Qty",
+                    "Excess Quantity",
                     controller: item.excessQty,
                   ),
                 ),
@@ -836,12 +780,10 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                     children: [
                       inputField(
                         item.rejectedQty,
-                        "Rejected Qty",
+                        "Rejected Quantity",
                         enabled: !isEditMode,
                         bottomMargin: 2,
                       ),
-
-                      /// ❌ ERROR BELOW REJECTED QTY
                       if (hasError && !receivedQtyEmpty && rejectedQtyEmpty)
                         errorText(errorMessage!, leftPadding: 0),
                       const SizedBox(height: 10),
@@ -849,7 +791,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                   ),
                   inputField(
                     item.acceptedQty,
-                    "Accepted Qty",
+                    "Accepted Quantity",
                     enabled: !isEditMode,
                   ),
                 ),
@@ -937,7 +879,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
               enabled: enabled,
               keyboardType: TextInputType.number,
               onChanged: (val){
-                onChanged();
+                onChanged;
               },
               decoration: const InputDecoration(
                 border: InputBorder.none,

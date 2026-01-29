@@ -140,12 +140,15 @@ Widget txtFiled(
   return Column(
     crossAxisAlignment: CrossAxisAlignment.start,
     children: [
-      Text(
-        title,
-        style: const TextStyle(
-          fontSize: 14,
-          color: Colors.grey,
-          fontWeight: FontWeight.w500,
+      Container(
+        margin: EdgeInsets.only(left: 10),
+        child: Text(
+          title,
+          style: const TextStyle(
+            fontSize: 14,
+            color: Colors.grey,
+            fontWeight: FontWeight.w500,
+          ),
         ),
       ),
       const SizedBox(height: 3),

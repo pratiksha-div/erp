@@ -14,12 +14,12 @@ abstract class GoodsReceivedNotesByIDEvent extends Equatable {
 }
 
 class FetchGoodsReceivedNotesByIDEvent extends GoodsReceivedNotesByIDEvent {
-  final String gatepass_id;
+  final String gen_id;
 
-  const FetchGoodsReceivedNotesByIDEvent({required this.gatepass_id});
+  const FetchGoodsReceivedNotesByIDEvent({required this.gen_id});
 
   @override
-  List<Object?> get props => [gatepass_id];
+  List<Object?> get props => [gen_id];
 }
 
 
@@ -98,7 +98,7 @@ class GoodsReceivedNotesByIDBloc extends Bloc<GoodsReceivedNotesByIDEvent, Goods
     emit( GoodsReceivedNotesByIDLoading());
 
     try {
-      final raw = await _service.fetchGoodsReceivedNotesByIDRaw(event.gatepass_id);
+      final raw = await _service.fetchGoodsReceivedNotesByIDRaw(event.gen_id);
 
       // raw might already be a JSON string. If your service returns Map, adapt.
       final decoded = jsonDecode(raw);

@@ -41,6 +41,7 @@ class GRNDetailByIDData {
   dynamic short_qty;
   dynamic to_warehouse;
   dynamic vehicle_no;
+  String? remarks;
 
   GRNDetailByIDData({
       this.accepted_qty,
@@ -68,6 +69,7 @@ class GRNDetailByIDData {
       this.short_qty,
       this.to_warehouse,
       this.vehicle_no,
+      this.remarks
   });
 
   factory GRNDetailByIDData.fromJson(Map<String, dynamic> json) => _$GRNDetailByIDDataFromJson(json);
