@@ -482,8 +482,8 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                         onChanged: (val) {
                                           setState(() {
                                             _selectedVechicleNameId = val.VehicleID ?? '';
-                                            vehicleNo.text=val.VehicleName!;
-                                            print("_selectedVechicleNameId ${_selectedVechicleNameId}");
+                                            vehicleNo.text=val.VehicleNo!;
+                                            print("_selectedVehicleNameId $_selectedVechicleNameId");
                                           });
                                           // BlocProvider.of<VehicleNumberBloc>(context).add(FetchVehicleNumberEvent(VehicleId: _selectedVechicleNameId??""));
                                         },
