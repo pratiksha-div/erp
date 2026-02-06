@@ -387,6 +387,8 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                     children: [
                                       CustomDateTimeTextField(
                                           onTap: pickStartTime,
+                                          showTitle: true,
+                                          title: "Start Time",
                                           hint: _startTime == null
                                               ? '-- Start Time:--'
                                               : formatTimeWithSpace(_startTime!),
@@ -395,6 +397,8 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                       const SizedBox(width: 10),
                                       CustomDateTimeTextField(
                                           onTap: pickStopTime,
+                                          showTitle: true,
+                                          title: "Stop Time",
                                           hint: _stopTime == null
                                               ? '-- Stop Time:--'
                                               : formatTimeWithSpace(_stopTime!),
@@ -494,7 +498,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                     );
                                   },
                                 ),
-                                const SizedBox(height: 10),
+                                const SizedBox(height: 20),
                                 subTitle("Mention start and stop reading",),
                                 const SizedBox(height: 10),
                                 txtFiled(context,startReading, "Enter reading on start", "Reading on Start", onChanged: (val) => _calculateTotalRun(),),
