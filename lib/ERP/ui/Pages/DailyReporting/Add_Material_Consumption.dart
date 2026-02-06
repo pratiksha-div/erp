@@ -636,9 +636,24 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
               });
             },
           ),
-          Text(
-           "${entry.selectedMaterial}",
-            style: const TextStyle(fontSize: 14, color: Colors.black),
+          Row(
+            children: [
+              Text(
+               "Material used : ",
+                style: const TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              Expanded(
+                child: Text(
+                 "${entry.selectedMaterial}",
+                  style:TextStyle(
+                      fontSize: 14,
+                      height: 1,
+                      color: ColorConstants.primary,
+                      fontWeight: FontWeight.bold
+                  ),
+                ),
+              ),
+            ],
           ),
           // Text(
           //   _materialContextLocked
