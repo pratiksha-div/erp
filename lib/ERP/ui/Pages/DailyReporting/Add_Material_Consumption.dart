@@ -217,10 +217,16 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
       Fluttertoast.showToast(
         msg: "Please select Project, Date and Time first",
       );
-      setState(() {
-        err_project=true;
-        err_date_time=true;
-      });
+      if (selectedProjectId == null || selectedProjectId!.isEmpty) {
+        setState(() {
+          err_project=true;
+        });
+      }
+      if (_selectedDate == null){
+        setState(() {
+          err_date_time=true;
+        });
+      }
       return;
     }
     setState(() {
@@ -631,11 +637,15 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
             },
           ),
           Text(
-            _materialContextLocked
-                ? "(Project, date & time locked)"
-                : "(Please select project name, date, time)",
-            style: const TextStyle(fontSize: 12, color: Colors.grey),
+           "${entry.selectedMaterial}",
+            style: const TextStyle(fontSize: 14, color: Colors.black),
           ),
+          // Text(
+          //   _materialContextLocked
+          //       ? "(Project, date & time locked)"
+          //       : "(Please select project name, date, time)",
+          //   style: const TextStyle(fontSize: 12, color: Colors.grey),
+          // ),
           const SizedBox(height: 20),
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -700,6 +710,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
           ),
           const SizedBox(height: 10),
           Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -755,7 +766,8 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
           Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Column(crossAxisAlignment: CrossAxisAlignment.start, children: [
+              Column(crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
                 const Text("Amount", style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500)),
                 const SizedBox(height: 5),
                 Container(
