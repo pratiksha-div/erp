@@ -323,7 +323,7 @@ Widget row(Widget a, Widget b) {
   );
 }
 
-Widget txtFiledCustom(String title, String subtitle, IconData icon,TextEditingController controller)
+Widget txtFiledCustom(String title, String subtitle, IconData icon,TextEditingController controller,{bool enable=true})
 {
   return Container(
     margin: const EdgeInsets.only(bottom: 20),
@@ -376,6 +376,7 @@ Widget txtFiledCustom(String title, String subtitle, IconData icon,TextEditingCo
                 child: TextField(
                   controller: controller,
                   cursorColor: ColorConstants.primary,
+                  enabled: enable,
                   // choose keyboard type based on isNumber
                   keyboardType:TextInputType.text,
                   onTapOutside: (event) {

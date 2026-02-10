@@ -30,6 +30,7 @@ GateEntryData _$GateEntryDataFromJson(Map<String, dynamic> json) =>
       selected_po: json['selected_po'],
       gen_no: json['gen_no'],
       quantity: json['quantity'],
+      user_id: json['user_id'],
     );
 
 Map<String, dynamic> _$GateEntryDataToJson(GateEntryData instance) =>
@@ -45,4 +46,5 @@ Map<String, dynamic> _$GateEntryDataToJson(GateEntryData instance) =>
       'selected_po': instance.selected_po,
       'gen_no': instance.gen_no,
       'quantity': instance.quantity,
+      'user_id': instance.user_id,
     };

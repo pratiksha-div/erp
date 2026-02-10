@@ -22,6 +22,7 @@ import '../../../bloc/GateEntry/delete_gate_entry_bloc.dart';
 import '../../../bloc/GateEntry/gate_entry_bloc.dart';
 import '../../../bloc/GateEntry/gate_entry_by_id_bloc.dart';
 import '../../../bloc/GateEntry/purchase_order_detail_bloc.dart';
+import '../../../data/local/AppUtils.dart';
 import '../../Utils/colors_constants.dart';
 import '../../Utils/date_picker.dart';
 import '../../Widgets/Bottom_Sheet.dart';
@@ -56,6 +57,7 @@ class _GateEntryState extends State<GateEntry> {
   final List<GateEntryData> _visibleItems = [];
   String warehouseName="";
   String orderedbyName="";
+  String? loggedUserId;
 
   @override
   void initState() {
@@ -74,6 +76,14 @@ class _GateEntryState extends State<GateEntry> {
           _hasMore) {
         _loadMoreData();
       }
+    });
+    _loadLoggedUserId();
+  }
+
+  Future<void> _loadLoggedUserId() async {
+    final id = await AppUtils().getUserID();
+    setState(() {
+      loggedUserId = id.toString();
     });
   }
 
@@ -538,6 +548,12 @@ class _GateEntryState extends State<GateEntry> {
   }
 
   Widget _buildItemCard(GateEntryData i) {
+
+    final String itemUserId = (i.user_id ?? '').toString().trim();
+    final String loggedId = (loggedUserId ?? '').toString().trim();
+
+    final bool isOwner = loggedId.isNotEmpty && loggedId == itemUserId;
+
     return InkWell(
       onTap: () async {
         // final result = await Utils.navigateTo(
@@ -759,11 +775,13 @@ class _GateEntryState extends State<GateEntry> {
                     height: 1,
                     color: Colors.black.withOpacity(.6),
                     fontWeight: FontWeight.bold,
-                  ),
+                   ),
                   ),
                 ),
                 Expanded(child: Text("")),
-                InkWell(
+                if(isOwner)
+                ...[
+                  InkWell(
                   onTap: () async {
                     await showModalBottomSheet(
                       context: context,
@@ -797,6 +815,7 @@ class _GateEntryState extends State<GateEntry> {
                                       purchaseOrderNo: i.selected_po,
                                       id: i.gate_entry_id,
                                       save: true,
+                                      isEditable: isOwner,
                                       callback: () {
                                         setState(() {
                                           selectedPO = "";
@@ -814,15 +833,16 @@ class _GateEntryState extends State<GateEntry> {
                       },
                     );
                   },
-                  child: const Icon(Icons.edit, color: Colors.grey, size: 15),
+                  child: Icon(Icons.edit, color: Colors.grey, size: 15),
                 ),
-                const SizedBox(width: 10),
-                Container(
+                  const SizedBox(width: 10),
+                  Container(
                   height: 10,
                   width: 1,
                   color: Colors.grey.withOpacity(.6),
                 ),
-                const SizedBox(width: 10),
+                  const SizedBox(width: 10),
+                ],
                 BlocListener<DeleteGateEntryBloc, DeleteGateEntryState>(
                   listener: (context, state) {
                     if (state is DeleteGateEntrySuccess) {
@@ -942,18 +962,20 @@ class _GateEntryState extends State<GateEntry> {
 }
 
 class PurchaseOrderDetail extends StatefulWidget {
-  const PurchaseOrderDetail({
+   PurchaseOrderDetail({
     super.key,
     required this.callback,
     required this.purchaseOrderNo,
     this.save = false,
     required this.id,
+    this.isEditable=true
   });
 
   final VoidCallback callback;
   final String purchaseOrderNo;
   final bool save;
   final String id;
+  bool isEditable;
 
   @override
   State<PurchaseOrderDetail> createState() => _PurchaseOrderDetailState();
@@ -1029,7 +1051,6 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
     _selectedBillDate = parsedDate;
 
   }
-
 
   void getDate(String inputDate) {
     if (inputDate.isEmpty) return;
@@ -1225,6 +1246,7 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                             "",
                             Icons.looks_one,
                             challan_number,
+                            enable:widget.save?widget.isEditable:false
                           ),
                         ),
                         const SizedBox(width: 10),
@@ -1234,6 +1256,7 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                             "",
                             Icons.looks_two,
                             bill_number,
+                              enable:widget.save?widget.isEditable:false
                           ),
                         ),
                       ],
@@ -1246,6 +1269,7 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                             "",
                             Icons.looks_3,
                             vehicle_number,
+                            enable:widget.save?widget.isEditable:false
                           ),
                         ),
                       ],
@@ -1256,6 +1280,7 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                           onTap: _pickEntryDate,
                           showTitle: true,
                           title: "Gate Entry Date",
+                          isEdit:widget.save? widget.isEditable:false,
                           hint: _selectedGateEntryDate == null
                                   ? '-- Date: --'
                                   : DateFormat(
@@ -1268,6 +1293,7 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                           onTap: _pickBillDate,
                           showTitle: true,
                           title: "Billing Date",
+                          isEdit: widget.save?widget.isEditable:false,
                           hint: _selectedBillDate == null
                                   ? '-- Date: --'
                                   : DateFormat(

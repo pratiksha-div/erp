@@ -28,6 +28,7 @@ class GateEntryData {
   dynamic selected_po;
   dynamic gen_no;
   dynamic quantity;
+  dynamic user_id;
 
   GateEntryData({
     this.from_vendor,
@@ -41,6 +42,7 @@ class GateEntryData {
     this.selected_po,
     this.gen_no,
     this.quantity,
+    this.user_id
   });
 
   factory GateEntryData.fromJson(Map<String, dynamic> json) => _$GateEntryDataFromJson(json);

@@ -28,21 +28,16 @@ class AllProjects extends StatefulWidget {
 class _AllProjectsState extends State<AllProjects> {
   final TextEditingController searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
-
-  // paging
   static const int _pageSize = 10;
   bool _isLoadingMore = false;
   bool _hasMore = true;
   bool _isInitialLoading = false;
   String? _error;
   String? loggedUserId;
-  // data
   final List<ProjectData> _allItems = []; // master list accumulated from pages
   final List<ProjectData> _visibleItems = []; // filtered by search
-
   late final ProjectBloc _projectBloc;
   int records_total=0;
-
   Timer? _debounce;
 
   @override
