@@ -31,6 +31,7 @@ class MaterialConsumptionList {
   dynamic total_amount;
   dynamic balance_quantity;
   dynamic project_name;
+  dynamic user_id;
 
   MaterialConsumptionList({
     this.item,
@@ -46,6 +47,7 @@ class MaterialConsumptionList {
     this.total_amount,
     this.balance_quantity,
     this.project_name,
+    this.user_id
   });
 
   factory MaterialConsumptionList.fromJson(Map<String, dynamic> json) => _$MaterialConsumptionListFromJson(json);

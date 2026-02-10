@@ -36,6 +36,7 @@ MachineReadingData _$MachineReadingDataFromJson(Map<String, dynamic> json) =>
       readingend: json['readingend'],
       total_run: json['total_run'],
       amount: json['amount'],
+      user_id: json['user_id'],
     );
 
 Map<String, dynamic> _$MachineReadingDataToJson(MachineReadingData instance) =>
@@ -55,4 +56,5 @@ Map<String, dynamic> _$MachineReadingDataToJson(MachineReadingData instance) =>
       'readingend': instance.readingend,
       'total_run': instance.total_run,
       'amount': instance.amount,
+      'user_id': instance.user_id,
     };

@@ -33,6 +33,7 @@ class MachineReadingData {
   dynamic readingend;
   dynamic total_run;
   dynamic amount;
+  dynamic user_id;
 
   MachineReadingData({
     this.notes,
@@ -49,7 +50,8 @@ class MachineReadingData {
     this.readingstart,
     this.readingend,
     this.total_run,
-    this.amount
+    this.amount,
+    this.user_id,
   });
 
   factory MachineReadingData.fromJson(Map<String, dynamic> json) => _$MachineReadingDataFromJson(json);

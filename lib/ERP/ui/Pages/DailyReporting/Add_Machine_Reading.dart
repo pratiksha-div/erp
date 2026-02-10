@@ -22,8 +22,9 @@ import '../../Widgets/PickTime.dart';
 import '../../Widgets/TextWidgets.dart'; // for UploadErrorCard
 
 class AddMachineReading extends StatefulWidget {
-  AddMachineReading({super.key,required this.id});
+  AddMachineReading({super.key,required this.id,this.isEditable=true});
   String id;
+  bool isEditable;
 
   @override
   State<AddMachineReading> createState() => _AddMachineReadingState();
@@ -51,7 +52,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
   TimeOfDay? _startTime;
   TimeOfDay? _stopTime;
   int _timeOfDayToMinutes(TimeOfDay t) => t.hour * 60 + t.minute;
-  bool isEditable=true;
+  bool editable=true;
 
   @override
   void initState() {
@@ -73,7 +74,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
   void checkEditable()
   {
     if(widget.id.isNotEmpty){
-      isEditable=false;
+      editable=false;
       setState(() {});
     }
   }
@@ -375,13 +376,13 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                             selectedVal: selectedProject.project_name ?? "",
                                             data: state.projectLists,
                                             displayText: (data) => data.project_name ?? '',
+                                            isEditable:editable,
                                             onChanged: (val) {
                                               setState(() {
                                                 selectedProjectId = val.project_id ?? "";
                                                 print("selectedProjectId ${selectedProjectId}");
                                               });
                                             },
-                                              isEditable: isEditable
                                           ),
                                         ],
                                       );
@@ -404,7 +405,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                               ? '-- Start Time:--'
                                               : formatTimeWithSpace(_startTime!),
                                           icon: Icons.watch_later_outlined,
-                                          isEdit:isEditable
+                                          isEdit:editable
                                       ),
                                       const SizedBox(width: 10),
                                       CustomDateTimeTextField(
@@ -415,6 +416,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                               ? '-- Stop Time:--'
                                               : formatTimeWithSpace(_stopTime!),
                                           icon: Icons.watch_later_outlined,
+                                         isEdit: widget.isEditable,
                                       ),
                                     ],
                                   ),
@@ -426,11 +428,11 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                       onTap: _pickDate,
                                       hint: _selectedDate == null ? '-- Date: --' : DateFormat("d MMMM y").format(_selectedDate!),
                                       icon: Icons.calendar_month,
-                                      isEdit:isEditable
+                                      isEdit:editable
                                     ),
                                   ],
                                 ),
-                                txtFiled(context,spentTime, "Enter spent time", "Spent Time",enable: isEditable),
+                                txtFiled(context,spentTime, "Enter spent time", "Spent Time",enable: editable),
                                 const SizedBox(height: 10),
                                 BlocConsumer<VendorNameBloc, VendorNameState>(
                                   listener: (context, state) {},
@@ -454,7 +456,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                             selectedVal: selectedVendor.contractorName ?? '',
                                             data: state.vendorNames,
                                             displayText: (data) => data.contractorName ?? '',
-                                            isEditable: isEditable,
+                                            isEditable: editable,
                                             onChanged: (val) {
                                               setState(() {
                                                 _selectedVendorId = val.contractorId ?? '';
@@ -495,7 +497,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                             ? "${selectedVehicleName.VehicleName} (${selectedVehicleName.VehicleNo})"
                                             : "",
                                         data: state.data,
-                                          isEditable: isEditable,
+                                        isEditable: editable,
                                         displayText: (data) => data.VehicleName ?? '',
                                         subDisplayText: (data) => data.VehicleNo ?? '',
                                         onChanged: (val) {
@@ -518,22 +520,22 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                 const SizedBox(height: 10),
                                 txtFiled(context,startReading,
                                   "Enter reading on start", "Reading on Start", onChanged: (val) => _calculateTotalRun(),
-                                  enable: isEditable
+                                  enable: editable
                                 ),
                                 const SizedBox(height: 10),
                                 txtFiled(context,stopReading, "Enter reading on stop", "Reading on Stop",
-                                    onChanged: (val) => _calculateTotalRun()),
+                                    onChanged: (val) => _calculateTotalRun(),enable:widget.isEditable),
                                 const SizedBox(height: 10),
-                                txtFiled(context,total_run, "Enter total run", "Total run", enable: isEditable),
+                                txtFiled(context,total_run, "Enter total run", "Total run", enable: editable),
                                 const SizedBox(height: 10),
-                                txtFiled(context,vehicleNo, "Enter vehicle number", "Vehicle Number",   enable: isEditable),
+                                txtFiled(context,vehicleNo, "Enter vehicle number", "Vehicle Number",   enable: editable),
                                 const SizedBox(height: 10),
                                 // description
-                                txtFiled(context,description, "Enter Description", "Note", maxLines: 5,   enable: isEditable),
+                                txtFiled(context,description, "Enter Description", "Note", maxLines: 5,   enable: editable),
                                 const SizedBox(height: 10),
-                                txtFiled(context,gatePass, "Enter Gate Pass Number ", "Gate Pass Number",   enable: isEditable),
+                                txtFiled(context,gatePass, "Enter Gate Pass Number ", "Gate Pass Number",   enable: editable),
                                 const SizedBox(height: 10),
-                                txtFiled(context,amount, "Enter Amount", "Amount",   enable: isEditable),
+                                txtFiled(context,amount, "Enter Amount", "Amount",   enable: editable),
                                 const SizedBox(height: 20),
                                 PrimaryButton(
                                   title: _isSaving ? "Saving..." : "Save",

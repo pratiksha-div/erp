@@ -37,6 +37,7 @@ MaterialConsumptionList _$MaterialConsumptionListFromJson(
   total_amount: json['total_amount'],
   balance_quantity: json['balance_quantity'],
   project_name: json['project_name'],
+  user_id: json['user_id'],
 );
 
 Map<String, dynamic> _$MaterialConsumptionListToJson(
@@ -55,4 +56,5 @@ Map<String, dynamic> _$MaterialConsumptionListToJson(
   'total_amount': instance.total_amount,
   'balance_quantity': instance.balance_quantity,
   'project_name': instance.project_name,
+  'user_id': instance.user_id,
 };

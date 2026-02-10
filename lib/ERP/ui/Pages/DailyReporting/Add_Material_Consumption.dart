@@ -65,8 +65,9 @@ class MaterialEntry {
 
 // Page wrapper: provides AddMaterialConsumptionBloc locally (scoped to this page)
 class AddMaterialConsumptionPage extends StatefulWidget {
-  AddMaterialConsumptionPage({super.key, required this.id});
+  AddMaterialConsumptionPage({super.key, required this.id,this.isEditable=true});
   String id;
+  bool isEditable;
 
   @override
   State<AddMaterialConsumptionPage> createState() => _AddMaterialConsumptionPageState();
@@ -79,15 +80,16 @@ class _AddMaterialConsumptionPageState extends State<AddMaterialConsumptionPage>
     // are assumed to be provided higher in the tree (main.dart).
     return BlocProvider<AddMaterialConsumptionBloc>(
       create: (_) => AddMaterialConsumptionBloc(),
-      child: AddMaterialConsumption(id: widget.id),
+      child: AddMaterialConsumption(id: widget.id,isEditable: widget.isEditable,),
     );
   }
 }
 
 // The main form widget
 class AddMaterialConsumption extends StatefulWidget {
-  AddMaterialConsumption({super.key, required this.id});
+  AddMaterialConsumption({super.key, required this.id,this.isEditable=true});
   String id;
+  bool isEditable;
 
   @override
   State<AddMaterialConsumption> createState() => _AddMaterialConsumptionState();
@@ -218,9 +220,9 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
 
   void addMaterialField() {
     if (!_materialContextLocked) {
-      Fluttertoast.showToast(
-        msg: "Please select Project, Date and Time first",
-      );
+      // Fluttertoast.showToast(
+      //   msg: "Please select Project, Date and Time first",
+      // );
       if (selectedProjectId == null || selectedProjectId!.isEmpty) {
         setState(() {
           err_project=true;
@@ -536,6 +538,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                                         selectedVal: selectedProject.project_name ?? "",
                                         data: state.projectLists,
                                         displayText: (data) => data.project_name ?? '',
+                                        isEditable:widget.isEditable,
                                         onChanged:  (val) {
                                           setState(() {
                                             selectedProjectId = val.project_id ?? "";
@@ -554,7 +557,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                               },
                             ),
                             const SizedBox(height: 10),
-                            txtFiled(context, gatePass, "Gate Pass(daily Usage)", "Gate Pass"),
+                            txtFiled(context, gatePass, "Gate Pass(daily Usage)", "Gate Pass",enable: widget.isEditable),
                             const SizedBox(height: 20),
                             Row(
                               children: [
@@ -564,6 +567,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                                         ? '-- Date --'
                                         : DateFormat("d MMMM y")
                                         .format(_selectedDate!),
+                                    isEdit: widget.isEditable,
                                     icon: Icons.calendar_month),
                                 const SizedBox(width: 10),
                                 CustomDateTimeTextField(
@@ -573,11 +577,12 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                                         ? '-- Time --'
                                         : formatTimeWithSpace(
                                         _selectedTime!),
+                                    isEdit: widget.isEditable,
                                     icon: Icons.watch_later_outlined),
                               ],
                             ),
                             if(err_date_time)
-                              errorText("Please select date and time"),
+                            errorText("Please select date and time"),
                             const SizedBox(height: 10),
                             BlocListener<MaterialConsumptionUsedBloc, MaterialConsumptionUsedState>(
                               listener: (context, state) {
@@ -600,6 +605,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                               ],
                             ),
                             const SizedBox(height: 20),
+                            if(widget.isEditable)
                             PrimaryButton(
                               title: _isSaving ? "Saving..." : "Save",
                               onAction: _isSaving ? () {} : _onSavePressed,
@@ -638,6 +644,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
             selectedVal: entry.selectedMaterial,
             data: materialIssuedList,
             displayText: (d) => d.material_used ?? '',
+            isEditable: widget.isEditable,
             onChanged: (MaterialConsumptionUsedData selected) {
               final display = selected.material_used ?? '';
               setState(() {
@@ -711,6 +718,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                           keyboardType: TextInputType.number,
                           cursorColor: ColorConstants.primary,
                           style: const TextStyle(color: Colors.black54, fontSize: 14),
+                          enabled: widget.isEditable,
                           decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10)),
                           onChanged: (val) {
                             int entered = int.tryParse(val) ?? 0;
@@ -754,6 +762,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                       controller: entry.scrapController,
                       keyboardType: TextInputType.number,
                       cursorColor: ColorConstants.primary,
+                      enabled: widget.isEditable,
                       style: const TextStyle(color: Colors.black54, fontSize: 14),
                       decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10)),
                       onChanged: (val) {
@@ -787,7 +796,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                 setState(() {
                   entry.amountController.text = amt.toStringAsFixed(2);
                 });
-              }),
+              },),
             ],
           ),
           const SizedBox(height: 8),

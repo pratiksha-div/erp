@@ -10,6 +10,7 @@ import '../../../api/models/DAOGetMachineReading.dart';
 import '../../../api/services/add_machine_reading_service.dart';
 import '../../../bloc/DailyReporting/delete_machine_reading_bloc.dart';
 import '../../../bloc/DailyReporting/get_machine_reading.dart';
+import '../../../data/local/AppUtils.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Bottom_Sheet.dart';
 import '../../Widgets/Custom_appbar.dart';
@@ -45,6 +46,7 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
   Timer? _debounce;
   MachineReadingData? _lastRemovedItem;
   int? _lastRemovedIndex;
+  String? loggedUserId;
 
   // late AnimationController _controller;
   // late Animation<double> _opacity;
@@ -59,19 +61,14 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
 
     _loadPage(start: 0);
     _scrollController.addListener(_onScroll);
+    _loadLoggedUserId();
+  }
 
-    // _controller = AnimationController(
-    //   vsync: this,
-    //   duration: Duration(milliseconds: 900),
-    // )..repeat(reverse: true);
-    //
-    // _opacity = Tween<double>(begin: 0.4, end: 5).animate(
-    //   CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    // );
-    //
-    // _scale = Tween<double>(begin: 0.97, end: 1.00).animate(
-    //   CurvedAnimation(parent: _controller, curve: Curves.easeInOut),
-    // );
+  Future<void> _loadLoggedUserId() async {
+    final id = await AppUtils().getUserID();
+    setState(() {
+      loggedUserId = id.toString();
+    });
   }
 
   void _onScroll() {
@@ -443,6 +440,8 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
             i.readingend!.toString().trim().isEmpty;
 
     final bool shouldAnimate = isEndTimeMissing || isStopReadingMissing;
+    final String itemUserId = i.user_id?.toString() ?? '';
+    final bool isOwner = loggedUserId != null && loggedUserId == itemUserId;
 
     Widget cardContent = Container(
       padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 15),
@@ -668,7 +667,7 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
                   ),
               ],
               Expanded(child: Text("")),
-              Icon(Icons.edit, color: shouldAnimate?Colors.black:Colors.grey, size: 15),
+              Icon(isOwner?Icons.edit:Icons.visibility, color: shouldAnimate?Colors.black:Colors.grey, size: 15),
               const SizedBox(width: 10),
               Container(
                 height: 10,
@@ -741,7 +740,7 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
       onTap: () async {
         final result = await Utils.navigateTo(
           context,
-          AddMachineReading(id: i.readingid ?? ""),
+          AddMachineReading(id: i.readingid ?? "",isEditable: isOwner,),
         );
         if (result == "true") _onRefresh();
       },

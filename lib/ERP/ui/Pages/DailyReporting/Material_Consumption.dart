@@ -8,6 +8,7 @@ import '../../../api/models/DAOMaterialConsumptionList.dart';
 import '../../../api/services/add_material_consumption.dart';
 import '../../../bloc/DailyReporting/delete_material_consumption_bloc.dart';
 import '../../../bloc/DailyReporting/get_material_consumption.dart';
+import '../../../data/local/AppUtils.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Bottom_Sheet.dart';
 import '../../Widgets/Custom_appbar.dart';
@@ -45,6 +46,7 @@ class _MaterialConsumptionState extends State<MaterialConsumption> {
 
   // store last optimistically removed item to re-insert on failure
   MaterialConsumptionList? _lastRemovedItem;
+  String? loggedUserId;
 
   @override
   void initState() {
@@ -59,6 +61,14 @@ class _MaterialConsumptionState extends State<MaterialConsumption> {
     _loadPage(start: 0);
     // infinite scroll listener
     _scrollController.addListener(_onScroll);
+    _loadLoggedUserId();
+  }
+
+  Future<void> _loadLoggedUserId() async {
+    final id = await AppUtils().getUserID();
+    setState(() {
+      loggedUserId = id.toString();
+    });
   }
 
   void _onScroll() {
@@ -345,13 +355,17 @@ class _MaterialConsumptionState extends State<MaterialConsumption> {
     if (allEmpty) {
       return const SizedBox.shrink();
     }
+
+    final String itemUserId = i.user_id?.toString() ?? '';
+    final bool isOwner = loggedUserId != null && loggedUserId == itemUserId;
+
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
       onTap: () async {
         final result = await Utils.navigateTo(
           context,
-          AddMaterialConsumption(id:i.consumption_id),
+          AddMaterialConsumption(id:i.consumption_id,isEditable:isOwner,),
         );
         if (result == "true") {
           _onRefresh();
@@ -492,7 +506,7 @@ class _MaterialConsumptionState extends State<MaterialConsumption> {
             Row(
               mainAxisAlignment: MainAxisAlignment.end,
               children: [
-                const Icon(Icons.edit, color: Colors.grey, size: 15),
+                Icon(isOwner?Icons.edit:Icons.visibility, color: Colors.grey, size: 15),
                 const SizedBox(width: 10),
                 Container(
                   height: 10,
