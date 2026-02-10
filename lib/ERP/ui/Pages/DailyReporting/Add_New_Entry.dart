@@ -21,7 +21,7 @@ import '../../Widgets/Custom_Dialog.dart';
 import '../../Widgets/TextWidgets.dart';
 
 class AddNewEntry extends StatefulWidget {
-  AddNewEntry({super.key, required this.id,this.isEditable=false});
+  AddNewEntry({super.key, required this.id,this.isEditable=true});
   String id;
   bool isEditable;
 
