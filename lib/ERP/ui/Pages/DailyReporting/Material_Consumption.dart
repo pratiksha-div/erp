@@ -423,12 +423,15 @@ class _MaterialConsumptionState extends State<MaterialConsumption> {
                         ],
                       ),
                     if ((i.item ?? '').trim().isNotEmpty)
-                      Text(
-                        i.item,
-                        style: GoogleFonts.poppins(
-                          fontSize: 14,
-                          color: Colors.black.withOpacity(.6),
-                          fontWeight: FontWeight.bold,
+                      Container(
+                        width: 55.w,
+                        child: Text(
+                          i.item,
+                          style: GoogleFonts.poppins(
+                            fontSize: 14,
+                            color: Colors.black.withOpacity(.6),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
 

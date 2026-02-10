@@ -9,6 +9,7 @@ class LoginResponse {
   int code;
   String companyName;
   String username;
+  String userId;
 
   // Constructor
   LoginResponse({
@@ -21,6 +22,7 @@ class LoginResponse {
     required this.code,
     required this.companyName,
     required this.username,
+    required this.userId,
   });
 
   // Factory constructor to create a LoginResponse object from a JSON map
@@ -35,6 +37,7 @@ class LoginResponse {
       code: json['CODE'] ?? 0,
       companyName: json['COMPANYNAME'] ?? '',
       username: json['USERNAME'] ?? '',
+      userId: json['USERID'] ?? '',
     );
   }
 
@@ -50,6 +53,7 @@ class LoginResponse {
       'CODE': code,
       'COMPANYNAME': companyName,
       'USERNAME': username,
+      'USERID': userId,
     };
   }
 }

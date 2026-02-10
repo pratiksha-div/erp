@@ -68,12 +68,10 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
           try {
             if (result.token.isNotEmpty) {
               AppUtils().setUserLoggedIn(true);
-              AppUtils().setUserID(event.username);
+              AppUtils().setUserID(result.userId);
               AppUtils().setToken(result.token);
+              AppUtils().setEmployeeId(result.employeeId);
               await AppUtils().setLoginTime(DateTime.now());
-              Fluttertoast.showToast(
-                msg: "Successfully Logged in",
-              );
               print("Token saved: ${result.token}");
             }
             // AuthenticationService().sendOTP();

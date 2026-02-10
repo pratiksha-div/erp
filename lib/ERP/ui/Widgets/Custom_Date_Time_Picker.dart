@@ -14,9 +14,17 @@ class CustomDateTimeTextField extends StatelessWidget {
   final onTap;
   bool showTitle;
   String title;
+  bool isEdit;
 
   CustomDateTimeTextField(
-      {super.key,required this.hint, required this.icon,this.onTap,this.showTitle=true,this.title="Select Date"});
+      {super.key,
+        required this.hint,
+        required this.icon,
+        this.onTap,
+        this.showTitle=true,
+        this.title="Select Date",
+        this.isEdit=true
+      });
 
   @override
   Widget build(BuildContext context) {
@@ -75,6 +83,7 @@ class CustomDateTimeTextField extends StatelessWidget {
                       readOnly: true,
                       enableInteractiveSelection: false,
                       onTap: onTap,
+                      enabled: isEdit,
                       cursorColor: ColorConstants.primary,
                       style: const TextStyle(color:  Colors.black),
                       onSubmitted: (val){
@@ -89,7 +98,7 @@ class CustomDateTimeTextField extends StatelessWidget {
                     ),
                   ),
                   InkWell(
-                    onTap: onTap,
+                    onTap: isEdit?onTap:null,
                     child: Container(
                         height: 20,
                         width: 20,

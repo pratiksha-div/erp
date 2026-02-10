@@ -10,6 +10,7 @@ import '../../../bloc/DailyReporting/entry_by_id_bloc.dart';
 import '../../../bloc/DropDownValueBloc/employee_type_bloc.dart';
 import '../../../bloc/DropDownValueBloc/emplyee_list_bloc.dart';
 import '../../../bloc/DropDownValueBloc/project_list_bloc.dart';
+import '../../../data/local/AppUtils.dart';
 import '../../Utils/colors_constants.dart';
 import '../../Utils/date_picker.dart';
 import '../../Widgets/Custom_Date_Time_Picker.dart';
@@ -20,8 +21,9 @@ import '../../Widgets/Custom_Dialog.dart';
 import '../../Widgets/TextWidgets.dart';
 
 class AddNewEntry extends StatefulWidget {
-  AddNewEntry({super.key, required this.id});
+  AddNewEntry({super.key, required this.id,this.isEditable=false});
   String id;
+  bool isEditable;
 
   @override
   State<AddNewEntry> createState() => _AddNewEntryState();
@@ -51,6 +53,8 @@ class _AddNewEntryState extends State<AddNewEntry> {
   String? dateError;
   String? employeeTypeError;
   String? employeeError;
+  bool isEditable=true;
+  String? entryUserId;
 
 
   Future<void> _pickDate() async {
@@ -78,8 +82,8 @@ class _AddNewEntryState extends State<AddNewEntry> {
     BlocProvider.of<ProjectListBloc>(context).add(const FetchProjectListsEvent());
     if (widget.id.isNotEmpty) {
       BlocProvider.of<EntryByIDBloc>(context).add(FetchEntryByIDEvent(work_detail_id: widget.id));
+      print("id: ${widget.id}");
     }
-    print("id: ${widget.id}");
   }
 
   @override
@@ -233,22 +237,33 @@ class _AddNewEntryState extends State<AddNewEntry> {
             listener: (context, state) {
               if (state is EntryByIDLoadSuccess) {
                 if (widget.id.isNotEmpty) {
+                  print("EntryByIDLoadSuccess");
                   final entry = state.entryByID.isNotEmpty ? state.entryByID.first : null;
                   if (entry != null) {
                     setState(() {
+                      // PROJECT
                       selectedProjectId = entry.project_id?.toString() ?? "";
                       selectedProjectName = entry.projectName ?? "";
+
+                      // EMPLOYEE TYPE
                       _selectedEmployeeTypeId = entry.employeetype?.toString() ?? "";
                       _selectedEmployeeTypeName = entry.employeetypename ?? "";
+
+                      // 🔥 IMPORTANT PART (ADD THIS)
+                      // entryUserId = widget.uID;
+
+                      // EMPLOYEE DATA
                       if (_selectedEmployeeTypeName == "Permanent Employee") {
-                        _selectedEmployeeId = entry.employeename?.toString() ?? "";
-                        _selectedEmployeeName = entry.empName ?? "";
-                        employeeName.text = ""; // free-text cleared for permanent
+                        _selectedEmployeeId = entry.empId?.toString() ?? "";
+                        _selectedEmployeeName = entry.employeename ?? "";
+                        employeeName.text = ""; // free-text cleared
                       } else {
                         _selectedEmployeeId = null;
-                        _selectedEmployeeName = entry.empName ?? entry.employeename?.toString() ?? "";
-                        employeeName.text = entry.employeename ?? "";
+                        _selectedEmployeeName =
+                            entry.empName ?? entry.employeename?.toString() ?? "";
+                        employeeName.text = _selectedEmployeeName ?? "";
                       }
+                      // DATE & NOTES
                       getDate(entry.entryDate ?? "");
                       description.text = entry.notes ?? "";
                     });
@@ -292,6 +307,7 @@ class _AddNewEntryState extends State<AddNewEntry> {
                                         selectedVal: selectedProject.project_name ?? selectedProjectName ?? "",
                                         data: state.projectLists,
                                         displayText: (data) => data.project_name ?? '',
+                                        isEditable:widget.isEditable,
                                         onChanged: (val) {
                                           setState(() {
                                             selectedProjectId = val.project_id ?? "";
@@ -318,6 +334,7 @@ class _AddNewEntryState extends State<AddNewEntry> {
                                   onTap: _pickDate,
                                   hint: _selectedDate == null ? '-- Date --' : DateFormat("d MMMM y").format(_selectedDate!),
                                   icon: Icons.calendar_month,
+                                  isEdit: widget.isEditable,
                                 ),
                               ],
                             ),
@@ -341,6 +358,7 @@ class _AddNewEntryState extends State<AddNewEntry> {
                                         selectedVal: selectedEmployeeType.LookupValue ?? _selectedEmployeeTypeName ?? "",
                                         data: state.EmployeeTypes,
                                         displayText: (data) => data.LookupValue ?? '',
+                                        isEditable:widget.isEditable,
                                         onChanged: (val) {
                                           setState(() {
                                             _selectedEmployeeTypeId = val.LookupDataId ?? "";
@@ -367,7 +385,7 @@ class _AddNewEntryState extends State<AddNewEntry> {
                             if ((_selectedEmployeeTypeName ?? "").toLowerCase() == "contractor".toLowerCase() ||
                                 (_selectedEmployeeTypeName ?? "").isEmpty)
                               ...[
-                                txtFiled(context, employeeName, "Enter Employee Name", "Employee Name"),
+                                txtFiled(context, employeeName, "Enter Employee Name", "Employee Name",enable: widget.isEditable),
                                 if (employeeError != null)errorText(employeeError),
                                 const SizedBox(height: 10),
                               ],
@@ -390,6 +408,7 @@ class _AddNewEntryState extends State<AddNewEntry> {
                                           selectedVal: selectedEmp.EmployeeName ?? _selectedEmployeeName ?? "",
                                           data: state.employees,
                                           displayText: (data) => data.EmployeeName ?? '',
+                                          isEditable:widget.isEditable,
                                           onChanged: (val) {
                                             setState(() {
                                               _selectedEmployeeId = val.EmployeeId ?? "";
@@ -406,8 +425,9 @@ class _AddNewEntryState extends State<AddNewEntry> {
                             ),
                             const SizedBox(height: 10),
                             // DESCRIPTION
-                            txtFiled(context, description, "Enter Description", "Note", maxLines: 5),
+                            txtFiled(context, description, "Enter Description", "Note", maxLines: 5,enable: widget.isEditable),
                             const SizedBox(height: 20),
+                            if(widget.isEditable)
                             PrimaryButton(
                               title: _isSubmitting ? "Saving..." : "Save",
                               onAction: _isSubmitting ? () {} : _onSavePressed,

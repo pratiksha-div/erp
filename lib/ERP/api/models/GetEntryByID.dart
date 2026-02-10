@@ -26,6 +26,7 @@ class EntryByID {
   dynamic employeename;
   dynamic projectName;
   dynamic empName;
+  dynamic empId;
 
   EntryByID({
     this.employeetype,
@@ -37,6 +38,7 @@ class EntryByID {
     this.employeename,
     this.projectName,
     this.empName,
+    this.empId,
   });
 
   factory EntryByID.fromJson(Map<String, dynamic> json) => _$EntryByIDFromJson(json);

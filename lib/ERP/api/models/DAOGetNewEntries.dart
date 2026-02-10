@@ -25,6 +25,8 @@ class NewEntryData {
   dynamic entryDate;
   dynamic employeename;
   dynamic projectname;
+  dynamic employeeid;
+  dynamic user_id;
 
   NewEntryData({
     this.lookupvalue,
@@ -33,7 +35,9 @@ class NewEntryData {
     this.work_detail_id,
     this.entryDate,
     this.employeename,
-    this.projectname
+    this.projectname,
+    this.employeeid,
+    this.user_id
   });
 
   factory NewEntryData.fromJson(Map<String, dynamic> json) => _$NewEntryDataFromJson(json);

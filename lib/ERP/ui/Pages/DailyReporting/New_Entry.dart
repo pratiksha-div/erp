@@ -9,6 +9,7 @@ import '../../../api/models/DAOGetNewEntries.dart';
 import '../../../api/services/add_new_entry.dart';
 import '../../../bloc/DailyReporting/delete_new_entry_bloc.dart';
 import '../../../bloc/DailyReporting/get_new_entry_bloc.dart';
+import '../../../data/local/AppUtils.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Bottom_Sheet.dart';
 import '../../Widgets/Custom_appbar.dart';
@@ -36,6 +37,8 @@ class _NewEntryState extends State<NewEntry> {
   late final NewEntryBloc _newEntryBloc;
   late final DeleteNewEntryBloc _deleteNewEntryBloc;
   NewEntryData? _lastRemovedItem;
+  String? loggedUserId;
+
 
   @override
   void initState() {
@@ -50,6 +53,14 @@ class _NewEntryState extends State<NewEntry> {
           _hasMore) {
         _loadMoreData();
       }
+    });
+    _loadLoggedUserId();
+  }
+
+  Future<void> _loadLoggedUserId() async {
+    final id = await AppUtils().getUserID();
+    setState(() {
+      loggedUserId = id.toString();
     });
   }
 
@@ -180,9 +191,7 @@ class _NewEntryState extends State<NewEntry> {
       controller: _scrollController,
       physics: const AlwaysScrollableScrollPhysics(),
       children: [
-
         _buildHeader(),
-
         if (_isInitialLoading)
           const SizedBox(height: 200),
         if (_isInitialLoading)
@@ -282,6 +291,7 @@ class _NewEntryState extends State<NewEntry> {
   }
 
   Widget _buildItemCard(NewEntryData i) {
+
     Color bg = ColorConstants.primary.withOpacity(.2);
     Color fg = ColorConstants.primary;
 
@@ -295,11 +305,14 @@ class _NewEntryState extends State<NewEntry> {
       fg = ColorConstants.lightBlueColor;
     }
 
+    final String itemUserId = i.user_id?.toString() ?? '';
+    final bool isOwner = loggedUserId != null && loggedUserId == itemUserId;
+
     return InkWell(
       onTap: () async {
         final result = await Utils.navigateTo(
           context,
-          AddNewEntry(id: i.work_detail_id ?? ""),
+          AddNewEntry(id: i.work_detail_id ?? "",isEditable: isOwner,),
         );
         if (result == "true") _onRefresh();
       },
@@ -399,7 +412,7 @@ class _NewEntryState extends State<NewEntry> {
             Row(
               children: [
                 if(i.entryDate.toString().isNotEmpty)
-                  ...[
+                ...[
                     Text("Entry Date: ",
                         style: GoogleFonts.poppins(
                             fontSize: 12, color: Colors.black.withOpacity(.6))),
@@ -412,7 +425,7 @@ class _NewEntryState extends State<NewEntry> {
                       ),
                     ),],
                 Expanded(child: Container()),
-                const Icon(Icons.edit, size: 15, color: Colors.grey),
+                Icon( isOwner ? Icons.edit : Icons.visibility, size: 15, color: Colors.grey),
                 const SizedBox(width: 20),
                 Container(height: 10, width: 1, color: Colors.grey),
                 const SizedBox(width: 20),

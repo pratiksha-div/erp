@@ -47,10 +47,11 @@ class _AddMachineReadingState extends State<AddMachineReading> {
   // new state
   String? _selectedVendorId;
   String? _selectedVechicleNameId;
-  bool   _isSaving = false;
+  bool _isSaving = false;
   TimeOfDay? _startTime;
   TimeOfDay? _stopTime;
   int _timeOfDayToMinutes(TimeOfDay t) => t.hour * 60 + t.minute;
+  bool isEditable=true;
 
   @override
   void initState() {
@@ -59,6 +60,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
     BlocProvider.of<VendorNameBloc>(context).add(const FetchVendorNamesEvent());
     BlocProvider.of<MachineReadingByIDBloc>(context).add( FetchMachineReadingByIDEvent(readingid: widget.id));
     print("ID ${widget.id}");
+    checkEditable();
   }
 
   @override
@@ -66,6 +68,14 @@ class _AddMachineReadingState extends State<AddMachineReading> {
     projectName.dispose();
     description.dispose();
     super.dispose();
+  }
+
+  void checkEditable()
+  {
+    if(widget.id.isNotEmpty){
+      isEditable=false;
+      setState(() {});
+    }
   }
 
   Future<void> pickStartTime() async {
@@ -371,6 +381,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                                 print("selectedProjectId ${selectedProjectId}");
                                               });
                                             },
+                                              isEditable: isEditable
                                           ),
                                         ],
                                       );
@@ -392,7 +403,8 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                           hint: _startTime == null
                                               ? '-- Start Time:--'
                                               : formatTimeWithSpace(_startTime!),
-                                          icon: Icons.watch_later_outlined
+                                          icon: Icons.watch_later_outlined,
+                                          isEdit:isEditable
                                       ),
                                       const SizedBox(width: 10),
                                       CustomDateTimeTextField(
@@ -402,7 +414,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                           hint: _stopTime == null
                                               ? '-- Stop Time:--'
                                               : formatTimeWithSpace(_stopTime!),
-                                          icon: Icons.watch_later_outlined
+                                          icon: Icons.watch_later_outlined,
                                       ),
                                     ],
                                   ),
@@ -414,10 +426,11 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                       onTap: _pickDate,
                                       hint: _selectedDate == null ? '-- Date: --' : DateFormat("d MMMM y").format(_selectedDate!),
                                       icon: Icons.calendar_month,
+                                      isEdit:isEditable
                                     ),
                                   ],
                                 ),
-                                txtFiled(context,spentTime, "Enter spent time", "Spent Time"),
+                                txtFiled(context,spentTime, "Enter spent time", "Spent Time",enable: isEditable),
                                 const SizedBox(height: 10),
                                 BlocConsumer<VendorNameBloc, VendorNameState>(
                                   listener: (context, state) {},
@@ -441,6 +454,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                             selectedVal: selectedVendor.contractorName ?? '',
                                             data: state.vendorNames,
                                             displayText: (data) => data.contractorName ?? '',
+                                            isEditable: isEditable,
                                             onChanged: (val) {
                                               setState(() {
                                                 _selectedVendorId = val.contractorId ?? '';
@@ -481,6 +495,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                             ? "${selectedVehicleName.VehicleName} (${selectedVehicleName.VehicleNo})"
                                             : "",
                                         data: state.data,
+                                          isEditable: isEditable,
                                         displayText: (data) => data.VehicleName ?? '',
                                         subDisplayText: (data) => data.VehicleNo ?? '',
                                         onChanged: (val) {
@@ -501,20 +516,24 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                 const SizedBox(height: 20),
                                 subTitle("Mention start and stop reading",),
                                 const SizedBox(height: 10),
-                                txtFiled(context,startReading, "Enter reading on start", "Reading on Start", onChanged: (val) => _calculateTotalRun(),),
+                                txtFiled(context,startReading,
+                                  "Enter reading on start", "Reading on Start", onChanged: (val) => _calculateTotalRun(),
+                                  enable: isEditable
+                                ),
                                 const SizedBox(height: 10),
-                                txtFiled(context,stopReading, "Enter reading on stop", "Reading on Stop", onChanged: (val) => _calculateTotalRun(),),
+                                txtFiled(context,stopReading, "Enter reading on stop", "Reading on Stop",
+                                    onChanged: (val) => _calculateTotalRun()),
                                 const SizedBox(height: 10),
-                                txtFiled(context,total_run, "Enter total run", "Total run",enable: false),
+                                txtFiled(context,total_run, "Enter total run", "Total run", enable: isEditable),
                                 const SizedBox(height: 10),
-                                txtFiled(context,vehicleNo, "Enter vehicle number", "Vehicle Number",enable: false),
+                                txtFiled(context,vehicleNo, "Enter vehicle number", "Vehicle Number",   enable: isEditable),
                                 const SizedBox(height: 10),
                                 // description
-                                txtFiled(context,description, "Enter Description", "Note", maxLines: 5),
+                                txtFiled(context,description, "Enter Description", "Note", maxLines: 5,   enable: isEditable),
                                 const SizedBox(height: 10),
-                                txtFiled(context,gatePass, "Enter Gate Pass Number ", "Gate Pass Number",),
+                                txtFiled(context,gatePass, "Enter Gate Pass Number ", "Gate Pass Number",   enable: isEditable),
                                 const SizedBox(height: 10),
-                                txtFiled(context,amount, "Enter Amount", "Amount",),
+                                txtFiled(context,amount, "Enter Amount", "Amount",   enable: isEditable),
                                 const SizedBox(height: 20),
                                 PrimaryButton(
                                   title: _isSaving ? "Saving..." : "Save",

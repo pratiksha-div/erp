@@ -207,7 +207,11 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
     );
 
     if (date != null) {
-      setState(() => _selectedDate = date);
+      setState(() {
+        _selectedDate = date;
+        err_date_time = false;
+        _resetMaterialContext();
+      });
       _tryFetchMaterialUsed();
     }
   }
@@ -428,12 +432,22 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
     if (time != null) {
       setState(() {
         _selectedTime = time;
-        err_date_time=false;
+        err_date_time = false;
+        _resetMaterialContext();
       });
-      print("_selectedTime ${_selectedTime}");
       _tryFetchMaterialUsed();
     }
   }
+
+  void _resetMaterialContext() {
+    for (final me in materialEntries) {
+      me.dispose();
+    }
+    materialEntries.clear();
+    materialIssuedList.clear();
+    _materialContextLocked = false;
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -522,12 +536,11 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                                         selectedVal: selectedProject.project_name ?? "",
                                         data: state.projectLists,
                                         displayText: (data) => data.project_name ?? '',
-                                        onChanged: _materialContextLocked
-                                            ? null // 🔒 disable
-                                            : (val) {
+                                        onChanged:  (val) {
                                           setState(() {
                                             selectedProjectId = val.project_id ?? "";
                                             err_project=false;
+                                            _resetMaterialContext();
                                           });
                                           _tryFetchMaterialUsed();
                                         },
@@ -546,7 +559,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                             Row(
                               children: [
                                 CustomDateTimeTextField(
-                                    onTap: _materialContextLocked ? null : _pickDate,
+                                    onTap:  _pickDate,
                                     hint: _selectedDate == null
                                         ? '-- Date --'
                                         : DateFormat("d MMMM y")
@@ -554,7 +567,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                                     icon: Icons.calendar_month),
                                 const SizedBox(width: 10),
                                 CustomDateTimeTextField(
-                                    onTap: _materialContextLocked ? null : _pickTime,
+                                    onTap: _pickTime,
                                     title: "Select Time",
                                     hint: _selectedTime == null
                                         ? '-- Time --'

@@ -25,6 +25,8 @@ NewEntryData _$NewEntryDataFromJson(Map<String, dynamic> json) => NewEntryData(
   entryDate: json['entryDate'],
   employeename: json['employeename'],
   projectname: json['projectname'],
+  employeeid: json['employeeid'],
+  user_id: json['user_id'],
 );
 
 Map<String, dynamic> _$NewEntryDataToJson(NewEntryData instance) =>
@@ -36,4 +38,6 @@ Map<String, dynamic> _$NewEntryDataToJson(NewEntryData instance) =>
       'entryDate': instance.entryDate,
       'employeename': instance.employeename,
       'projectname': instance.projectname,
+      'employeeid': instance.employeeid,
+      'user_id': instance.user_id,
     };

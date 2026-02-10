@@ -13,6 +13,7 @@ class TransferDropdown<T> extends StatefulWidget {
   final String Function(T) displayText;
   final String Function(T)? subDisplayText; // <- nullable now
   final void Function(T)? onChanged;
+  final bool isEditable;
 
   const TransferDropdown({
     super.key,
@@ -23,6 +24,7 @@ class TransferDropdown<T> extends StatefulWidget {
     required this.displayText,
     this.subDisplayText,
     this.onChanged,
+    this.isEditable=true
   });
 
   @override
@@ -169,22 +171,26 @@ class _TransferDropdownState<T> extends State<TransferDropdown<T>> {
                             child: TextField(
                               controller: textController,
                               focusNode: _focusNode,
+                              enabled: widget.isEditable,
                               cursorColor: ColorConstants.primary,
                               onTap: () {
-                                if (textController.text.trim().isNotEmpty) {
-                                  _updateFilter(textController.text);
-                                }
+
+                                  if (textController.text
+                                      .trim()
+                                      .isNotEmpty) {
+                                    _updateFilter(textController.text);
+                                  }
                               },
                               onChanged: (v) {
-                                _updateFilter(v);
+                                  _updateFilter(v);
                               },
                               onSubmitted: (v) {
-                                if (_filtered.length == 1) {
-                                  _onTapSuggestion(_filtered.first);
-                                } else {
-                                  setState(() => _showSuggestions = false);
-                                  _unfocus();
-                                }
+                                  if (_filtered.length == 1) {
+                                    _onTapSuggestion(_filtered.first);
+                                  } else {
+                                    setState(() => _showSuggestions = false);
+                                    _unfocus();
+                                  }
                               },
                               decoration: InputDecoration(
                                 hintText: widget.hint,
@@ -200,53 +206,62 @@ class _TransferDropdownState<T> extends State<TransferDropdown<T>> {
                             icon: Icon(Icons.keyboard_arrow_down,color:  Colors.grey.withOpacity(.6),),
                             onPressed: () async {
                               _unfocus();
-                              final selectedItem = await showDialog<T>(
-                                context: context,
-                                builder: (context) {
-                                  return AlertDialog(
-                                    backgroundColor: Colors.white,
-                                    title: Text(
-                                      'Select ${widget.title}',
-                                      style: GoogleFonts.poppins(
-                                        fontSize: 15,
-                                        fontWeight: FontWeight.bold,
+                              if(widget.isEditable)
+                              {
+                                final selectedItem = await showDialog<T>(
+                                  context: context,
+                                  builder: (context) {
+                                    return AlertDialog(
+                                      backgroundColor: Colors.white,
+                                      title: Text(
+                                        'Select ${widget.title}',
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 15,
+                                          fontWeight: FontWeight.bold,
+                                        ),
                                       ),
-                                    ),
-                                    content: SingleChildScrollView(
-                                      child: Column(
-                                        children: widget.data.map((item) {
-                                          final displayValue = widget.displayText(item);
-                                          final subDisplayValue = widget.subDisplayText?.call(item) ?? '';
+                                      content: SingleChildScrollView(
+                                        child: Column(
+                                          children: widget.data.map((item) {
+                                            final displayValue = widget
+                                                .displayText(item);
+                                            final subDisplayValue = widget
+                                                .subDisplayText?.call(item) ??
+                                                '';
 
-                                          final titleText = subDisplayValue.isNotEmpty
-                                              ? "$displayValue (${subDisplayValue})"
-                                              : displayValue;
+                                            final titleText = subDisplayValue
+                                                .isNotEmpty
+                                                ? "$displayValue (${subDisplayValue})"
+                                                : displayValue;
 
-                                          return ListTile(
-                                            dense: true,
-                                            minVerticalPadding: 0,
-                                            contentPadding: EdgeInsets.zero,
-                                            title: Text(
-                                              "${titleText}",
-                                              style: GoogleFonts.poppins(
-                                                fontSize: 13,
-                                                color: Colors.black.withOpacity(.6),
+                                            return ListTile(
+                                              dense: true,
+                                              minVerticalPadding: 0,
+                                              contentPadding: EdgeInsets.zero,
+                                              title: Text(
+                                                "${titleText}",
+                                                style: GoogleFonts.poppins(
+                                                  fontSize: 13,
+                                                  color: Colors.black
+                                                      .withOpacity(.6),
+                                                ),
                                               ),
-                                            ),
-                                            onTap: () {
-                                              Navigator.of(context).pop(item);
-                                            },
-                                          );
-                                        }).toList(),
+                                              onTap: () {
+                                                Navigator.of(context).pop(item);
+                                              },
+                                            );
+                                          }).toList(),
+                                        ),
                                       ),
-                                    ),
-                                  );
-                                },
-                              );
+                                    );
+                                  },
+                                );
 
-                              if (selectedItem != null) {
-                                _onTapSuggestion(selectedItem);
-                                if (widget.onChanged != null) widget.onChanged!(selectedItem);
+                                if (selectedItem != null) {
+                                  _onTapSuggestion(selectedItem);
+                                  if (widget.onChanged != null) widget
+                                      .onChanged!(selectedItem);
+                                }
                               }
                             },
                           ),
@@ -258,7 +273,7 @@ class _TransferDropdownState<T> extends State<TransferDropdown<T>> {
               ),
             ],
           ),
-          if (_showSuggestions)
+          if (widget.isEditable && _showSuggestions)
             Container(
               margin: const EdgeInsets.only(left: 10, top: 6),
               constraints: BoxConstraints(

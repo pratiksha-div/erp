@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import '../../../data/local/AppUtils.dart';
 import '../../Widgets/Cards.dart';
 import '../../Widgets/MR_Logo.dart';
 import '../../Widgets/TextWidgets.dart';
@@ -66,6 +67,22 @@ class _HomeState extends State<Home> {
     if (!mounted) return;
     setState(() => selectedIndex = -1);
   }
+
+  @override
+  void initState()
+  {
+    super.initState();
+    getEmployeeID();
+  }
+
+  void getEmployeeID() async
+  {
+    String employeeId = await AppUtils().getEmployeeId();
+    String userId = await AppUtils().getUserID();
+    print("Employee ID: $employeeId");
+    print("User ID: $userId");
+  }
+
 
   @override
   Widget build(BuildContext context) {

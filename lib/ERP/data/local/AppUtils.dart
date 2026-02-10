@@ -6,8 +6,8 @@ class AppUtils {
 
   static const _keyToken = 'token';
   static const _keyLoginTimeMillis = 'login_time_millis';
-
-
+  static const _keyEmployeeId = 'employee_id';
+  static const _keyUserId = 'user_id';
 
   Future<bool> getUserLoggedIn() async {
     SharedPreferences prefs = await SharedPreferences.getInstance();
@@ -21,29 +21,6 @@ class AppUtils {
   }
 
   ///=================for status change for fault list=================================////////////////////////
-  Future<bool> GetPassDataStatus() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    bool PassDataStatus = prefs.getBool('Pass_data_get') ?? false;
-    return PassDataStatus;
-  }
-
-  void SetPassDataStatus(bool status) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setBool('Pass_data_get', status);
-  }
-  ///=================for status change for fault list=================================////////////////////////
-
-
-  void setUserID(String userID) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('user_id', userID);
-  }
-
-  getUserID() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-
-    return prefs.getString('user_id') ?? "";
-  }
 
 
   void setToken(String token) async {
@@ -55,17 +32,27 @@ class AppUtils {
     SharedPreferences prefs = await SharedPreferences.getInstance();
     return prefs.getString('token') ?? "";
   }
+
+  void setEmployeeId(String employeeId) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    await prefs.setString(_keyEmployeeId, employeeId);
+  }
+
+  Future<String> getEmployeeId() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString(_keyEmployeeId) ?? "";
+  }
+
+  void setUserID(String userID) async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    prefs.setString('user_id', userID);
+  }
+
+  Future<String> getUserID() async {
+    SharedPreferences prefs = await SharedPreferences.getInstance();
+    return prefs.getString('user_id') ?? "";
+  }
   ///=================t=================================////////////////////////
-
-  void setUserPassword(String password) async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    prefs.setString('user_password', password);
-  }
-
-  getUserPassword() async {
-    SharedPreferences prefs = await SharedPreferences.getInstance();
-    return prefs.getString('user_password') ?? "";
-  }
 
   Future<void> setLoginTime(DateTime dateTime) async {
     final prefs = await  await SharedPreferences.getInstance();
@@ -77,11 +64,6 @@ class AppUtils {
     final millis = prefs.getInt(_keyLoginTimeMillis);
     if (millis == null) return null;
     return DateTime.fromMillisecondsSinceEpoch(millis, isUtc: true).toLocal();
-  }
-
-  Future<void> clearLoginTime() async {
-    final prefs = await  await SharedPreferences.getInstance();
-    await prefs.remove(_keyLoginTimeMillis);
   }
 
   Future<bool> logoutUser() async {

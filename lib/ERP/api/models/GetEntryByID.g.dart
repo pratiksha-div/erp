@@ -26,6 +26,7 @@ EntryByID _$EntryByIDFromJson(Map<String, dynamic> json) => EntryByID(
   employeename: json['employeename'],
   projectName: json['projectName'],
   empName: json['empName'],
+  empId: json['empId'],
 );
 
 Map<String, dynamic> _$EntryByIDToJson(EntryByID instance) => <String, dynamic>{
@@ -38,4 +39,5 @@ Map<String, dynamic> _$EntryByIDToJson(EntryByID instance) => <String, dynamic>{
   'employeename': instance.employeename,
   'projectName': instance.projectName,
   'empName': instance.empName,
+  'empId': instance.empId,
 };

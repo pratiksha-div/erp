@@ -30,6 +30,8 @@ class AuthenticationService {
 
       if (response.statusCode == 200) {
         if (response.data is Map<String, dynamic>) {
+          print("login response");
+          print(response.data);
           return LoginResponse.fromJson(response.data as Map<String, dynamic>);
         }
         // If response is in String format, return it as is (for example, if it's raw JSON)
