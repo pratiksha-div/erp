@@ -22,8 +22,9 @@ import '../../Widgets/Custom_Button.dart';
 import '../../Utils/colors_constants.dart';
 
 class AddProject extends StatefulWidget {
-  AddProject({super.key, required this.projectId});
+  AddProject({super.key, required this.projectId,this.isEditable=true});
   String projectId;
+  bool isEditable;
 
   @override
   State<AddProject> createState() => _AddProjectState();
@@ -327,6 +328,7 @@ class _AddProjectState extends State<AddProject> {
                                     );
                                   }
                                 },
+                                enable: widget.isEditable
                               ),
                               if(err_customerName != null)
                                 errorText("Please enter customer name"),
@@ -368,7 +370,7 @@ class _AddProjectState extends State<AddProject> {
                                   setState(() {
                                     err_projectName=null;
                                   });
-                                }),
+                                },enable: widget.isEditable),
                             if(err_projectName != null)
                               errorText("Please enter project name"),
                             const SizedBox(height: 10),
@@ -391,6 +393,7 @@ class _AddProjectState extends State<AddProject> {
                                     selectedVal: selectedCoordinator.EmployeeName ?? "",
                                     data: state.ProjectCoordinators,
                                     displayText: (data) => data.EmployeeName ?? '',
+                                    isEditable:widget.isEditable,
                                     onChanged: (val) {
                                       setState(() {
                                         selectedCoordinatorId = val.EmployeeId ?? "";
@@ -419,6 +422,7 @@ class _AddProjectState extends State<AddProject> {
                                     data: state.ProjectManagers,
                                     displayText: (employee) =>
                                         employee.EmployeeName ?? '',
+                                    isEditable:widget.isEditable,
                                     onChanged: (val) {
                                       setState(() {
                                         selectedManagerId = val.EmployeeId ?? "";
@@ -447,6 +451,7 @@ class _AddProjectState extends State<AddProject> {
                                     selectedVal: selectedProjectType.LookupValue ?? '',
                                     data: state.ProjectTypes,
                                     displayText: (employee) => employee.LookupValue ?? '',
+                                    isEditable:widget.isEditable,
                                     onChanged: (val) {
                                       setState(() {
                                         selectedProjectTypeId = val.LookupDataId ?? "";
@@ -477,6 +482,7 @@ class _AddProjectState extends State<AddProject> {
                               selectedVal: selectedstatus,
                               data: status,
                               displayText: (t) => t,
+                              isEditable:widget.isEditable,
                               onChanged: (val) {
                                 selectedstatus = val;
                                 err_status=null;
@@ -505,6 +511,7 @@ class _AddProjectState extends State<AddProject> {
                                       title: "Start Date",
                                       showTitle: true,
                                       icon: Icons.calendar_month,
+                                      isEdit: widget.isEditable,
                                     ),
                                     if(err_start_date != null)
                                     errorText("Start date is required"),
@@ -520,12 +527,13 @@ class _AddProjectState extends State<AddProject> {
                                   showTitle: true,
                                   title: "End Date",
                                   icon: Icons.calendar_month,
+                                  isEdit: widget.isEditable,
                                 ),
                               ],
                             ),
                             const SizedBox(height: 10),
                             // 🔹 Description
-                            txtFiled(context, description, "Enter Description", "Project Description", maxLines: 3),
+                            txtFiled(context, description, "Enter Description", "Project Description", maxLines: 3,enable: widget.isEditable),
                             const SizedBox(height: 10),
                             BlocBuilder<AllStatesBloc, AllStatesState>(
                               builder: (context, state) {
@@ -541,6 +549,7 @@ class _AddProjectState extends State<AddProject> {
                                     data: state.allstates,
                                     displayText: (employee) =>
                                     employee.state_name ?? '',
+                                    isEditable:widget.isEditable,
                                     onChanged: (val) {
                                       setState(() {
                                         selectedStateId = val.state_id ?? "";
@@ -553,7 +562,7 @@ class _AddProjectState extends State<AddProject> {
                             ),
                             // 🔹 Address
                             txtFiled(
-                                context, address, "Enter Address", "Address"),
+                                context, address, "Enter Address", "Address",enable: widget.isEditable),
                             const SizedBox(height: 20),
                             // 🔹 Godown Listing
                             InkWell(
@@ -611,6 +620,7 @@ class _AddProjectState extends State<AddProject> {
                             ),
                             const SizedBox(height: 20),
                             // 🔹 Submit Button
+                            if(widget.isEditable)
                             PrimaryButton(
                               title:
                               _isSubmitting ? "Saving..." : "Save",

@@ -9,6 +9,7 @@ import '../../../api/models/DAOGetProject.dart';
 import '../../../api/services/get_project_service.dart';
 import '../../../bloc/ProjectBloc/delete_project_bloc.dart';
 import '../../../bloc/ProjectBloc/get_project_bloc.dart';
+import '../../../data/local/AppUtils.dart';
 import '../../Utils/utils.dart';
 import '../../Widgets/Bottom_Sheet.dart';
 import '../../Widgets/Custom_appbar.dart';
@@ -34,7 +35,7 @@ class _AllProjectsState extends State<AllProjects> {
   bool _hasMore = true;
   bool _isInitialLoading = false;
   String? _error;
-
+  String? loggedUserId;
   // data
   final List<ProjectData> _allItems = []; // master list accumulated from pages
   final List<ProjectData> _visibleItems = []; // filtered by search
@@ -52,6 +53,7 @@ class _AllProjectsState extends State<AllProjects> {
     _loadPage(start: 0);
     _scrollController.addListener(_onScroll);
     searchController.addListener(_onSearchChanged);
+    _loadLoggedUserId();
   }
 
   void _onSearchChanged() {
@@ -108,6 +110,13 @@ class _AllProjectsState extends State<AllProjects> {
     // while (_isInitialLoading) {
     //   await Future.delayed(const Duration(milliseconds: 50));
     // }
+  }
+
+  Future<void> _loadLoggedUserId() async {
+    final id = await AppUtils().getUserID();
+    setState(() {
+      loggedUserId = id.toString();
+    });
   }
 
   @override
@@ -402,6 +411,9 @@ class _AllProjectsState extends State<AllProjects> {
     final desc = (i.project_dscription ?? '').trim();
     final hasDescription = desc.isNotEmpty;
 
+    final String itemUserId = i.user_id?.toString() ?? '';
+    final bool isOwner = loggedUserId != null && loggedUserId == itemUserId;
+
     return InkWell(
       highlightColor: Colors.transparent,
       splashColor: Colors.transparent,
@@ -568,7 +580,7 @@ class _AllProjectsState extends State<AllProjects> {
                  ),
                 ],
                 Expanded(child: Text("")),
-                Icon(Icons.edit, color: Colors.grey, size: 15),
+                Icon(isOwner?Icons.edit:Icons.visibility, color: Colors.grey, size: 15),
                 const SizedBox(width: 20),
                 Container(height: 10, width: 1, color: Colors.grey),
                 const SizedBox(width: 20),

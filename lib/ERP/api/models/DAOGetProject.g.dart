@@ -32,6 +32,7 @@ ProjectData _$ProjectDataFromJson(Map<String, dynamic> json) => ProjectData(
   project_dscription: json['project_dscription'] as String?,
   status: json['status'] as String?,
   project_id: json['project_id'] as String?,
+  user_id: json['user_id'] as String?,
 );
 
 Map<String, dynamic> _$ProjectDataToJson(ProjectData instance) =>
@@ -44,4 +45,5 @@ Map<String, dynamic> _$ProjectDataToJson(ProjectData instance) =>
       'project_dscription': instance.project_dscription,
       'status': instance.status,
       'project_id': instance.project_id,
+      'user_id': instance.user_id,
     };

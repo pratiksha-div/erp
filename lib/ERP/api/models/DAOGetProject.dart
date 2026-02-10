@@ -29,6 +29,7 @@ class ProjectData {
   String? project_dscription;
   String? status;
   String? project_id;
+  String? user_id;
 
   ProjectData({
     this.project_manager,
@@ -38,7 +39,8 @@ class ProjectData {
     this.project_type,
     this.project_dscription,
     this.status,
-    this.project_id
+    this.project_id,
+    this.user_id
 
   });
 
