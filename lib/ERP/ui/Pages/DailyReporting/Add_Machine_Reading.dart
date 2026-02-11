@@ -536,11 +536,14 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                 txtFiled(context,gatePass, "Enter Gate Pass Number ", "Gate Pass Number",   enable: editable),
                                 const SizedBox(height: 10),
                                 txtFiled(context,amount, "Enter Amount", "Amount",   enable: editable),
+                               if(widget.isEditable)
+                               ...[
                                 const SizedBox(height: 20),
                                 PrimaryButton(
                                   title: _isSaving ? "Saving..." : "Save",
                                   onAction: _isSaving ? () {} : _onSavePressed,
                                 ),
+                               ],
                                 const SizedBox(height: 30),
                               ],
                             ),

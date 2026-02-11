@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
@@ -29,20 +28,22 @@ class MaterialEntry {
   String? selectedMaterialId;
   String selectedUnit;
   String? selectedUnitId;
-  int currentBalance;
-  int remainingBalance;
+
+  double currentBalance;      // ✅ changed to double
+  double remainingBalance;    // ✅ changed to double
+
   bool showQualityFields;
   final TextEditingController usedQuantityController;
   final TextEditingController scrapController;
   final TextEditingController rateController;
   final TextEditingController amountController;
-  String? consumptionId; // server-side consumption id to track updates
+  String? consumptionId;
 
   MaterialEntry({
     String initialMaterial = '',
     String initialUnit = '',
-    this.currentBalance = 0,
-    this.remainingBalance = 0,
+    this.currentBalance = 0.0,
+    this.remainingBalance = 0.0,
     this.showQualityFields = false,
     this.consumptionId,
   })  : quantityController = TextEditingController(),
@@ -62,6 +63,7 @@ class MaterialEntry {
     amountController.dispose();
   }
 }
+
 
 // Page wrapper: provides AddMaterialConsumptionBloc locally (scoped to this page)
 class AddMaterialConsumptionPage extends StatefulWidget {
@@ -161,9 +163,9 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
       final rateStr = c.rate?.toString() ?? '';
       final itemName = c.item?.toString() ?? '';
       final unitName = c.unit?.toString() ?? '';
-      final currentBal = _tryParseInt(c.balance_quantity);
-      final usedVal = _tryParseInt(c.used_qauntity);
-      final scrapVal = _tryParseInt(c.scrap);
+      final currentBal = _tryParseDouble(c.balance_quantity);
+      final usedVal = _tryParseDouble(c.used_qauntity);
+      final scrapVal = _tryParseDouble(c.scrap);
       final entry = MaterialEntry(
         initialMaterial: itemName,
         initialUnit: unitName,
@@ -650,7 +652,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
               setState(() {
                 entry.selectedMaterial = display;
                 entry.selectedMaterialId = selected.material_id?.toString();
-                entry.currentBalance = int.tryParse(selected.balance?.toString() ?? '0') ?? 0;
+                entry.currentBalance = double.tryParse(selected.balance?.toString() ?? '0') ?? 0.0;
                 entry.quantityController.text = '0';
                 entry.remainingBalance = entry.currentBalance;
               });
@@ -695,7 +697,9 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                     padding: const EdgeInsets.symmetric(vertical: 8),
                     decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: ColorConstants.primary.withOpacity(.1)),
                     child: Center(
-                      child: Text("${entry.currentBalance}", style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.w500)),
+                      child: Text("${  entry.currentBalance == entry.currentBalance.roundToDouble()
+                          ? entry.currentBalance.toInt().toString()
+                          : entry.currentBalance.toStringAsFixed(2)}", style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.w500)),
                     ),
                   )
                 ],
@@ -721,21 +725,34 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                           enabled: widget.isEditable,
                           decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10)),
                           onChanged: (val) {
-                            int entered = int.tryParse(val) ?? 0;
-                            final current = entry.currentBalance;
-                            if (entered < 0) entered = 0;
+                            double entered = double.tryParse(val) ?? 0.0;
+                            final double current = entry.currentBalance;
+
+                            if (entered < 0) entered = 0.0;
+
                             if (entered > current) {
                               entered = current;
                               entry.usedQuantityController.text = entered.toString();
-                              entry.usedQuantityController.selection = TextSelection.collapsed(offset: entered.toString().length);
-                              Fluttertoast.showToast(msg: 'Quantity cannot exceed balance ($current)');
+                              entry.usedQuantityController.selection =
+                                  TextSelection.collapsed(offset: entered.toString().length);
+
+                              Fluttertoast.showToast(
+                                msg: 'Quantity cannot exceed balance (${current.toStringAsFixed(2)})',
+                              );
                             }
+
                             setState(() {
-                              final scrapNow = int.tryParse(entry.scrapController.text) ?? 0;
+                              final double scrapNow =
+                                  double.tryParse(entry.scrapController.text) ?? 0.0;
+
                               entry.remainingBalance = current - entered - scrapNow;
-                              if (entry.remainingBalance < 0) entry.remainingBalance = 0;
+
+                              if (entry.remainingBalance < 0) {
+                                entry.remainingBalance = 0.0;
+                              }
                             });
                           },
+
                         ),
                       ),
                     ],
@@ -766,24 +783,38 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                       style: const TextStyle(color: Colors.black54, fontSize: 14),
                       decoration: const InputDecoration(border: InputBorder.none, contentPadding: EdgeInsets.symmetric(horizontal: 10, vertical: 10)),
                       onChanged: (val) {
-                        int scrapEntered = int.tryParse(val) ?? 0;
-                        final current = entry.currentBalance;
-                        if (scrapEntered < 0) scrapEntered = 0;
-                        final usedNow = int.tryParse(entry.usedQuantityController.text) ?? 0;
-                        final maxAllowedForScrap = (current - usedNow) < 0 ? 0 : (current - usedNow);
+                        double scrapEntered = double.tryParse(val) ?? 0.0;
+                        final double current = entry.currentBalance;
+
+                        if (scrapEntered < 0) scrapEntered = 0.0;
+
+                        final double usedNow =
+                            double.tryParse(entry.usedQuantityController.text) ?? 0.0;
+
+                        final double maxAllowedForScrap =
+                        (current - usedNow) < 0 ? 0.0 : (current - usedNow);
 
                         if (scrapEntered > maxAllowedForScrap) {
                           scrapEntered = maxAllowedForScrap;
                           entry.scrapController.text = scrapEntered.toString();
-                          entry.scrapController.selection = TextSelection.collapsed(offset: scrapEntered.toString().length);
-                          Fluttertoast.showToast(msg: 'Scrap cannot make used+scrap exceed balance ($current)');
+                          entry.scrapController.selection =
+                              TextSelection.collapsed(offset: scrapEntered.toString().length);
+
+                          Fluttertoast.showToast(
+                            msg:
+                            'Scrap cannot make used+scrap exceed balance (${current.toStringAsFixed(2)})',
+                          );
                         }
 
                         setState(() {
                           entry.remainingBalance = current - usedNow - scrapEntered;
-                          if (entry.remainingBalance < 0) entry.remainingBalance = 0;
+
+                          if (entry.remainingBalance < 0) {
+                            entry.remainingBalance = 0.0;
+                          }
                         });
                       },
+
                     ),
                   ),
                 ],
@@ -791,7 +822,10 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
               const SizedBox(width: 20),
               txtField(context, "Rate", entry.rateController, onChange: (val) {
                 final rate = double.tryParse(val) ?? 0;
-                final usedQty = int.tryParse(entry.usedQuantityController.text) ?? 0;
+                final usedQty =
+                    double.tryParse(entry.usedQuantityController.text) ?? 0.0;
+
+                // final usedQty = int.tryParse(entry.usedQuantityController.text) ?? 0;
                 final amt = rate * usedQty;
                 setState(() {
                   entry.amountController.text = amt.toStringAsFixed(2);

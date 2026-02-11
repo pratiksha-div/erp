@@ -46,8 +46,6 @@ class _AddProjectState extends State<AddProject> {
   bool godown_list = false;
   bool _isSubmitting = false;
   String selectedstatus = "";
-
-
   String? err_customerName;
   String? err_projectName;
   String? err_status;
@@ -279,8 +277,6 @@ class _AddProjectState extends State<AddProject> {
         ],
         child: BlocBuilder<AddProjectBloc, AddProjectState>(
             builder: (context, state) {
-          final bool isLoading = state is AddProjectLoading;
-          final bool isSuccess = state is AddProjectSuccess;
           return SafeArea(
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -420,8 +416,7 @@ class _AddProjectState extends State<AddProject> {
                                     selectedVal: selectedManager.EmployeeName??"",
                                     // selectedVal: selectedManagerId ?? '',
                                     data: state.ProjectManagers,
-                                    displayText: (employee) =>
-                                        employee.EmployeeName ?? '',
+                                    displayText: (employee) => employee.EmployeeName ?? '',
                                     isEditable:widget.isEditable,
                                     onChanged: (val) {
                                       setState(() {
@@ -474,7 +469,7 @@ class _AddProjectState extends State<AddProject> {
                             subTitle("Mention Status & Cost Detail"),
                             // 🔹 Expected Cost
                             txtFiled(context, expectedCost,
-                                "Enter Expected Cost", "Expected Cost",isNumber:true),
+                                "Enter Expected Cost", "Expected Cost",isNumber:true,enable: widget.isEditable),
                             const SizedBox(height: 10),
                             TransferDropdown<String>(
                               title: "Status",
@@ -533,7 +528,8 @@ class _AddProjectState extends State<AddProject> {
                             ),
                             const SizedBox(height: 10),
                             // 🔹 Description
-                            txtFiled(context, description, "Enter Description", "Project Description", maxLines: 3,enable: widget.isEditable),
+                            txtFiled(context, description, "Enter Description",
+                                "Project Description", maxLines: 3,enable: widget.isEditable),
                             const SizedBox(height: 10),
                             BlocBuilder<AllStatesBloc, AllStatesState>(
                               builder: (context, state) {

@@ -414,7 +414,7 @@ class _AllProjectsState extends State<AllProjects> {
       splashColor: Colors.transparent,
       onTap: () async {
         final result = await Utils.navigateTo(
-          context, AddProject(projectId: i.project_id ?? ""),
+          context, AddProject(projectId: i.project_id ?? "",isEditable: isOwner,),
         );
         if(result == "true")
         {
@@ -460,7 +460,7 @@ class _AllProjectsState extends State<AllProjects> {
                         height: 1,
                         fontSize: 12,
                         color: Colors.black.withOpacity(.6),
-                        fontWeight: FontWeight.bold,
+                        // fontWeight: FontWeight.bold,
                       ),
                     ),
                     if(i.project_manager!.isNotEmpty)
