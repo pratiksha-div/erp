@@ -557,24 +557,25 @@ class _AllProjectsState extends State<AllProjects> {
               children: [
                 if(i.project_type!.isNotEmpty)
                 ...[
-                Text(
-                  "Type : ",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: Colors.grey,
-                    fontWeight: FontWeight.w500,
-                  ),
+                // Text(
+                //   "Type : ",
+                //   style: GoogleFonts.poppins(
+                //     fontSize: 12,
+                //     color: Colors.grey,
+                //     fontWeight: FontWeight.w500,
+                //   ),
+                // ),
+                Expanded(
+                  child: Text(
+                    i.project_type??"",
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                      color: ColorConstants.primary,
+                      fontWeight: FontWeight.w500,
+                    ),
+                   ),
                 ),
-                Text(
-                  i.project_type??"",
-                  style: GoogleFonts.poppins(
-                    fontSize: 12,
-                    color: ColorConstants.primary,
-                    fontWeight: FontWeight.w500,
-                  ),
-                 ),
                 ],
-                Expanded(child: Text("")),
                 Icon(isOwner?Icons.edit:Icons.visibility, color: Colors.grey, size: 15),
                 const SizedBox(width: 20),
                 Container(height: 10, width: 1, color: Colors.grey),
@@ -612,7 +613,7 @@ class _AllProjectsState extends State<AllProjects> {
                     );
                   },
                   child: Container(
-                    padding: EdgeInsets.symmetric(horizontal: 10),
+                    // padding: EdgeInsets.symmetric(horizontal: 10),
                       child: const Icon(Icons.close, color: Colors.grey, size: 15)
                   ),
                 ),
