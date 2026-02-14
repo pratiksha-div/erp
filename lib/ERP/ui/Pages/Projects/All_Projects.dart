@@ -51,32 +51,48 @@ class _AllProjectsState extends State<AllProjects> {
     _loadLoggedUserId();
   }
 
+  void _applySearch() {
+    final q = searchController.text.trim().toLowerCase();
+
+    List<ProjectData> filtered;
+
+    if (q.isEmpty) {
+      filtered = List<ProjectData>.from(_allItems);
+    } else {
+      filtered = _allItems.where((p) {
+        final name = (p.project_name ?? '').toLowerCase();
+        final cust = (p.customerName ?? '').toLowerCase();
+        final type = (p.project_type ?? '').toLowerCase();
+
+        return name.contains(q) ||
+            cust.contains(q) ||
+            type.contains(q);
+      }).toList();
+    }
+
+    if (!mounted) return;
+
+    setState(() {
+      _visibleItems
+        ..clear()
+        ..addAll(filtered);
+    });
+  }
+
+
   void _onSearchChanged() {
-    // debounce to avoid too many rebuilds
     _debounce?.cancel();
     _debounce = Timer(const Duration(milliseconds: 300), () {
-      final q = searchController.text.trim().toLowerCase();
-      setState(() {
-        if (q.isEmpty) {
-          _visibleItems
-            ..clear()
-            ..addAll(_allItems);
-        } else {
-          _visibleItems
-            ..clear()
-            ..addAll(_allItems.where((p) {
-              final name = (p.project_name ?? '').toLowerCase();
-              final cust = (p.customerName ?? '').toLowerCase();
-              final type = (p.project_type ?? '').toLowerCase();
-              return name.contains(q) || cust.contains(q) || type.contains(q);
-            }));
-        }
-      });
+      _applySearch();
     });
   }
 
   void _onScroll() {
-    if (!_scrollController.hasClients || _isLoadingMore || !_hasMore) return;
+    if (!_scrollController.hasClients ||
+        _isLoadingMore ||
+        !_hasMore ||
+        _isInitialLoading) return;
+
     final maxScroll = _scrollController.position.maxScrollExtent;
     final current = _scrollController.position.pixels;
     if (current >= (maxScroll - 300)) {
@@ -93,14 +109,24 @@ class _AllProjectsState extends State<AllProjects> {
       if (!mounted) return;
       setState(() { _isLoadingMore = true; });
     }
-    _projectBloc.add(FetchProjectsEvent(start: start, length: _pageSize,project_name:""));
+    // _projectBloc.add(FetchProjectsEvent(start: start, length: _pageSize,project_name:""));
+    _projectBloc.add(
+      FetchProjectsEvent(
+        start: start,
+        length: _pageSize,
+        project_name: searchController.text,
+      ),
+    );
+
   }
 
   Future<void> _onRefresh() async {
     _hasMore = true;
     _allItems.clear();
     _visibleItems.clear();
-    setState(() {});
+    setState(() {
+      _hasMore = true;
+    });
     _loadPage(start: 0);
     // while (_isInitialLoading) {
     //   await Future.delayed(const Duration(milliseconds: 50));
@@ -152,23 +178,13 @@ class _AllProjectsState extends State<AllProjects> {
                         final newItems = state.projects;
                         records_total=state.recordsTotal;
                         setState(() {
-                          _allItems.addAll(newItems);
-                          // update visible list depending on search query
-                          final q = searchController.text.trim().toLowerCase();
-                          if (q.isEmpty) {
-                            _visibleItems
-                              ..clear()
-                              ..addAll(_allItems);
-                          } else {
-                            _visibleItems
-                              ..clear()
-                              ..addAll(_allItems.where((p) {
-                                final name = (p.project_name ?? '').toLowerCase();
-                                final cust = (p.customerName ?? '').toLowerCase();
-                                final type = (p.project_type ?? '').toLowerCase();
-                                return name.contains(q) || cust.contains(q) || type.contains(q);
-                              }));
+                          for (var item in newItems) {
+                            if (!_allItems.any((e) => e.project_id == item.project_id)) {
+                              _allItems.add(item);
+                            }
                           }
+                          // update visible list depending on search query
+                          _applySearch();
                           _isInitialLoading = false;
                           _isLoadingMore = false;
                           // if (newItems.length < _pageSize) _hasMore = false;
@@ -383,7 +399,6 @@ class _AllProjectsState extends State<AllProjects> {
             )),
           );
         }
-
 
         return const SizedBox.shrink();
       },
