@@ -880,6 +880,8 @@ class _GatePassState extends State<GatePass> {
                 sideGradientBar(),
               ],
             ),
+            if (!_isEmpty(i.quantity?.toString()))
+              values("Issued Quantity", i.quantity.toString()),
             Divider(color: Colors.grey.withOpacity(.2)),
             _fromToSection(i),
             const SizedBox(height: 10),
@@ -906,7 +908,7 @@ class _GatePassState extends State<GatePass> {
           ),
         if (i.group_names.toString().isNotEmpty)
           Text(
-            i.group_names!,
+            i.group_names??"",
             maxLines: 1,
             // overflow: TextOverflow.ellipsis,
             style: GoogleFonts.poppins(
@@ -926,8 +928,6 @@ class _GatePassState extends State<GatePass> {
               fontWeight: FontWeight.bold,
             ),
           ),
-        if (!_isEmpty(i.quantity?.toString()))
-          values("Issued Quantity", i.quantity.toString()),
       ],
     );
   }
@@ -1131,6 +1131,7 @@ class _GatePassState extends State<GatePass> {
         children: [
           Text(
             val,
+            overflow: TextOverflow.ellipsis,
             style: GoogleFonts.poppins(
               fontSize: 14,
               color: Colors.black.withOpacity(.6),
@@ -1138,7 +1139,7 @@ class _GatePassState extends State<GatePass> {
             ),
           ),
           Text(
-            " material issused",
+            " material issued",
             style: GoogleFonts.poppins(
               fontSize: 10,
               color: Colors.black.withOpacity(.6),
