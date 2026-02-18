@@ -304,7 +304,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
        accepted_qty: ${acceptedQty}, 
        amount: ${amount},   
        grand_total: ${grand_total},
-       remarks:${remark.text}
+       remarks:${remark.text},
       '''
     );
     context.read<AddGoodsReceivedNotesBloc>().add(

@@ -71,6 +71,7 @@ class AuthenticationBloc extends Bloc<AuthenticationEvent, AuthenticationState> 
               AppUtils().setUserID(result.userId);
               AppUtils().setToken(result.token);
               AppUtils().setEmployeeId(result.employeeId);
+              await AppUtils().setUserRole(result.userRole);
               await AppUtils().setLoginTime(DateTime.now());
               print("Token saved: ${result.token}");
             }

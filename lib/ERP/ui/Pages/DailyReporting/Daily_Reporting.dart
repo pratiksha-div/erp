@@ -11,7 +11,8 @@ import 'Material_Consumption.dart';
 import 'New_Entry.dart';
 
 class DailyReporting extends StatefulWidget {
-  const DailyReporting({super.key});
+  DailyReporting({super.key,required this.roles});
+  final List<String> roles;
 
   @override
   State<DailyReporting> createState() => _DailyReportingState();
@@ -43,6 +44,22 @@ class _DailyReportingState extends State<DailyReporting> {
   }
 
   @override
+  void initState() {
+    super.initState();
+
+    print("Received Roles: ${widget.roles}");
+
+    if (widget.roles.contains("Project Manager")) {
+      print("Manager Access");
+    } else if (widget.roles.contains("Project Coordinator")) {
+      print("Coordinator Access");
+    } else if (widget.roles.contains("Project Sub Coordinator")) {
+      print("Sub Coordinator Access");
+    }
+  }
+
+
+  @override
   Widget build(BuildContext context) {
     return  Scaffold(
       backgroundColor: ColorConstants.background,
@@ -66,7 +83,9 @@ class _DailyReportingState extends State<DailyReporting> {
                           height: 20,
                         ),
                         // add material reading and Consumption
-                        Container(
+                        if (widget.roles.contains("Project Manager") ||
+                            widget.roles.contains("Project Coordinator"))
+                        ...[Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
@@ -115,8 +134,11 @@ class _DailyReportingState extends State<DailyReporting> {
                         ),
                         SizedBox(
                           height: 20,
-                        ),
+                        ),],
                         //add new entry
+                        if (widget.roles.contains("Project Manager") ||
+                            widget.roles.contains("Project Coordinator") ||
+                            widget.roles.contains("Project Sub Coordinator"))
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
@@ -143,7 +165,6 @@ class _DailyReportingState extends State<DailyReporting> {
                                   );
                                 },),
                               const SizedBox(height: 18),
-
                             ],
                           ),
                         ),

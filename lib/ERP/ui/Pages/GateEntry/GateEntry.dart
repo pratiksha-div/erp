@@ -1558,6 +1558,9 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                         ],
                       ),
                     ),
+                    Container(
+
+                    ),
                     const SizedBox(height: 20),
                     if (widget.save)
                     PrimaryButton(
@@ -1607,25 +1610,25 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                               .join(',');
                           final rate = details.map((d)=>(d.rate?.toString()??'-')).join(',');
                           final grand_total=details.map((d)=>d.grand_total?.toString()??'-').join('-');
-                        //   log('''
-                        // gate_entry_id: ${widget.id},
-                        // poNumber: ${widget.purchaseOrderNo},
-                        // vendor: $vendor,
-                        // orderedBy: $orderedBy,
-                        // toWarehouse: $toWarehouse,
-                        // itemNames: $itemNames,
-                        // itemQuantities: $itemQuantities,
-                        // itemIds: $itemIds,
-                        // groupIds: $groupIds,
-                        // subGroupIds: $subGroupIds,
-                        // company_name: $company_name,
-                        // unit: $unit,
-                        // to_warehouse_id: $to_warehouse_id,
-                        // project_id: $project_id,
-                        // gate_entry_date: ${DateFormat('yyyy-MM-dd').format(_selectedGateEntryDate!)},
-                        // bill_date: ${DateFormat('yyyy-MM-dd').format(_selectedBillDate!)},
-                        // project_id: $project_id,
-                        // ''');
+                          log('''
+                        gate_entry_id: ${widget.id},
+                        poNumber: ${widget.purchaseOrderNo},
+                        vendor: $vendor,
+                        orderedBy: $orderedBy,
+                        toWarehouse: $toWarehouse,
+                        itemNames: $itemNames,
+                        itemQuantities: $itemQuantities,
+                        itemIds: $itemIds,
+                        groupIds: $groupIds,
+                        subGroupIds: $subGroupIds,
+                        company_name: $company_name,
+                        unit: $unit,
+                        to_warehouse_id: $to_warehouse_id,
+                        project_id: $project_id,
+                        gate_entry_date: ${DateFormat('yyyy-MM-dd').format(_selectedGateEntryDate!)},
+                        bill_date: ${DateFormat('yyyy-MM-dd').format(_selectedBillDate!)},
+                        project_id: $project_id,
+                        ''');
                           final addBloc =
                               context.read<AddPurchaseDetailBloc>();
                           addBloc.add(SubmitAddPurchaseDetailEvent(

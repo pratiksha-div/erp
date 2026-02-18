@@ -67,9 +67,9 @@ Drawer buildCustomDrawer(BuildContext context) {
           buildDrawerItem('Gate entry', Icons.assistant_direction, onTap: () {
             Utils.navigateTo(context, GateEntry());
           }),
-          buildDrawerItem('Daily reporting', Icons.report, onTap: () {
-            Utils.navigateTo(context, DailyReporting());
-          }),
+          // buildDrawerItem('Daily reporting', Icons.report, onTap: () {
+          //   Utils.navigateTo(context, DailyReporting());
+          // }),
           buildDrawerItem('Gate pass', Icons.book, onTap: () {
             Utils.navigateTo(context, AddGatePass(id: '',));
           }),

@@ -21,68 +21,150 @@ class Home extends StatefulWidget {
 class _HomeState extends State<Home> {
   final GlobalKey<ScaffoldState> _scaffoldKey = GlobalKey<ScaffoldState>();
 
-  // no card selected by default
   int selectedIndex = -1;
 
-  final List<AccountItem> items = [
-    AccountItem(title: 'Gate Pass', subtitle: 'All gate pass records', icon: Icons.touch_app_rounded),
-    AccountItem(title: 'Projects', subtitle: 'Manage and monitor', icon: Icons.summarize_rounded),
-    AccountItem(title: 'Daily Reporting', subtitle: 'Reporting modules', icon: Icons.assessment),
-    AccountItem(title: 'Gate Entry', subtitle: 'Tracks in-out movements', icon: Icons.door_sliding_rounded),
-    AccountItem(title: 'Goods Received Notes', subtitle: 'Record and verify', icon: Icons.summarize_rounded),
-  ];
+  // Role constants
+  static const String projectManager = "Project Manager";
+  static const String projectCoordinator = "Project Coordinator";
+  static const String projectSubCoordinator = "Project Sub Coordinator";
 
-  // Handle navigation and selection clearing. Using Navigator.push so we can await.
+  // Dynamic items list
+  List<AccountItem> items = [];
+  List<String> roles=[];
+
+  @override
+  void initState() {
+    super.initState();
+    getLoginInfo();
+  }
+
+  void getLoginInfo() async {
+    roles = await AppUtils().getUserRole();
+    print(
+      '''
+      Roles : ${roles}
+      '''
+    );
+    setupMenu(roles);
+  }
+
+  void setupMenu(List<String> roles) {
+    List<AccountItem> tempItems = [];
+
+    // ================= Project Manager =================
+    if (roles.contains(projectManager)) {
+      tempItems = _allItems();
+    }
+
+    // ================= Project Coordinator =================
+    else if (roles.contains(projectCoordinator)) {
+      tempItems = [
+        _gatePass(),
+        _projects(),
+        _dailyReporting(),
+        _grn(),
+      ];
+    }
+
+    // ================= Project Sub-Coordinator =================
+    else if (roles.contains(projectSubCoordinator)) {
+      tempItems = [
+        _gateEntry(),
+        _dailyReporting(),
+      ];
+    }
+
+    // ================= Default =================
+    else {
+      tempItems = _allItems();
+    }
+
+    setState(() {
+      items = tempItems;
+    });
+  }
+
+  // ===== Reusable Menu Items =====
+
+  List<AccountItem> _allItems() {
+    return [
+      _gatePass(),
+      _projects(),
+      _dailyReporting(),
+      _gateEntry(),
+      _grn(),
+    ];
+  }
+
+  AccountItem _gatePass() => AccountItem(
+    title: 'Gate Pass',
+    subtitle: 'All gate pass records',
+    icon: Icons.touch_app_rounded,
+  );
+
+  AccountItem _projects() => AccountItem(
+    title: 'Projects',
+    subtitle: 'Manage and monitor',
+    icon: Icons.summarize_rounded,
+  );
+
+  AccountItem _dailyReporting() => AccountItem(
+    title: 'Daily Reporting',
+    subtitle: 'Reporting modules',
+    icon: Icons.assessment,
+  );
+
+  AccountItem _gateEntry() => AccountItem(
+    title: 'Gate Entry',
+    subtitle: 'Tracks in-out movements',
+    icon: Icons.door_sliding_rounded,
+  );
+
+  AccountItem _grn() => AccountItem(
+    title: 'Goods Received Notes',
+    subtitle: 'Record and verify',
+    icon: Icons.summarize_rounded,
+  );
+
+  // ================= Navigation =================
+
   Future<void> _onCardTap(int index) async {
     setState(() => selectedIndex = index);
 
     Widget page;
-    switch (index) {
-      case 0:
+
+    switch (items[index].title) {
+      case 'Gate Pass':
         page = GatePass();
         break;
-      case 1:
+      case 'Projects':
         page = AllProjects();
         break;
-      case 2:
-        page = DailyReporting();
+      case 'Daily Reporting':
+        page = DailyReporting(roles: roles);
         break;
-      case 3:
+      case 'Gate Entry':
         page = GateEntry();
         break;
-      case 4:
+      case 'Goods Received Notes':
         page = GoodsReceivedNotesPage();
+        break;
+      case 'Add New Entry':
+        page = GateEntry(); // adjust if different screen
         break;
       default:
         page = GatePass();
     }
 
-    // Await navigation so we can clear selection when the user returns (pop).
-    // Future.delayed(Duration(milliseconds: 300),() async {
-      await Navigator.of(context).push(
-        MaterialPageRoute(builder: (_) => page),
-      );
-    // },);
-    // Clear selection on return
+    await Navigator.of(context).push(
+      MaterialPageRoute(builder: (_) => page),
+    );
+
     if (!mounted) return;
     setState(() => selectedIndex = -1);
   }
 
-  @override
-  void initState()
-  {
-    super.initState();
-    getEmployeeID();
-  }
-
-  void getEmployeeID() async
-  {
-    String employeeId = await AppUtils().getEmployeeId();
-    String userId = await AppUtils().getUserID();
-    print("Employee ID: $employeeId");
-    print("User ID: $userId");
-  }
-
+  // ================= UI (UNCHANGED) =================
 
   @override
   Widget build(BuildContext context) {
@@ -95,17 +177,21 @@ class _HomeState extends State<Home> {
         children: [
           SafeArea(
             child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
+              padding:
+              const EdgeInsets.symmetric(horizontal: 15, vertical: 10),
               child: InkWell(
                 onTap: () {
                   _scaffoldKey.currentState?.openDrawer();
                 },
                 child: Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+                  padding:
+                  const EdgeInsets.symmetric(horizontal: 5, vertical: 5),
                   height: 30,
                   width: 30,
                   decoration: BoxDecoration(
-                      border: Border.all(width: 1, color: Colors.black.withOpacity(.3)),
+                      border: Border.all(
+                          width: 1,
+                          color: Colors.black.withOpacity(.3)),
                       borderRadius: BorderRadius.circular(5)),
                   child: Icon(
                     Icons.menu,
@@ -119,27 +205,36 @@ class _HomeState extends State<Home> {
           Expanded(
             child: SingleChildScrollView(
               child: Container(
-                padding: EdgeInsets.symmetric(horizontal: 20),
+                padding:
+                const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
                     mr_logo(),
                     mrTitle("MR Constructions"),
-                    subTitle("Project Monitoring and Entry System"),
-                    subTxt("A smart platform to manage project data, daily reports,"
-                        " and gate entries in one unified dashboard."),
+                    subTitle(
+                        "Project Monitoring and Entry System"),
+                    subTxt(
+                        "A smart platform to manage project data, daily reports,"
+                            " and gate entries in one unified dashboard."),
                     const SizedBox(height: 10),
                     Container(
                       width: double.infinity,
-                      padding: const EdgeInsets.symmetric(horizontal: 28, vertical: 0),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 28, vertical: 0),
                       decoration: BoxDecoration(
                         color: Colors.white,
-                        borderRadius: BorderRadius.circular(22),
-                        border: Border.all(color: ColorConstants.primary.withOpacity(0.08)),
+                        borderRadius:
+                        BorderRadius.circular(22),
+                        border: Border.all(
+                            color: ColorConstants.primary
+                                .withOpacity(0.08)),
                         boxShadow: [
                           BoxShadow(
-                            color: ColorConstants.primary.withOpacity(0.12),
+                            color: ColorConstants.primary
+                                .withOpacity(0.12),
                             blurRadius: 18,
-                            offset: const Offset(0, 8),
+                            offset:
+                            const Offset(0, 8),
                           ),
                         ],
                       ),
@@ -148,20 +243,26 @@ class _HomeState extends State<Home> {
                           GridView.count(
                             crossAxisCount: 2,
                             shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
+                            physics:
+                            const NeverScrollableScrollPhysics(),
                             mainAxisSpacing: 10,
                             crossAxisSpacing: 10,
                             childAspectRatio: 1,
                             children: [
-                              for (int i = 0; i < items.length; i++)
+                              for (int i = 0;
+                              i < items.length;
+                              i++)
                                 AccountCard(
                                   item: items[i],
-                                  selected: selectedIndex == i,
-                                  onTap: () => _onCardTap(i),
+                                  selected:
+                                  selectedIndex ==
+                                      i,
+                                  onTap: () =>
+                                      _onCardTap(i),
                                 ),
                             ],
                           ),
-                          const SizedBox(height: 18),
+                          const SizedBox(height: 30),
                         ],
                       ),
                     ),
