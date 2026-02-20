@@ -1194,8 +1194,7 @@ class _AddGatePassState extends State<AddGatePass> {
                                   "Enter Description", "Description",
                                   maxLines: 5),
                               const SizedBox(height: 20),
-                              BlocListener<MaterialIssuedBloc,
-                                  MaterialIssuedState>(
+                              BlocListener<MaterialIssuedBloc, MaterialIssuedState>(
                                 listener: (context, state) {
                                   if (state is MaterialIssuedLoadSuccess) {
                                     setState(() {

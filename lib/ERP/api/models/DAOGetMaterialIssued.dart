@@ -18,13 +18,13 @@ class DAOGetMaterialIssued {
 
 @JsonSerializable()
 class MaterialIssuedData {
-  String? item_id;
-  String? item;
-  String? current_balance;
-  String? groupid;
-  String? subgroupname;
-  String? groupname;
-  String? subgroupid;
+  dynamic item_id;
+  dynamic item;
+  dynamic current_balance;
+  dynamic groupid;
+  dynamic subgroupname;
+  dynamic groupname;
+  dynamic subgroupid;
 
   MaterialIssuedData({
     this.item_id,
