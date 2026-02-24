@@ -215,7 +215,7 @@ class _AddGatePassState extends State<AddGatePass> {
     BlocProvider.of<WarehouseBloc>(context).add(FetchWarehouseEvent());
     BlocProvider.of<ProjectListBloc>(context).add(FetchProjectListsEvent());
     BlocProvider.of<VehicleBloc>(context).add(FetchVehiclesEvent());
-    BlocProvider.of<GatePassByIDBloc>(context).add(FetchGatePassByIDEvent(gatepass_id: widget.id));
+    // BlocProvider.of<GatePassByIDBloc>(context).add(FetchGatePassByIDEvent(gate_pass: '', date: ''));
   }
 
   @override

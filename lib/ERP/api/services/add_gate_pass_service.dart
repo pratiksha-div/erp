@@ -422,7 +422,7 @@ class DeleteGatePassService {
 }
 
 class GatePassDataByIDService {
-  Future<String> fetchGatePassDataByID(String gatepass_id) async {
+  Future<String> fetchGatePassDataByID(String gate_pass,String date) async {
     final url =
         '${AppConfig.BASE_URL}${AppConfig.Get_Gate_Pass_By_ID_Url}${AppConfig.reload}';
     final token = await AppUtils().getToken();
@@ -432,7 +432,7 @@ class GatePassDataByIDService {
       "Authorization": "Bearer $token",
     };
 
-    final dataBody = {"gatepass_id": gatepass_id};
+    final dataBody = {"gate_pass": gate_pass,"date":date};
 
     try {
       final dio = Dio();

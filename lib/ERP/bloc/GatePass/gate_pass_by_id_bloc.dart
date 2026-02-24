@@ -13,12 +13,13 @@ abstract class GatePassByIDEvent extends Equatable {
 }
 
 class FetchGatePassByIDEvent extends GatePassByIDEvent {
-  final String gatepass_id;
+  final String gate_pass;
+  final String date;
 
-  const FetchGatePassByIDEvent({required this.gatepass_id});
+  const FetchGatePassByIDEvent({required this.gate_pass,required this.date});
 
   @override
-  List<Object?> get props => [gatepass_id];
+  List<Object?> get props => [gate_pass,date];
 }
 
 
@@ -55,7 +56,7 @@ class GatePassByIDFailure extends GatePassByIDState {
 
 // ********* Interface expected by the bloc *************//
 abstract class GatePassByIDService {
-  Future<String> fetchGatePassByIDRaw(String godownId);
+  Future<String> fetchGatePassByIDRaw(String gatepass,String date);
 }
 
 
@@ -68,8 +69,8 @@ class GatePassByIDServiceAdapter implements GatePassByIDService {
       : _GatePassByIDService = GatePassByIDService ?? GatePassDataByIDService();
 
   @override
-  Future<String> fetchGatePassByIDRaw(String Id) async {
-    final result = await _GatePassByIDService.fetchGatePassDataByID(Id);
+  Future<String> fetchGatePassByIDRaw(String gate_pass,String date) async {
+    final result = await _GatePassByIDService.fetchGatePassDataByID(gate_pass,date);
     if (result is String) return result;
     try {
       return result != null ? result.toString() : '{}';
@@ -97,7 +98,7 @@ class GatePassByIDBloc extends Bloc<GatePassByIDEvent, GatePassByIDState> {
     emit( GatePassByIDLoading());
 
     try {
-      final raw = await _service.fetchGatePassByIDRaw(event.gatepass_id);
+      final raw = await _service.fetchGatePassByIDRaw(event.gate_pass,event.date);
 
       // raw might already be a JSON string. If your service returns Map, adapt.
       final decoded = jsonDecode(raw);

@@ -26,7 +26,7 @@ class _HomeState extends State<Home> {
   // Role constants
   static const String projectManager = "Project Manager";
   static const String projectCoordinator = "Project Coordinator";
-  static const String projectSubCoordinator = "Project Sub Coordinator";
+  static const String projectSubCoordinator = "Project Sub-Coordinator";
 
   // Dynamic items list
   List<AccountItem> items = [];

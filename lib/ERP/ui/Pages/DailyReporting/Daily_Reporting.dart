@@ -1,4 +1,3 @@
-
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import '../../Utils/colors_constants.dart';
@@ -11,7 +10,7 @@ import 'Material_Consumption.dart';
 import 'New_Entry.dart';
 
 class DailyReporting extends StatefulWidget {
-  DailyReporting({super.key,required this.roles});
+  DailyReporting({super.key, required this.roles});
   final List<String> roles;
 
   @override
@@ -20,24 +19,45 @@ class DailyReporting extends StatefulWidget {
 
 class _DailyReportingState extends State<DailyReporting> {
 
-  int selectedIndex=0;
+  int selectedIndex = 0;
 
   final List<AccountItem> items = [
     AccountItem(title: 'Add Machine Reading', subtitle: 'Tracks reading', icon: Icons.add),
     AccountItem(title: 'Add Material Consumption', subtitle: 'Consumed on-site.', icon: Icons.apartment_rounded),
   ];
 
-  final List<AccountItem> new_entry = [
-    AccountItem(title: 'Add New Entry', subtitle: 'Add and manage new entries effortlessly for daily operations.', icon: Icons.add),
+  final List<AccountItem> newEntry = [
+    AccountItem(
+      title: 'Add New Entry',
+      subtitle: 'Add and manage new entries effortlessly for daily operations.',
+      icon: Icons.add,
+    ),
   ];
 
+  /// ===== ROLE FLAGS =====
+  bool get isAdmin => widget.roles.contains("Admin");
+  bool get isManager => widget.roles.contains("Project Manager");
+  bool get isCoordinator => widget.roles.contains("Project Coordinator");
+  bool get isSubCoordinator => widget.roles.contains("Project Sub-Coordinator");
+
+  /// ===== PRIORITY LOGIC =====
+  /// Sub Coordinator overrides all → restricted view
+  bool get showMaterialSection =>
+      !isSubCoordinator && (isAdmin || isManager || isCoordinator);
+
+  bool get showNewEntry =>
+      isSubCoordinator || isAdmin || isManager || isCoordinator;
+
   void _onCardTap(int index) {
+    /// Block access if Sub Coordinator
+    if (isSubCoordinator) return;
+
     setState(() => selectedIndex = index);
-    Future.delayed(Duration(microseconds: 300),(){
-      if(selectedIndex==0){
+
+    Future.delayed(const Duration(milliseconds: 300), () {
+      if (selectedIndex == 0) {
         Utils.navigateTo(context, MachineReading());
-      }
-      else if(selectedIndex==1){
+      } else if (selectedIndex == 1) {
         Utils.navigateTo(context, MaterialConsumption());
       }
     });
@@ -49,127 +69,138 @@ class _DailyReportingState extends State<DailyReporting> {
 
     print("Received Roles: ${widget.roles}");
 
-    if (widget.roles.contains("Project Manager")) {
+    if (isSubCoordinator) {
+      print("Sub Coordinator Access (Restricted)");
+    } else if (isAdmin) {
+      print("Admin Access");
+    } else if (isManager) {
       print("Manager Access");
-    } else if (widget.roles.contains("Project Coordinator")) {
+    } else if (isCoordinator) {
       print("Coordinator Access");
-    } else if (widget.roles.contains("Project Sub Coordinator")) {
-      print("Sub Coordinator Access");
     }
   }
 
-
   @override
   Widget build(BuildContext context) {
-    return  Scaffold(
+    return Scaffold(
       backgroundColor: ColorConstants.background,
       body: SafeArea(
         child: Container(
-          padding: EdgeInsets.symmetric(horizontal: 20,vertical: 15),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
+
               /// Top bar
-              CustomAppbar(context,title: "Daily Reporting",subTitle: "Smart, fast, and secure entry management"),
+              CustomAppbar(
+                context,
+                title: "Daily Reporting",
+                subTitle: "Smart, fast, and secure entry management",
+              ),
+
               Expanded(
                 child: SingleChildScrollView(
-                  // padding: const EdgeInsets.all(16.0),
-                  child: Container(
-                    // padding: EdgeInsets.symmetric(horizontal: 20),
-                    child: Column(
-                      children: [
-                        // White rounded card background to host grid (slightly translucent)
-                        SizedBox(
-                          height: 20,
-                        ),
-                        // add material reading and Consumption
-                        if (widget.roles.contains("Project Manager") ||
-                            widget.roles.contains("Project Coordinator"))
-                        ...[Container(
-                          width: double.infinity,
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: Colors.white,
-                            borderRadius: BorderRadius.circular(22),
-                            border: Border.all(color: ColorConstants.primary.withOpacity(0.08)),
-                            boxShadow: [
-                              BoxShadow(
-                                color: ColorConstants.primary.withOpacity(0.12),
-                                blurRadius: 18,
-                                offset: const Offset(0, 8),
-                              ),
-                            ],
-                            // subtle glass blur-like overlay effect could be added with BackdropFilter
-                          ),
-                          child: Column(
-                            children: [
-                              SizedBox(
-                                height: 15,
-                              ),
-                              subTitle("Material reading and Consumption"),
-                              subTxt("Tracks material inflow and consumption across daily operations."),
-                              SizedBox(
-                                height: 25,
-                              ),
-                              GridView.count(
-                                crossAxisCount: 2,
-                                shrinkWrap: true,
-                                physics: const NeverScrollableScrollPhysics(),
-                                mainAxisSpacing: 14,
-                                crossAxisSpacing: 14,
-                                childAspectRatio: 1,
-                                children: [
-                                  for (int i = 0; i < items.length; i++)
-                                    AccountCard(
-                                      item: items[i],
-                                      selected: selectedIndex == i,
-                                      onTap: () => _onCardTap(i),
-                                    ),
-                                ],
-                              ),
-                              const SizedBox(height: 18),
+                  child: Column(
+                    children: [
 
-                            ],
+                      const SizedBox(height: 20),
+
+                      /// =========================
+                      /// Material Reading Section
+                      /// =========================
+                      if (showMaterialSection)
+                        ...[
+                          Container(
+                            width: double.infinity,
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: Colors.white,
+                              borderRadius: BorderRadius.circular(22),
+                              border: Border.all(
+                                  color: ColorConstants.primary.withOpacity(0.08)),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: ColorConstants.primary.withOpacity(0.12),
+                                  blurRadius: 18,
+                                  offset: const Offset(0, 8),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+
+                                const SizedBox(height: 15),
+
+                                subTitle("Material reading and Consumption"),
+
+                                subTxt(
+                                    "Tracks material inflow and consumption across daily operations."),
+
+                                const SizedBox(height: 25),
+
+                                GridView.count(
+                                  crossAxisCount: 2,
+                                  shrinkWrap: true,
+                                  physics: const NeverScrollableScrollPhysics(),
+                                  mainAxisSpacing: 14,
+                                  crossAxisSpacing: 14,
+                                  childAspectRatio: 1,
+                                  children: [
+                                    for (int i = 0; i < items.length; i++)
+                                      AccountCard(
+                                        item: items[i],
+                                        selected: selectedIndex == i,
+                                        onTap: () => _onCardTap(i),
+                                      ),
+                                  ],
+                                ),
+
+                                const SizedBox(height: 18),
+                              ],
+                            ),
                           ),
-                        ),
-                        SizedBox(
-                          height: 20,
-                        ),],
-                        //add new entry
-                        if (widget.roles.contains("Project Manager") ||
-                            widget.roles.contains("Project Coordinator") ||
-                            widget.roles.contains("Project Sub Coordinator"))
+
+                          const SizedBox(height: 20),
+                        ],
+
+                      /// =========================
+                      /// New Entry Section
+                      /// =========================
+                      if (showNewEntry)
                         Container(
                           width: double.infinity,
                           padding: const EdgeInsets.all(16),
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(22),
-                            border: Border.all(color: ColorConstants.primary.withOpacity(0.08)),
-                            // subtle glass blur-like overlay effect could be added with BackdropFilter
+                            border: Border.all(
+                                color: ColorConstants.primary.withOpacity(0.08)),
                           ),
                           child: Column(
                             children: [
-                              SizedBox(
-                                height: 15,
-                              ),
+
+                              const SizedBox(height: 15),
+
                               subTitle("Today's Work Details"),
-                              subTxt("Smart, fast, and secure gate entry management"),
-                              SizedBox(
-                                height: 20,
-                              ),
-                              CardEntry(item: new_entry[0], selected: true,
+
+                              subTxt(
+                                  "Smart, fast, and secure gate entry management"),
+
+                              const SizedBox(height: 20),
+
+                              CardEntry(
+                                item: newEntry[0],
+                                selected: true,
                                 onTap: () {
-                                  Utils.navigateTo(
-                                      context, NewEntry()
-                                  );
-                                },),
+                                  Utils.navigateTo(context, NewEntry());
+                                },
+                              ),
+
                               const SizedBox(height: 18),
                             ],
                           ),
                         ),
-                      ],
-                    ),
+                    ],
                   ),
                 ),
               ),

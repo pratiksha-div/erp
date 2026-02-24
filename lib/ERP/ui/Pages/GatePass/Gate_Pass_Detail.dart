@@ -27,8 +27,9 @@ class _GatePassDetailState extends State<GatePassDetail> {
   void initState() {
     super.initState();
     BlocProvider.of<GatePassByIDBloc>(context).add(
-        FetchGatePassByIDEvent(gatepass_id: widget.data.gatepass_id ?? ""));
-    print("Gate pass id ${widget.data.gatepass_id}");
+        FetchGatePassByIDEvent(gate_pass: widget.data.gate_pass ?? "",date: widget.data.date));
+    print("Gate pass id ${widget.data.gate_pass}");
+    print("Gate pass date ${widget.data.date}");
   }
 
   @override
@@ -114,11 +115,24 @@ class _GatePassDetailState extends State<GatePassDetail> {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-
-                            const SizedBox(height: 5),
-
+                            // const SizedBox(height: 15),
+                            // subTitle("Overview of gate pass activity"),
+                            // SizedBox(
+                            //   height: 10,
+                            // ),
                             if (data.isNotEmpty)
-                              _buildGatePassCard(formattedDate,formattedTime), // extract your big UI here
+                              Column(
+                                children: List.generate(
+                                  data.length,
+                                      (index) => Padding(
+                                    padding: const EdgeInsets.only(bottom: 12),
+                                    child: _buildGatePassCard(data[index],
+                                        formattedDate, formattedTime),
+                                  ),
+                                ),
+                              ),
+                            // if (data.isNotEmpty)
+                            //   _buildGatePassCard(formattedDate,formattedTime), // extract your big UI here
                           ],
                         ),
                       );
@@ -136,53 +150,50 @@ class _GatePassDetailState extends State<GatePassDetail> {
   }
 
 
-  Widget _buildGatePassCard(String formattedDate,String formattedTime)
+  Widget _buildGatePassCard(GatePassByID data,String formattedDate,String formattedTime)
   {
     return Container(
       width: 90.w,
       padding: EdgeInsets.symmetric(
-          vertical: 20, horizontal: 20),
+          vertical: 10, horizontal: 20),
       decoration: BoxDecoration(
           color: Colors.white,
-          borderRadius: BorderRadius.circular(10)),
+          borderRadius: BorderRadius.circular(5)),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          subTitle("Overview of gate pass activity"),
-          SizedBox(
-            height: 10,
-          ),
-          if(data.first.gate_pass!.isNotEmpty)
-            Text(
-              "Gate no. ${data.first.gate_pass}",
+          if(data.gate_pass!.isNotEmpty)
+          Text(
+              "Gate no. ${data.gate_pass}",
               textAlign: TextAlign.end,
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.poppins(
                 color: ColorConstants.primary,
                 fontSize: 14,
+                height: 1,
                 fontWeight: FontWeight.bold,
               ),
             ),
-          if(data.first.issued_material!.isNotEmpty)
+          if(data.issued_material!.isNotEmpty)
             Text(
-              "${data.first.issued_material}",
-              textAlign: TextAlign.end,
+              "${data.issued_material}",
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.poppins(
-                color:
-                Colors.black.withOpacity(0.95),
-                fontSize: 16,
+                color: Colors.black.withOpacity(0.95),
+                fontSize: 14,
+                height: 1,
                 fontWeight: FontWeight.bold,
               ),
             ),
           Row(
             children: [
               Text(
-                "${data.first.group_names}",
+                "${data.group_names}",
                 style: GoogleFonts.poppins(
                     color: Colors.grey
                         .withOpacity(0.95),
-                    fontSize: 12,
+                    fontSize: 10,
+                    height: 1,
                     fontWeight: FontWeight.bold
                 ),
               ),
@@ -191,19 +202,184 @@ class _GatePassDetailState extends State<GatePassDetail> {
                 style: GoogleFonts.poppins(
                   color: Colors.grey
                       .withOpacity(0.95),
+                  height: 1,
                   fontSize: 10,
                 ),
               ),
               Text(
-                "${data.first.subgroup_names}",
+                "${data.subgroup_names}",
                 style: GoogleFonts.poppins(
                     color: Colors.grey
                         .withOpacity(0.95),
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold
+                    fontSize: 10,
+                    fontWeight: FontWeight.w700
                 ),
               ),
             ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
+          Container(
+            padding: EdgeInsets.symmetric(
+                horizontal: 8,
+                vertical: 15
+            ),
+            decoration:BoxDecoration(
+              borderRadius: BorderRadius.circular(10),
+              color: ColorConstants.primary
+                  .withOpacity(.05),
+            ),
+            child: Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // LEFT
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding:
+                        const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: ColorConstants.primary
+                              .withOpacity(.05),
+                        ),
+                        child: Icon(Icons.apartment,
+                            size: 12,
+                            color:
+                            ColorConstants.primary),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        "From",
+                        style: GoogleFonts.poppins(
+                          color: ColorConstants.primary
+                              .withOpacity(0.95),
+                          height: 1,
+                          fontSize: 10,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      // make this responsive instead of fixed width
+                      ConstrainedBox(
+                        constraints:
+                        const BoxConstraints(
+                            maxWidth: 120),
+                        child: Text(
+                          valueOrDash(data.from_warehouse_name),
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: GoogleFonts.poppins(
+                            height: 1,
+                            color: Colors.black
+                                .withOpacity(0.95),
+                            fontSize: 12,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                // CENTER DOTS — responsive using LayoutBuilder
+                Expanded(
+                  child: Container(
+                    margin: EdgeInsets.only(top:20),
+                    child: LayoutBuilder(
+                        builder: (context, constraints) {
+                          final available =
+                              constraints.maxWidth;
+                          const double dotSize = 5;
+                          const double spacing =
+                          10; // total horizontal spacing per dot (margin left+right)
+                          // how many dots fit (at least 1)
+                          final int maxDotsThatFit =
+                          (available /
+                              (dotSize + spacing))
+                              .floor()
+                              .clamp(1, 8);
+                          // give a minimum visual of 3 if space permits (optional)
+                          final int dotsToShow =
+                              maxDotsThatFit;
+
+                          return Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: List.generate(
+                                dotsToShow, (index) {
+                              return Container(
+                                height: dotSize,
+                                width: dotSize,
+                                margin: const EdgeInsets.symmetric(horizontal: 5),
+                                decoration: BoxDecoration(
+                                  shape: BoxShape.circle,
+                                  color: ColorConstants
+                                      .primary
+                                      .withOpacity(.15),
+                                ),
+                              );
+                            }),
+                          );
+                        }),
+                  ),
+                ),
+                // RIGHT
+                Expanded(
+                  child: Column(
+                    mainAxisAlignment:
+                    MainAxisAlignment.center,
+                    children: [
+                      Container(
+                        padding:
+                        const EdgeInsets.all(5),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: ColorConstants.primary
+                              .withOpacity(.05),
+                        ),
+                        child: Icon(Icons.apartment,
+                            size: 12,
+                            color:
+                            ColorConstants.primary),
+                      ),
+                      const SizedBox(height: 5),
+                      Text(
+                        "To",
+                        style: GoogleFonts.poppins(
+                          color: ColorConstants.primary
+                              .withOpacity(0.95),
+                          height: 1,
+                          fontSize: 10,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      ConstrainedBox(
+                        constraints:
+                        const BoxConstraints(
+                            maxWidth: 120),
+                        child: Text(
+                          (widget.data.transfer_type=="project_type"
+                              || widget.data.transfer_type=="Project Type"
+                          )? valueOrDash(widget.data.to_project_name):
+                          valueOrDash(widget.data.to_warehouse_name),
+                          textAlign: TextAlign.center,
+                          overflow: TextOverflow.ellipsis,
+                          maxLines: 2,
+                          style: GoogleFonts.poppins(
+                            color: Colors.black.withOpacity(0.95),
+                            fontSize: 12,
+                            height: 1,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
           ),
           SizedBox(
             height: 10,
@@ -287,169 +463,8 @@ class _GatePassDetailState extends State<GatePassDetail> {
           SizedBox(
             height: 10,
           ),
-          Container(
-            padding: EdgeInsets.symmetric(
-                horizontal: 10,
-                vertical: 20
-            ),
-            decoration:BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: ColorConstants.primary
-                  .withOpacity(.05),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // LEFT
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding:
-                        const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: ColorConstants.primary
-                              .withOpacity(.05),
-                        ),
-                        child: Icon(Icons.apartment,
-                            size: 15,
-                            color:
-                            ColorConstants.primary),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        "From",
-                        style: GoogleFonts.poppins(
-                          color: ColorConstants.primary
-                              .withOpacity(0.95),
-                          height: 1,
-                          fontSize: 10,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      // make this responsive instead of fixed width
-                      ConstrainedBox(
-                        constraints:
-                        const BoxConstraints(
-                            maxWidth: 120),
-                        child: Text(
-                          valueOrDash(data.first.from_warehouse_name),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          style: GoogleFonts.poppins(
-                            height: 1,
-                            color: Colors.black
-                                .withOpacity(0.95),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // CENTER DOTS — responsive using LayoutBuilder
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(top:20),
-                    child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final available =
-                              constraints.maxWidth;
-                          const double dotSize = 8;
-                          const double spacing =
-                          10; // total horizontal spacing per dot (margin left+right)
-                          // how many dots fit (at least 1)
-                          final int maxDotsThatFit =
-                          (available /
-                              (dotSize + spacing))
-                              .floor()
-                              .clamp(1, 8);
-                          // give a minimum visual of 3 if space permits (optional)
-                          final int dotsToShow =
-                              maxDotsThatFit;
-
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                                dotsToShow, (index) {
-                              return Container(
-                                height: dotSize,
-                                width: dotSize,
-                                margin: const EdgeInsets.symmetric(horizontal: 5),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: ColorConstants
-                                      .primary
-                                      .withOpacity(.15),
-                                ),
-                              );
-                            }),
-                          );
-                        }),
-                  ),
-                ),
-                // RIGHT
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment:
-                    MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding:
-                        const EdgeInsets.all(15),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: ColorConstants.primary
-                              .withOpacity(.05),
-                        ),
-                        child: Icon(Icons.apartment,
-                            size: 15,
-                            color:
-                            ColorConstants.primary),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        "To",
-                        style: GoogleFonts.poppins(
-                          color: ColorConstants.primary
-                              .withOpacity(0.95),
-                          height: 1,
-                          fontSize: 10,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      ConstrainedBox(
-                        constraints:
-                        const BoxConstraints(
-                            maxWidth: 120),
-                        child: Text(
-                          (widget.data.transfer_type=="project_type"
-                              || widget.data.transfer_type=="Project Type"
-                          )? valueOrDash(widget.data.to_project_name):
-                          valueOrDash(widget.data.to_warehouse_name),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          style: GoogleFonts.poppins(
-                            color: Colors.black.withOpacity(0.95),
-                            fontSize: 12,
-                            height: 1,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
-          ),
-          SizedBox(
-            height: 10,
+          Divider(
+            color: ColorConstants.primary.withOpacity(.3),
           ),
           itemDetail(),
           SizedBox(height: 10),
@@ -490,13 +505,12 @@ class _GatePassDetailState extends State<GatePassDetail> {
                 ],
               ),
               Expanded(child: Text("")),
-
-              if (data.first.out_time
+              if (data.out_time
                   .toString()
                   .isNotEmpty)
                 Container(
                   padding: EdgeInsets.symmetric(
-                      vertical: 20, horizontal: 20),
+                      vertical: 10, horizontal: 10),
                   decoration: BoxDecoration(
                     color: ColorConstants.primary
                         .withOpacity(.04),
@@ -516,12 +530,12 @@ class _GatePassDetailState extends State<GatePassDetail> {
                         height: 5,
                       ),
                       Text(
-                        valueOrDash(data.first.out_time),
+                        valueOrDash(data.out_time),
                         // textAlign: TextAlign.center,
                         style: GoogleFonts.poppins(
                           color: Colors.black
                               .withOpacity(0.95),
-                          fontSize: 25,
+                          fontSize: 18,
                           fontWeight: FontWeight.bold,
                         ),
                       ),
