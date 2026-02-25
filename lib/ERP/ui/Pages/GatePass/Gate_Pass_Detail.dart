@@ -163,19 +163,27 @@ class _GatePassDetailState extends State<GatePassDetail> {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           if(data.gate_pass!.isNotEmpty)
-          Text(
-              "Gate no. ${data.gate_pass}",
-              textAlign: TextAlign.end,
-              overflow: TextOverflow.ellipsis,
-              style: GoogleFonts.poppins(
-                color: ColorConstants.primary,
-                fontSize: 14,
-                height: 1,
-                fontWeight: FontWeight.bold,
-              ),
-            ),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.end,
+            children: [
+              Text(
+                  "Gate no. ${data.gate_pass}",
+                  textAlign: TextAlign.end,
+                  overflow: TextOverflow.ellipsis,
+                  style: GoogleFonts.poppins(
+                    color: Colors.black,
+                    fontSize: 14,
+                    height: 1,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+            ],
+          ),
+          SizedBox(
+            height: 10,
+          ),
           if(data.issued_material!.isNotEmpty)
-            Text(
+          Text(
               "${data.issued_material}",
               overflow: TextOverflow.ellipsis,
               style: GoogleFonts.poppins(
@@ -198,16 +206,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
                 ),
               ),
               Text(
-                " , ",
-                style: GoogleFonts.poppins(
-                  color: Colors.grey
-                      .withOpacity(0.95),
-                  height: 1,
-                  fontSize: 10,
-                ),
-              ),
-              Text(
-                "${data.subgroup_names}",
+                ", ${data.subgroup_names}",
                 style: GoogleFonts.poppins(
                     color: Colors.grey
                         .withOpacity(0.95),
@@ -217,169 +216,8 @@ class _GatePassDetailState extends State<GatePassDetail> {
               ),
             ],
           ),
-          SizedBox(
-            height: 10,
-          ),
-          Container(
-            padding: EdgeInsets.symmetric(
-                horizontal: 8,
-                vertical: 15
-            ),
-            decoration:BoxDecoration(
-              borderRadius: BorderRadius.circular(10),
-              color: ColorConstants.primary
-                  .withOpacity(.05),
-            ),
-            child: Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // LEFT
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding:
-                        const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: ColorConstants.primary
-                              .withOpacity(.05),
-                        ),
-                        child: Icon(Icons.apartment,
-                            size: 12,
-                            color:
-                            ColorConstants.primary),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        "From",
-                        style: GoogleFonts.poppins(
-                          color: ColorConstants.primary
-                              .withOpacity(0.95),
-                          height: 1,
-                          fontSize: 10,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      // make this responsive instead of fixed width
-                      ConstrainedBox(
-                        constraints:
-                        const BoxConstraints(
-                            maxWidth: 120),
-                        child: Text(
-                          valueOrDash(data.from_warehouse_name),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          style: GoogleFonts.poppins(
-                            height: 1,
-                            color: Colors.black
-                                .withOpacity(0.95),
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-                // CENTER DOTS — responsive using LayoutBuilder
-                Expanded(
-                  child: Container(
-                    margin: EdgeInsets.only(top:20),
-                    child: LayoutBuilder(
-                        builder: (context, constraints) {
-                          final available =
-                              constraints.maxWidth;
-                          const double dotSize = 5;
-                          const double spacing =
-                          10; // total horizontal spacing per dot (margin left+right)
-                          // how many dots fit (at least 1)
-                          final int maxDotsThatFit =
-                          (available /
-                              (dotSize + spacing))
-                              .floor()
-                              .clamp(1, 8);
-                          // give a minimum visual of 3 if space permits (optional)
-                          final int dotsToShow =
-                              maxDotsThatFit;
-
-                          return Row(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: List.generate(
-                                dotsToShow, (index) {
-                              return Container(
-                                height: dotSize,
-                                width: dotSize,
-                                margin: const EdgeInsets.symmetric(horizontal: 5),
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  color: ColorConstants
-                                      .primary
-                                      .withOpacity(.15),
-                                ),
-                              );
-                            }),
-                          );
-                        }),
-                  ),
-                ),
-                // RIGHT
-                Expanded(
-                  child: Column(
-                    mainAxisAlignment:
-                    MainAxisAlignment.center,
-                    children: [
-                      Container(
-                        padding:
-                        const EdgeInsets.all(5),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: ColorConstants.primary
-                              .withOpacity(.05),
-                        ),
-                        child: Icon(Icons.apartment,
-                            size: 12,
-                            color:
-                            ColorConstants.primary),
-                      ),
-                      const SizedBox(height: 5),
-                      Text(
-                        "To",
-                        style: GoogleFonts.poppins(
-                          color: ColorConstants.primary
-                              .withOpacity(0.95),
-                          height: 1,
-                          fontSize: 10,
-                        ),
-                      ),
-                      const SizedBox(height: 4),
-                      ConstrainedBox(
-                        constraints:
-                        const BoxConstraints(
-                            maxWidth: 120),
-                        child: Text(
-                          (widget.data.transfer_type=="project_type"
-                              || widget.data.transfer_type=="Project Type"
-                          )? valueOrDash(widget.data.to_project_name):
-                          valueOrDash(widget.data.to_warehouse_name),
-                          textAlign: TextAlign.center,
-                          overflow: TextOverflow.ellipsis,
-                          maxLines: 2,
-                          style: GoogleFonts.poppins(
-                            color: Colors.black.withOpacity(0.95),
-                            fontSize: 12,
-                            height: 1,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ],
-            ),
+          Divider(
+            color: ColorConstants.primary.withOpacity(.1),
           ),
           SizedBox(
             height: 10,
@@ -396,8 +234,9 @@ class _GatePassDetailState extends State<GatePassDetail> {
                   Text(
                     "Issued to - Issued by ",
                     style: GoogleFonts.poppins(
-                      color: ColorConstants.primary
+                      color: Colors.grey
                           .withOpacity(0.95),
+                      height: 1,
                       fontSize: 10,
                     ),
                   ),
@@ -407,64 +246,58 @@ class _GatePassDetailState extends State<GatePassDetail> {
                       "${valueOrDash(widget.data.issued_to.toString().toLowerCase())} "
                           "- ${valueOrDash(widget.data.issued_by.toString().toLowerCase())}" ,
                       style: GoogleFonts.poppins(
-                        color: Colors.black
-                            .withOpacity(0.95),
-                        fontSize: 12,
+                        color: Colors.black.withOpacity(0.95),
+                        fontSize: 14,
+                        height: 1,
                         fontWeight: FontWeight.bold,
                       ),
                     ),
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        "Date: ",
-                        style: GoogleFonts.poppins(
-                          color: ColorConstants.primary
-                              .withOpacity(0.95),
-                          fontSize: 10,
-                        ),
-                      ),
-                      Text(
-                        formattedDate,
-                        style: GoogleFonts.poppins(
-                            color: ColorConstants.primary
-                                .withOpacity(0.95),
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
+                  Text(
+                    formattedDate + ", " +formattedTime,
+                    style: GoogleFonts.poppins(
+                        color: Colors.grey
+                            .withOpacity(0.95),
+                        fontSize: 14,
+                      fontWeight: FontWeight.bold
+                    ),
                   ),
-                  Row(
-                    children: [
-                      Text(
-                        "Time: ",
-                        style: GoogleFonts.poppins(
-                          color: ColorConstants.primary
-                              .withOpacity(0.95),
-                          height: 1,
-                          fontSize: 10,
-                        ),
-                      ),
-                      Text(
-                        formattedTime,
-                        style: GoogleFonts.poppins(
-                            color: ColorConstants.primary
-                                .withOpacity(0.95),
-                            height: 1,
-                            fontSize: 14,
-                            fontWeight: FontWeight.bold),
-                      ),
-                    ],
-                  )
                 ],
               ),
             ],
           ),
           SizedBox(
-            height: 10,
+            height: 20,
+          ),
+          Row(
+            children: [
+              Text(
+                "${data.from_warehouse_name}",
+                style: GoogleFonts.poppins(
+                    color: ColorConstants.primary,
+                    fontSize: 13,
+                    height: 1,
+                    fontWeight: FontWeight.w700
+                ),
+              ),
+              Expanded(child: Text("")),
+              Icon(Icons.arrow_forward, size: 14, color: ColorConstants.primary),
+              Expanded(child: Text("")),
+              Text(
+                " ${(widget.data.transfer_type=="project_type"
+                    || widget.data.transfer_type=="Project Type"
+                )? widget.data.to_project_name :widget.data.to_warehouse_name}",
+                style: GoogleFonts.poppins(
+                    color: ColorConstants.primary,
+                    fontSize: 13,
+                    height: 1,
+                    fontWeight: FontWeight.w700
+                ),
+              ),
+            ],
           ),
           Divider(
-            color: ColorConstants.primary.withOpacity(.3),
+            color: ColorConstants.primary.withOpacity(.1),
           ),
           itemDetail(),
           SizedBox(height: 10),
@@ -481,7 +314,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
                     style: GoogleFonts.poppins(
                       color: Colors.black
                           .withOpacity(0.95),
-                      fontSize: 14,
+                      fontSize: 12,
                       fontWeight: FontWeight.bold,
                     ),
                   ),
@@ -492,14 +325,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
                       color: Colors.black
                           .withOpacity(0.95),
                       fontSize: 14,
-                    ),
-                  ),
-                  Text(
-                    "Vehicle Name ",
-                    style: GoogleFonts.poppins(
-                      color: ColorConstants.primary
-                          .withOpacity(0.95),
-                      fontSize: 10,
+                      fontWeight: FontWeight.bold
                     ),
                   ),
                 ],
@@ -526,9 +352,6 @@ class _GatePassDetailState extends State<GatePassDetail> {
                           fontSize: 12,
                         ),
                       ),
-                      SizedBox(
-                        height: 5,
-                      ),
                       Text(
                         valueOrDash(data.out_time),
                         // textAlign: TextAlign.center,
@@ -554,7 +377,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
     Widget label(String txt) => Text(
       txt,
       style: GoogleFonts.poppins(
-        color: ColorConstants.primary.withOpacity(0.95),
+        color: Colors.grey.withOpacity(0.95),
         fontSize: 12,
       ),
     );
