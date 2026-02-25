@@ -663,4 +663,5 @@ class _GatePassDetailState extends State<GatePassDetail> {
       ),
     );
   }
+
 }
