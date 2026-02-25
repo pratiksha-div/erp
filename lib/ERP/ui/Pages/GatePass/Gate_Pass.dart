@@ -870,14 +870,16 @@ class _GatePassState extends State<GatePass> {
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Expanded(child: _materialInfo(i)),
+                Container(
+                  width: 60.w,
+                    child: _materialInfo(i)
+                ),
                 if (!_isEmpty(i.out_time)) ...[
                   const SizedBox(width: 8),
                   Flexible(fit: FlexFit.tight, child: _outTime(i)),
+                  const SizedBox(width: 8),
+                  sideGradientBar(),
                 ],
-
-                const SizedBox(width: 8),
-                sideGradientBar(),
               ],
             ),
             if (!_isEmpty(i.quantity?.toString()))
@@ -945,7 +947,7 @@ class _GatePassState extends State<GatePass> {
         ),
         Text(
           i.out_time ?? "",
-          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold),
+          style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold,height: 1),
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
         ),
@@ -961,7 +963,7 @@ class _GatePassState extends State<GatePass> {
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         if (!_isEmpty(i.from_warehouse_name))
-          _locationBlock("From Warehouse", i.from_warehouse_name),
+        _locationBlock("From Warehouse", i.from_warehouse_name),
 
         const Spacer(),
 
@@ -995,6 +997,7 @@ class _GatePassState extends State<GatePass> {
             textAlign: TextAlign.center,
             style: GoogleFonts.poppins(
               fontSize: 14,
+              height: 1,
               fontWeight: FontWeight.bold,
             ),
           ),

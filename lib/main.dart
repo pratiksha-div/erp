@@ -26,6 +26,7 @@ import 'ERP/bloc/DailyReporting/delete_new_entry_bloc.dart';
 import 'ERP/bloc/DailyReporting/entry_by_id_bloc.dart';
 import 'ERP/bloc/DailyReporting/machine_reading_by_id_bloc.dart';
 import 'ERP/bloc/DailyReporting/material_consumption_by_id_bloc.dart';
+import 'ERP/bloc/DropDownValueBloc/basic_units_bloc.dart';
 import 'ERP/bloc/DropDownValueBloc/employee_type_bloc.dart';
 import 'ERP/bloc/DropDownValueBloc/emplyee_list_bloc.dart';
 import 'ERP/bloc/DropDownValueBloc/gate_entry_number_bloc.dart';
@@ -114,6 +115,7 @@ Future<void> main() async {
   final employeeTypeService = EmployeeTypeServiceAdapter(dropDownService: dropDownService);
   final purchaseOrderNumber = PurchaseOrderNumberServiceAdapter(dropDownService: dropDownService);
   final unitsService = UnitsServiceAdapter(dropDownService: dropDownService);
+  final basicunitsService = BasicUnitsServiceAdapter(dropDownService: dropDownService);
   final vendorService = VendorNameServiceAdapter(dropDownService: dropDownService);
   final vehicleNameService = VehicleNameServiceAdapter(dropDownService: dropDownService);
   final vehicleNumberService = VehicleNumberServiceAdapter(dropDownService: dropDownService);
@@ -159,6 +161,7 @@ Future<void> main() async {
         regCustomerService: regCustomerService,
         grnDetailByIDServices: grnDetailByIDServices,
         gateEntryBYIDService: gateEntryBYIDService,
+        basicUnitsService: basicunitsService,
   ));
 
 }
@@ -192,7 +195,8 @@ class MyApp extends StatefulWidget  {
      required this.goodsReceivedNotesByIDService,
      required this.regCustomerService,
      required this.grnDetailByIDServices,
-     required this.gateEntryBYIDService
+     required this.gateEntryBYIDService,
+     required this.basicUnitsService,
 
    }) : super(key: key);
    final EmployeeService employeeService;
@@ -223,6 +227,7 @@ class MyApp extends StatefulWidget  {
    final RegisteredCustomerService regCustomerService;
    final GRNDetailByIDService grnDetailByIDServices;
    final GateEntryBYIDService gateEntryBYIDService;
+   final BasicUnitsService basicUnitsService;
 
   @override
   State<MyApp> createState() => _MyAppState();
@@ -322,6 +327,8 @@ class _MyAppState extends State<MyApp>  with WidgetsBindingObserver {
             create: (context) => MaterialIssuedBloc(service: widget.materialIssuedService), lazy: false),
         BlocProvider<UnitsBloc>(
             create: (context) => UnitsBloc(service: widget.unitsService), lazy: false),
+        BlocProvider<BasicUnitsBloc>(
+            create: (context) => BasicUnitsBloc(service: widget.basicUnitsService), lazy: false),
         BlocProvider<VendorNameBloc>(
             create: (context) => VendorNameBloc(service: widget.vendorService), lazy: false),
         BlocProvider<VehicleNameBloc>(

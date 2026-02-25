@@ -11,6 +11,7 @@ import '../../../api/models/DAOGetProjectList.dart';
 import '../../../api/models/DAOGetUnits.dart';
 import '../../../api/models/DAOGetVehicleNo.dart';
 import '../../../api/models/DAOGetWarehouse.dart';
+import '../../../bloc/DropDownValueBloc/basic_units_bloc.dart';
 import '../../../bloc/DropDownValueBloc/emplyee_list_bloc.dart';
 import '../../../bloc/DropDownValueBloc/material_issued_bloc.dart';
 import '../../../bloc/DropDownValueBloc/project_list_bloc.dart';
@@ -1768,11 +1769,16 @@ class _AddGatePassState extends State<AddGatePass> {
                                                                       key)) {
                                                             unitsLoadingFor
                                                                 .add(key);
+                                                            // context
+                                                            //     .read<
+                                                            //         UnitsBloc>()
+                                                            //     .add(FetchUnitsEvent(
+                                                            //         itemName: key,));
                                                             context
                                                                 .read<
-                                                                    UnitsBloc>()
-                                                                .add(FetchUnitsEvent(
-                                                                    itemName: key,));
+                                                                BasicUnitsBloc>()
+                                                                .add(FetchBasicUnitsEvent(
+                                                              itemName: key,));
                                                           }
                                                         }
 
@@ -2030,7 +2036,6 @@ class _AddGatePassState extends State<AddGatePass> {
 
       setState(() {});
     }
-
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.all(8),
@@ -2252,10 +2257,51 @@ class _AddGatePassState extends State<AddGatePass> {
             ],
           ),
           // Units dropdown
-          BlocListener<UnitsBloc, UnitsState>(
+          // BlocListener<UnitsBloc, UnitsState>(
+          //   listener: (context, state) {
+          //     if (state is UnitsLoadSuccess) {
+          //       final fetchedUnits = state.units;
+          //       final itemNameFromState = state.itemName;
+          //
+          //       setState(() {
+          //         unitsByItem[itemNameFromState] = fetchedUnits;
+          //         unitsLoadingFor.remove(itemNameFromState);
+          //
+          //         for (final ent in materialEntries) {
+          //           for (final ln in ent.lines) {
+          //             if ((ln.data.item ?? '') == itemNameFromState &&
+          //                 (ln.selectedUnit == null ||
+          //                     ln.selectedUnit!.isEmpty) &&
+          //                 fetchedUnits.isNotEmpty) {
+          //               final defaultUnit = fetchedUnits.first;
+          //               ln.selectedUnit = defaultUnit.unit_name ?? '';
+          //               ln.selectedUnitId = defaultUnit.hsncode?.toString();
+          //             }
+          //           }
+          //         }
+          //       });
+          //     }
+          //   },
+          //   child: TransferDropdown<UnitsData>(
+          //     title: 'Units',
+          //     hint: availableUnits.isEmpty
+          //         ? 'No units available'
+          //         : 'Select Units',
+          //     selectedVal: line.selectedUnit,
+          //     data: availableUnits,
+          //     displayText: (u) => u.unit_name ?? '',
+          //     onChanged: (UnitsData u) {
+          //       setState(() {
+          //         line.selectedUnit = u.unit_name ?? '';
+          //         line.selectedUnitId = u.hsncode?.toString();
+          //       });
+          //     },
+          //   ),
+          // ),
+          BlocListener<BasicUnitsBloc, BasicUnitsState>(
             listener: (context, state) {
-              if (state is UnitsLoadSuccess) {
-                final fetchedUnits = state.units;
+              if (state is BasicUnitsLoadSuccess) {
+                final fetchedUnits = state.basicUnits;
                 final itemNameFromState = state.itemName;
 
                 setState(() {
@@ -2284,11 +2330,11 @@ class _AddGatePassState extends State<AddGatePass> {
                   : 'Select Units',
               selectedVal: line.selectedUnit,
               data: availableUnits,
-              displayText: (u) => u.unit_name ?? '',
+              displayText: (u) => u.alt_unit_name ?? '',
               onChanged: (UnitsData u) {
                 setState(() {
-                  line.selectedUnit = u.unit_name ?? '';
-                  line.selectedUnitId = u.hsncode?.toString();
+                  line.selectedUnit = u.alt_unit_name ?? '';
+                  line.selectedUnitId = u.alt_unit_name?.toString();
                 });
               },
             ),

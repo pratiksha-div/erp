@@ -19,10 +19,18 @@ class DAOGetUnits {
 class UnitsData {
   String? unit_name;
   String? hsncode;
+  String? basic_unit_name;
+  String? basic_value;
+  String? alt_unit_name;
+  String? alt_value;
 
   UnitsData({
     this.unit_name,
     this.hsncode,
+    this.basic_unit_name,
+    this.basic_value,
+    this.alt_unit_name,
+    this.alt_value
   });
 
   factory UnitsData.fromJson(Map<String, dynamic> json) => _$UnitsDataFromJson(json);

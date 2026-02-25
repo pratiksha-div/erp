@@ -21,6 +21,7 @@ class AppConfig {
   static String Get_States_Url= "admin.getAllStates";
   static String Get_Employee_Type_Url= "hr.getloockupdata";
   static String Get_Units_Url= "project.getUnitsByMaterial";
+  static String Get_Basic_Units_Url= "project.getUnitsFromConversionTable";
   static String Get_Vendor_Name_Url= "hr.fetch_contractor";
   static String Get_Vehicle_Number_Url= "hr.getVehiclename";
   static String Get_Vehicle_Name_Url= "machine.getvechicalList";

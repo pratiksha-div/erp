@@ -444,6 +444,42 @@ class DropdownServices {
     }
   }
 
+  getBasicUnits(String master_item_id) async {
+    final url = AppConfig.BASE_URL + AppConfig.Get_Basic_Units_Url + AppConfig.reload;
+    final token = await AppUtils().getToken();
+    Map<String, String> headers = {
+      "Accept": "*/*",
+      "source": AppConfig.source,
+      "Authorization": "Bearer ${token}"
+    };
+
+    // Remove leading space
+    var dataBody = {"master_item_id": master_item_id};
+
+    try {
+      final dio = Dio();
+
+      final response = await dio.post(
+        url,
+        data: dataBody,
+        options: Options(headers: headers),
+      );
+
+      if (response.statusCode == 200) {
+        if (response.data is Map<String, dynamic>) {
+          return jsonEncode(response.data);
+        }
+        // If response is in String format, return it as is (for example, if it's raw JSON)
+        if (response.data is String) {
+          return response.data;  // Raw response (String)
+        }
+      }
+    } catch (e) {
+      print("Exception occurred while getting units: $e");
+      return ConstantsMessage.serveError;
+    }
+  }
+
   getVendorName() async {
     final url = AppConfig.BASE_URL + AppConfig.Get_Vendor_Name_Url + AppConfig.reload;
     final token = await AppUtils().getToken();

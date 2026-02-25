@@ -162,7 +162,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          if(data.gate_pass!.isNotEmpty)
+          if((data.gate_pass ?? "").isNotEmpty)
           Row(
             mainAxisAlignment: MainAxisAlignment.end,
             children: [
@@ -182,7 +182,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
           SizedBox(
             height: 10,
           ),
-          if(data.issued_material!.isNotEmpty)
+          if((data.issued_material??"").isNotEmpty)
           Text(
               "${data.issued_material}",
               overflow: TextOverflow.ellipsis,
@@ -299,7 +299,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
           Divider(
             color: ColorConstants.primary.withOpacity(.1),
           ),
-          itemDetail(),
+          itemDetail(data),
           SizedBox(height: 10),
           Row(
             // mainAxisAlignment: MainAxisAlignment.end,
@@ -372,7 +372,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
     );
   }
 
-  Widget itemDetail() {
+  Widget itemDetail(GatePassByID data) {
     // small helper to build the left label Text with consistent style
     Widget label(String txt) => Text(
       txt,
@@ -401,8 +401,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
           Row(
             children: [
               label("Transfer type"),
-              Expanded(child: Text("")),
-
+              Spacer(),
               value(widget.data.transfer_type=="project_type"? "Project Type" : "Warehouse Type"),
             ],
           ),
@@ -412,9 +411,9 @@ class _GatePassDetailState extends State<GatePassDetail> {
           Row(
             children: [
               label("Current Balance"),
-              Expanded(child: Text("")),
+              Spacer(),
 
-              value(data.first.current_balance??""),
+              value(data.current_balance??""),
             ],
           ),
           SizedBox(
@@ -423,8 +422,8 @@ class _GatePassDetailState extends State<GatePassDetail> {
           Row(
             children: [
               label("Quantity"),
-              Expanded(child: Text("")),
-              value(data.first.quantity??""),
+              Spacer(),
+              value(data.quantity??""),
             ],
           ),
           SizedBox(
@@ -433,8 +432,8 @@ class _GatePassDetailState extends State<GatePassDetail> {
           Row(
             children: [
               label("Unit"),
-              Expanded(child: Text("")),
-              value(data.first.unit??""),
+              Spacer(),
+              value(data.unit??""),
             ],
           ),
           if (isProject) ...[
@@ -444,8 +443,8 @@ class _GatePassDetailState extends State<GatePassDetail> {
             Row(
               children: [
                 label("Used Quantity"),
-                Expanded(child: Text("")),
-                value(data.first.used_quantity??""),
+                Spacer(),
+                value(data.used_quantity??""),
               ],
             ),
             SizedBox(
@@ -454,9 +453,8 @@ class _GatePassDetailState extends State<GatePassDetail> {
             Row(
               children: [
                 label("Scrap"),
-                Expanded(child: Text("")),
-
-                value(data.first.scrap??""),
+                Spacer(),
+                value(data.scrap??""),
               ],
             ),
             SizedBox(
@@ -465,9 +463,8 @@ class _GatePassDetailState extends State<GatePassDetail> {
             Row(
               children: [
                 label("Rate"),
-                Expanded(child: Text("")),
-
-                value(data.first.rate??""),
+                Spacer(),
+                value(data.rate??""),
               ],
             ),
             SizedBox(
@@ -476,9 +473,8 @@ class _GatePassDetailState extends State<GatePassDetail> {
             Row(
               children: [
                 label("Amount"),
-                Expanded(child: Text("")),
-
-                value(data.first.amount??""),
+                Spacer(),
+                value(data.amount??""),
               ],
             ),
           ]
