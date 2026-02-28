@@ -35,6 +35,7 @@ import '../../Utils/colors_constants.dart';
 
 class MaterialLine {
   final MaterialIssuedData data;
+
   final TextEditingController quantityController;
   final TextEditingController usedQuantityController;
   final TextEditingController scrapController;
@@ -42,8 +43,11 @@ class MaterialLine {
 
   String selectedUnit;
   String? selectedUnitId;
+
+  double originalBalance;   // ⭐ store API value permanently
   double currentBalance;
   double remainingBalance;
+  double conversionFactor;     //
   bool showQualityFields;
 
   MaterialLine({
@@ -55,13 +59,36 @@ class MaterialLine {
         rateController = TextEditingController(),
         selectedUnit = '',
         selectedUnitId = null,
+        originalBalance = currentBalanceFromApi ??
+            double.tryParse(data.current_balance?.toString() ?? '0') ?? 0.0,
         currentBalance = currentBalanceFromApi ??
-            double.tryParse(data.current_balance?.toString() ?? '0') ??
-            0.0,
+            double.tryParse(data.current_balance?.toString() ?? '0') ?? 0.0,
         remainingBalance = currentBalanceFromApi ??
-            double.tryParse(data.current_balance?.toString() ?? '0') ??
-            0.0,
+            double.tryParse(data.current_balance?.toString() ?? '0') ?? 0.0,
+        conversionFactor = 1.0,
         showQualityFields = false;
+
+  /// ⭐ UNIT CONVERSION METHOD
+  void updateBalanceWithUnit({
+    required double basic,
+    required double alt,
+  }) {
+    if (basic == 0) return;
+
+    /// ⭐ If basic unit selected → reset to original
+    if (basic == alt) {
+      currentBalance = originalBalance;
+      remainingBalance = originalBalance;
+      return;
+    }
+
+    /// ⭐ Apply conversion
+    double converted =
+        (originalBalance * alt) / basic;
+
+    currentBalance = converted;
+    remainingBalance = converted;
+  }
 
   void dispose() {
     quantityController.dispose();
@@ -631,19 +658,41 @@ class _AddGatePassState extends State<AddGatePass> {
           scrap = line.scrapController.text.trim();
           rate = line.rateController.text.trim();
           unit = line.selectedUnit ?? "";
-          currentBalance = line.remainingBalance.toString();
+          // currentBalance = line.remainingBalance.toString();
+          currentBalance = line.originalBalance.toString();
           showQuality = line.showQualityFields;
-          qty = double.tryParse(quantity) ?? 0.0;
-          usedQty = double.tryParse(usedQuantity) ?? 0.0;
-          scrapQty = double.tryParse(scrap) ?? 0.0;
-          double bal = qty - (usedQty + scrapQty);
-          if (bal < 0) bal = 0.0;
-          final double balance = bal.toDouble();
+          // qty = double.tryParse(quantity) ?? 0.0;
+          // usedQty = double.tryParse(usedQuantity) ?? 0.0;
+          // scrapQty = double.tryParse(scrap) ?? 0.0;
+          final double factor = line.conversionFactor;
+
+// Convert entered values to BASE
+          final double qtyBase =
+              (double.tryParse(quantity) ?? 0.0) * factor;
+
+          final double usedBase =
+              (double.tryParse(usedQuantity) ?? 0.0) * factor;
+
+          final double scrapBase =
+              (double.tryParse(scrap) ?? 0.0) * factor;
+
+// Always subtract from ORIGINAL BASE STOCK
+          double remainingBase =
+              line.originalBalance - (usedBase + scrapBase);
+
+          if (remainingBase < 0) remainingBase = 0.0;
+
+// Store internally in BASE
+          line.remainingBalance = remainingBase;
+          // double bal = qty - (usedQty + scrapQty);
+          // if (bal < 0) bal = 0.0;
+          // final double balance = bal.toDouble();
+          // line.remainingBalance = balance;
           vehicleNameNo = selectedVehicleNoID ?? "";
-          line.remainingBalance = balance;
           final double rateD = double.tryParse(rate) ?? 0.0;
           // final double amountD = qty * rateD;
-          final double amountD = (usedQty + scrapQty) * rateD;
+          // final double amountD = (usedQty + scrapQty) * rateD;
+          final double amountD = (usedBase + scrapBase) * rateD;
           final String amount = (amountD == amountD.roundToDouble())
               ? amountD.toInt().toString()
               : amountD.toStringAsFixed(2);
@@ -653,9 +702,7 @@ class _AddGatePassState extends State<AddGatePass> {
           final String subCategory = entry.selectedSubCategoryId ?? '';
           materialsIdList.add(materialUsedID.replaceAll(',', ''));
           issuedMaterialsList.add(materialUsed.replaceAll(',', ''));
-          quantityList.add(quantity.isEmpty ? "0" : quantity);
-          usedQuantityList.add(usedQuantity.isEmpty ? "0" : usedQuantity);
-          scrapList.add(scrap.isEmpty ? "0" : scrap);
+
           rateList.add(rate.isEmpty ? "0" : rate);
           amountList.add(amount);
           consumedFlagList.add(showQuality ? "1" : "0");
@@ -663,11 +710,17 @@ class _AddGatePassState extends State<AddGatePass> {
           currentBalanceList.add(currentBalance);
           categoryList.add(category.replaceAll(',', ''));
           subCategoryList.add(subCategory.replaceAll(',', ''));
-          differenceBalanceList.add(balance.toString());
+          // differenceBalanceList.add(balance.toString());
+          // quantityList.add(quantity.isEmpty ? "0" : quantity);
+          // usedQuantityList.add(usedQuantity.isEmpty ? "0" : usedQuantity);
+          // scrapList.add(scrap.isEmpty ? "0" : scrap);
+          quantityList.add(qtyBase.toStringAsFixed(2));
+          usedQuantityList.add(usedBase.toStringAsFixed(2));
+          scrapList.add(scrapBase.toStringAsFixed(2));
+          differenceBalanceList.add(remainingBase.toStringAsFixed(2));
         }
       }
     }
-
     // Build aggregated CSVs AFTER collecting everything
     final String materialsIdCsv = materialsIdList.join(',');
     final String issuedMaterialsCsv = issuedMaterialsList.join(',');
@@ -712,103 +765,102 @@ class _AddGatePassState extends State<AddGatePass> {
      outTimes: ${stripAmPm(outTimeCsv)}
      -------------------------------------------
     ''');
-
-    context.read<AddNewGatePassBloc>().add(
-          SubmitAddNewGatePassEvent(
-            transferType: transferTypeTop == "Warehouse Type"
-                ? "warehouse_type"
-                : "project_type",
-            date: dateTimeStr,
-            toProject: selectedToProjectListID ?? "",
-            toWarehouse: selectedToWarehouseID ?? "",
-            vehicleNameNo: vehicleNameNoTop,
-            issuedTo: issuedToTop,
-            issuedBy: issuedByTop,
-            gatePass: gatePassNoTop,
-            description: descTop,
-            fromWarehouse: fromWarehouse ?? "",
-            outTime: stripAmPm(outTimeCsv),
-            materialsId: materialsIdCsv,
-            issuedMaterials: issuedMaterialsCsv,
-            currentBalance: currentBalanceCsv,
-            unit: unitCsv,
-            category: categoryCsv,
-            subCategory: subCategoryCsv,
-            quantity: quantityCsv,
-            consumed: consumedFlagCsv,
-            usedQuantity: usedQuantityCsv,
-            scrap: scrapCsv,
-            rate: rateCsv,
-            amount: amountCsv,
-            differenceBalance: differenceBalanceCsv,
-          ),
-        );
-
-    if (transferTypeTop == "Warehouse Type") {
-      print("Warehouse Type");
-      print('''
-              groupid: $categoryCsv,
-              subgroupid: $subCategoryCsv,
-              item_id: $materialsIdCsv,
-              item: $issuedMaterialsCsv,
-              date: $dateTimeStr,
-              unit: $unit,
-              currentBalance: $currentBalanceCsv,
-              quantity: $quantityCsv,
-              fromWarehouse: $fromWarehouse,
-              toWarehouse: $toWarehouse,
-              ''');
-      context.read<AddWarehouseTransferBloc>().add(
-            SubmitAddWarehouseTransferEvent(
-              groupid: categoryCsv,
-              subgroupid: subCategoryCsv,
-              item_id: materialsIdCsv,
-              item: issuedMaterialsCsv,
-              date: dateTimeStr,
-              unit: unit,
-              currentBalance: currentBalanceCsv,
-              quantity: quantityCsv,
-              fromWarehouse: fromWarehouse,
-              towarehouse: toWarehouse,
-            ),
-          );
-    } else if (transferTypeTop == "Project Type") {
-      print("Project Type");
-      print('''
-               project_id:${toProjectName},
-               date:$dateTimeStr,
-               vehicle_id:$vehicleNameNo,
-               issued_to_id: $issuedToTop,
-               issued_by_id: $issuedByTop,
-               gatePass: $gatePassNoTop,
-               description: $descTop,
-               fromWarehouse: $fromWarehouse,
-               outTime: $outTimeCsv,
-               materialsId: $materialsIdCsv,
-               issuedMaterials: $issuedMaterialsCsv,
-               currentBalance: $currentBalanceCsv
-               quantity: $quantityCsv
-               unit: $unitCsv
-         ''');
-        context.read<AddWarehouseToProjectBloc>().add(
-          SubmitAddWarehouseToProjectEvent(
-              project_id: toProjectName,
-              date: dateTimeStr,
-              vehicle_id: vehicleNameNo,
-              issued_to_id: issuedToTop,
-              issued_by_id: issuedByTop,
-              gatePass: gatePassNoTop,
-              description: descTop,
-              fromWarehouse: fromWarehouse,
-              outTime: stripAmPm(outTimeCsv),
-              materialsId: materialsIdCsv,
-              issuedMaterials: issuedMaterialsCsv,
-              currentBalance: currentBalanceCsv,
-              quantity: quantityCsv,
-              unit: unitCsv
-          ),
-        );
-    }
+    // context.read<AddNewGatePassBloc>().add(
+    //       SubmitAddNewGatePassEvent(
+    //         transferType: transferTypeTop == "Warehouse Type"
+    //             ? "warehouse_type"
+    //             : "project_type",
+    //         date: dateTimeStr,
+    //         toProject: selectedToProjectListID ?? "",
+    //         toWarehouse: selectedToWarehouseID ?? "",
+    //         vehicleNameNo: vehicleNameNoTop,
+    //         issuedTo: issuedToTop,
+    //         issuedBy: issuedByTop,
+    //         gatePass: gatePassNoTop,
+    //         description: descTop,
+    //         fromWarehouse: fromWarehouse ?? "",
+    //         outTime: stripAmPm(outTimeCsv),
+    //         materialsId: materialsIdCsv,
+    //         issuedMaterials: issuedMaterialsCsv,
+    //         currentBalance: currentBalanceCsv,
+    //         unit: unitCsv,
+    //         category: categoryCsv,
+    //         subCategory: subCategoryCsv,
+    //         quantity: quantityCsv,
+    //         consumed: consumedFlagCsv,
+    //         usedQuantity: usedQuantityCsv,
+    //         scrap: scrapCsv,
+    //         rate: rateCsv,
+    //         amount: amountCsv,
+    //         differenceBalance: differenceBalanceCsv,
+    //       ),
+    //     );
+    //
+    // if (transferTypeTop == "Warehouse Type") {
+    //   print("Warehouse Type");
+    //   print('''
+    //           groupid: $categoryCsv,
+    //           subgroupid: $subCategoryCsv,
+    //           item_id: $materialsIdCsv,
+    //           item: $issuedMaterialsCsv,
+    //           date: $dateTimeStr,
+    //           unit: $unit,
+    //           currentBalance: $currentBalanceCsv,
+    //           quantity: $quantityCsv,
+    //           fromWarehouse: $fromWarehouse,
+    //           toWarehouse: $toWarehouse,
+    //           ''');
+    //   context.read<AddWarehouseTransferBloc>().add(
+    //         SubmitAddWarehouseTransferEvent(
+    //           groupid: categoryCsv,
+    //           subgroupid: subCategoryCsv,
+    //           item_id: materialsIdCsv,
+    //           item: issuedMaterialsCsv,
+    //           date: dateTimeStr,
+    //           unit: unit,
+    //           currentBalance: currentBalanceCsv,
+    //           quantity: quantityCsv,
+    //           fromWarehouse: fromWarehouse,
+    //           towarehouse: toWarehouse,
+    //         ),
+    //       );
+    // } else if (transferTypeTop == "Project Type") {
+    //   print("Project Type");
+    //   print('''
+    //            project_id:${toProjectName},
+    //            date:$dateTimeStr,
+    //            vehicle_id:$vehicleNameNo,
+    //            issued_to_id: $issuedToTop,
+    //            issued_by_id: $issuedByTop,
+    //            gatePass: $gatePassNoTop,
+    //            description: $descTop,
+    //            fromWarehouse: $fromWarehouse,
+    //            outTime: $outTimeCsv,
+    //            materialsId: $materialsIdCsv,
+    //            issuedMaterials: $issuedMaterialsCsv,
+    //            currentBalance: $currentBalanceCsv
+    //            quantity: $quantityCsv
+    //            unit: $unitCsv
+    //      ''');
+    //     context.read<AddWarehouseToProjectBloc>().add(
+    //       SubmitAddWarehouseToProjectEvent(
+    //           project_id: toProjectName,
+    //           date: dateTimeStr,
+    //           vehicle_id: vehicleNameNo,
+    //           issued_to_id: issuedToTop,
+    //           issued_by_id: issuedByTop,
+    //           gatePass: gatePassNoTop,
+    //           description: descTop,
+    //           fromWarehouse: fromWarehouse,
+    //           outTime: stripAmPm(outTimeCsv),
+    //           materialsId: materialsIdCsv,
+    //           issuedMaterials: issuedMaterialsCsv,
+    //           currentBalance: currentBalanceCsv,
+    //           quantity: quantityCsv,
+    //           unit: unitCsv
+    //       ),
+    //     );
+    // }
   }
 
   void getDate(String inputDate) {
@@ -1984,12 +2036,10 @@ class _AddGatePassState extends State<AddGatePass> {
     final line = entry.lines[lineIndex];
     final itemKey = line.data.item_id ?? '';
     final availableUnits = unitsByItem[itemKey] ?? [];
-
     // local helper to recalculate effects of used + scrap WITHOUT changing Quantity
     void _recalcFromUsedAndScrap() {
       final double currentBalance = line.currentBalance; // immutable
-      final int issued =
-          int.tryParse(line.quantityController.text) ?? 0; // keep quantity
+      final int issued = int.tryParse(line.quantityController.text) ?? 0; // keep quantity
       int used = int.tryParse(line.usedQuantityController.text) ?? 0;
       int scrap = int.tryParse(line.scrapController.text) ?? 0;
 
@@ -2036,6 +2086,7 @@ class _AddGatePassState extends State<AddGatePass> {
 
       setState(() {});
     }
+
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       padding: const EdgeInsets.all(8),
@@ -2305,18 +2356,61 @@ class _AddGatePassState extends State<AddGatePass> {
                 final itemNameFromState = state.itemName;
 
                 setState(() {
-                  unitsByItem[itemNameFromState] = fetchedUnits;
-                  unitsLoadingFor.remove(itemNameFromState);
+                  List<UnitsData> combinedUnits = [];
+                  for (var unit in fetchedUnits) {
 
+                    /// ⭐ Add Basic Unit
+                    if (unit.basic_unit_name != null &&
+                        unit.basic_unit_name!.isNotEmpty &&
+                        !combinedUnits.any(
+                                (e) => e.alt_unit_name == unit.basic_unit_name)) {
+
+                      combinedUnits.add(
+                        UnitsData(
+                          alt_unit_name: unit.basic_unit_name,
+                          basic_value: unit.basic_value,   // ⭐ IMPORTANT
+                          alt_value: unit.alt_value,       // ⭐ IMPORTANT
+                        ),
+                      );
+                    }
+
+                    /// ⭐ Add Alt Unit
+                    if (unit.alt_unit_name != null &&
+                        unit.alt_unit_name!.isNotEmpty) {
+
+                      combinedUnits.add(
+                        UnitsData(
+                          alt_unit_name: unit.alt_unit_name,
+                          basic_value: unit.basic_value,   // ⭐ IMPORTANT
+                          alt_value: unit.alt_value,       // ⭐ IMPORTANT
+                        ),
+                      );
+                    }
+                  }
+                  /// assign units
+                  unitsByItem[itemNameFromState] = combinedUnits;
+                  unitsLoadingFor.remove(itemNameFromState);
+                  /// ⭐ Set default + update balance
                   for (final ent in materialEntries) {
                     for (final ln in ent.lines) {
                       if ((ln.data.item ?? '') == itemNameFromState &&
-                          (ln.selectedUnit == null ||
-                              ln.selectedUnit!.isEmpty) &&
-                          fetchedUnits.isNotEmpty) {
-                        final defaultUnit = fetchedUnits.first;
-                        ln.selectedUnit = defaultUnit.unit_name ?? '';
-                        ln.selectedUnitId = defaultUnit.hsncode?.toString();
+                          ln.selectedUnit.isEmpty &&
+                          combinedUnits.isNotEmpty) {
+
+                        final defaultUnit = combinedUnits.first;
+
+                        ln.selectedUnit = defaultUnit.alt_unit_name ?? '';
+                        ln.selectedUnitId = defaultUnit.alt_unit_name ?? '';
+                        double basic =
+                            double.tryParse(defaultUnit.basic_value?.toString() ?? '1') ?? 1;
+
+                        double alt =
+                            double.tryParse(defaultUnit.alt_value?.toString() ?? '1') ?? 1;
+
+                        ln.updateBalanceWithUnit(
+                          basic: basic,
+                          alt: alt,
+                        );
                       }
                     }
                   }
@@ -2332,15 +2426,47 @@ class _AddGatePassState extends State<AddGatePass> {
               data: availableUnits,
               displayText: (u) => u.alt_unit_name ?? '',
               onChanged: (UnitsData u) {
-                setState(() {
-                  line.selectedUnit = u.alt_unit_name ?? '';
-                  line.selectedUnitId = u.alt_unit_name?.toString();
-                });
-              },
+                  setState(() {
+                    line.selectedUnit = u.alt_unit_name ?? '';
+                    line.selectedUnitId = u.alt_unit_name ?? '';
+
+                    double basic =
+                        double.tryParse(u.basic_value?.toString() ?? '1') ?? 1;
+
+                    double alt =
+                        double.tryParse(u.alt_value?.toString() ?? '1') ?? 1;
+
+                    if (alt != 0) {
+                      // ⭐ conversion for saving (to base)
+                      line.conversionFactor = basic / alt;
+
+                      // ⭐ conversion for UI (from base to selected unit)
+                      line.currentBalance = line.originalBalance / line.conversionFactor;
+                    } else {
+                      line.conversionFactor = 1;
+                      line.currentBalance = line.originalBalance;
+                    }
+
+                    print("Factor: ${line.conversionFactor}");
+                    print("UI Balance: ${line.currentBalance}");
+
+                    // Update remaining balance in UI
+                    double issued =
+                        double.tryParse(line.quantityController.text) ?? 0;
+
+                    line.remainingBalance = line.currentBalance - issued;
+
+                    // Update entry totals
+                    entry.currentBalance =
+                        entry.lines.fold(0, (sum, l) => sum + l.currentBalance);
+
+                    entry.remainingBalance =
+                        entry.lines.fold(0, (sum, l) => sum + l.remainingBalance);
+                  });
+                }
             ),
           ),
           const SizedBox(height: 8),
-
           // Quality / Scrap / Rate toggle per-line
           if (selectedTransfer == "Project Type") ...[
             InkWell(
