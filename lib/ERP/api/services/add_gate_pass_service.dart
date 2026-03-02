@@ -229,6 +229,18 @@ class GatePassService {
       "source": AppConfig.source,
       "Authorization": "Bearer $token",
     };
+    print(
+      '''
+      url : $url,
+      start: $start,
+      length: $length,
+      from $from,
+      to $to,
+      gate_passnumber $gate_pass_number,
+      transferType $transferType,
+      item $item
+      '''
+    );
 
     final dataBody = {
       "companyid": "045748e5-57d7-11eb-b9f1-063127f6ced7",

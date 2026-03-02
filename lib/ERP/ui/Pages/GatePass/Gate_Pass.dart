@@ -949,7 +949,6 @@ class _GatePassState extends State<GatePass> {
           i.out_time ?? "",
           style: GoogleFonts.poppins(fontSize: 18, fontWeight: FontWeight.bold,height: 1),
           maxLines: 1,
-          overflow: TextOverflow.ellipsis,
         ),
       ],
     );

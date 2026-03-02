@@ -765,102 +765,102 @@ class _AddGatePassState extends State<AddGatePass> {
      outTimes: ${stripAmPm(outTimeCsv)}
      -------------------------------------------
     ''');
-    // context.read<AddNewGatePassBloc>().add(
-    //       SubmitAddNewGatePassEvent(
-    //         transferType: transferTypeTop == "Warehouse Type"
-    //             ? "warehouse_type"
-    //             : "project_type",
-    //         date: dateTimeStr,
-    //         toProject: selectedToProjectListID ?? "",
-    //         toWarehouse: selectedToWarehouseID ?? "",
-    //         vehicleNameNo: vehicleNameNoTop,
-    //         issuedTo: issuedToTop,
-    //         issuedBy: issuedByTop,
-    //         gatePass: gatePassNoTop,
-    //         description: descTop,
-    //         fromWarehouse: fromWarehouse ?? "",
-    //         outTime: stripAmPm(outTimeCsv),
-    //         materialsId: materialsIdCsv,
-    //         issuedMaterials: issuedMaterialsCsv,
-    //         currentBalance: currentBalanceCsv,
-    //         unit: unitCsv,
-    //         category: categoryCsv,
-    //         subCategory: subCategoryCsv,
-    //         quantity: quantityCsv,
-    //         consumed: consumedFlagCsv,
-    //         usedQuantity: usedQuantityCsv,
-    //         scrap: scrapCsv,
-    //         rate: rateCsv,
-    //         amount: amountCsv,
-    //         differenceBalance: differenceBalanceCsv,
-    //       ),
-    //     );
-    //
-    // if (transferTypeTop == "Warehouse Type") {
-    //   print("Warehouse Type");
-    //   print('''
-    //           groupid: $categoryCsv,
-    //           subgroupid: $subCategoryCsv,
-    //           item_id: $materialsIdCsv,
-    //           item: $issuedMaterialsCsv,
-    //           date: $dateTimeStr,
-    //           unit: $unit,
-    //           currentBalance: $currentBalanceCsv,
-    //           quantity: $quantityCsv,
-    //           fromWarehouse: $fromWarehouse,
-    //           toWarehouse: $toWarehouse,
-    //           ''');
-    //   context.read<AddWarehouseTransferBloc>().add(
-    //         SubmitAddWarehouseTransferEvent(
-    //           groupid: categoryCsv,
-    //           subgroupid: subCategoryCsv,
-    //           item_id: materialsIdCsv,
-    //           item: issuedMaterialsCsv,
-    //           date: dateTimeStr,
-    //           unit: unit,
-    //           currentBalance: currentBalanceCsv,
-    //           quantity: quantityCsv,
-    //           fromWarehouse: fromWarehouse,
-    //           towarehouse: toWarehouse,
-    //         ),
-    //       );
-    // } else if (transferTypeTop == "Project Type") {
-    //   print("Project Type");
-    //   print('''
-    //            project_id:${toProjectName},
-    //            date:$dateTimeStr,
-    //            vehicle_id:$vehicleNameNo,
-    //            issued_to_id: $issuedToTop,
-    //            issued_by_id: $issuedByTop,
-    //            gatePass: $gatePassNoTop,
-    //            description: $descTop,
-    //            fromWarehouse: $fromWarehouse,
-    //            outTime: $outTimeCsv,
-    //            materialsId: $materialsIdCsv,
-    //            issuedMaterials: $issuedMaterialsCsv,
-    //            currentBalance: $currentBalanceCsv
-    //            quantity: $quantityCsv
-    //            unit: $unitCsv
-    //      ''');
-    //     context.read<AddWarehouseToProjectBloc>().add(
-    //       SubmitAddWarehouseToProjectEvent(
-    //           project_id: toProjectName,
-    //           date: dateTimeStr,
-    //           vehicle_id: vehicleNameNo,
-    //           issued_to_id: issuedToTop,
-    //           issued_by_id: issuedByTop,
-    //           gatePass: gatePassNoTop,
-    //           description: descTop,
-    //           fromWarehouse: fromWarehouse,
-    //           outTime: stripAmPm(outTimeCsv),
-    //           materialsId: materialsIdCsv,
-    //           issuedMaterials: issuedMaterialsCsv,
-    //           currentBalance: currentBalanceCsv,
-    //           quantity: quantityCsv,
-    //           unit: unitCsv
-    //       ),
-    //     );
-    // }
+    context.read<AddNewGatePassBloc>().add(
+          SubmitAddNewGatePassEvent(
+            transferType: transferTypeTop == "Warehouse Type"
+                ? "warehouse_type"
+                : "project_type",
+            date: dateTimeStr,
+            toProject: selectedToProjectListID ?? "",
+            toWarehouse: selectedToWarehouseID ?? "",
+            vehicleNameNo: vehicleNameNoTop,
+            issuedTo: issuedToTop,
+            issuedBy: issuedByTop,
+            gatePass: gatePassNoTop,
+            description: descTop,
+            fromWarehouse: fromWarehouse ?? "",
+            outTime: stripAmPm(outTimeCsv),
+            materialsId: materialsIdCsv,
+            issuedMaterials: issuedMaterialsCsv,
+            currentBalance: currentBalanceCsv,
+            unit: unitCsv,
+            category: categoryCsv,
+            subCategory: subCategoryCsv,
+            quantity: quantityCsv,
+            consumed: consumedFlagCsv,
+            usedQuantity: usedQuantityCsv,
+            scrap: scrapCsv,
+            rate: rateCsv,
+            amount: amountCsv,
+            differenceBalance: differenceBalanceCsv,
+          ),
+        );
+
+    if (transferTypeTop == "Warehouse Type") {
+      print("Warehouse Type");
+      print('''
+              groupid: $categoryCsv,
+              subgroupid: $subCategoryCsv,
+              item_id: $materialsIdCsv,
+              item: $issuedMaterialsCsv,
+              date: $dateTimeStr,
+              unit: $unit,
+              currentBalance: $currentBalanceCsv,
+              quantity: $quantityCsv,
+              fromWarehouse: $fromWarehouse,
+              toWarehouse: $toWarehouse,
+              ''');
+      context.read<AddWarehouseTransferBloc>().add(
+            SubmitAddWarehouseTransferEvent(
+              groupid: categoryCsv,
+              subgroupid: subCategoryCsv,
+              item_id: materialsIdCsv,
+              item: issuedMaterialsCsv,
+              date: dateTimeStr,
+              unit: unit,
+              currentBalance: currentBalanceCsv,
+              quantity: quantityCsv,
+              fromWarehouse: fromWarehouse,
+              towarehouse: toWarehouse,
+            ),
+          );
+    } else if (transferTypeTop == "Project Type") {
+      print("Project Type");
+      print('''
+               project_id:${toProjectName},
+               date:$dateTimeStr,
+               vehicle_id:$vehicleNameNo,
+               issued_to_id: $issuedToTop,
+               issued_by_id: $issuedByTop,
+               gatePass: $gatePassNoTop,
+               description: $descTop,
+               fromWarehouse: $fromWarehouse,
+               outTime: $outTimeCsv,
+               materialsId: $materialsIdCsv,
+               issuedMaterials: $issuedMaterialsCsv,
+               currentBalance: $currentBalanceCsv
+               quantity: $quantityCsv
+               unit: $unitCsv
+         ''');
+        context.read<AddWarehouseToProjectBloc>().add(
+          SubmitAddWarehouseToProjectEvent(
+              project_id: toProjectName,
+              date: dateTimeStr,
+              vehicle_id: vehicleNameNo,
+              issued_to_id: issuedToTop,
+              issued_by_id: issuedByTop,
+              gatePass: gatePassNoTop,
+              description: descTop,
+              fromWarehouse: fromWarehouse,
+              outTime: stripAmPm(outTimeCsv),
+              materialsId: materialsIdCsv,
+              issuedMaterials: issuedMaterialsCsv,
+              currentBalance: currentBalanceCsv,
+              quantity: quantityCsv,
+              unit: unitCsv
+          ),
+        );
+    }
   }
 
   void getDate(String inputDate) {
