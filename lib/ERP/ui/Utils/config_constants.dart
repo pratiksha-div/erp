@@ -1,6 +1,6 @@
 class AppConfig {
-  // static String BASE_URL = "http://api.divyaltech.com/index.cfm?action=";
-  static String BASE_URL = "http://dev-api.divyaltech.com/dev-backend/index.cfm?action=";
+  static String BASE_URL = "http://api.divyaltech.com/index.cfm?action=";
+  // static String BASE_URL = "http://dev-api.divyaltech.com/dev-backend/index.cfm?action=";
   static String reload = "&reload=1";
   static String source = "appSide";
 

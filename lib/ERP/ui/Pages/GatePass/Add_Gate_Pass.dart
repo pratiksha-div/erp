@@ -2432,34 +2432,25 @@ class _AddGatePassState extends State<AddGatePass> {
 
                     double basic =
                         double.tryParse(u.basic_value?.toString() ?? '1') ?? 1;
-
                     double alt =
                         double.tryParse(u.alt_value?.toString() ?? '1') ?? 1;
-
                     if (alt != 0) {
                       // ⭐ conversion for saving (to base)
                       line.conversionFactor = basic / alt;
-
                       // ⭐ conversion for UI (from base to selected unit)
                       line.currentBalance = line.originalBalance / line.conversionFactor;
                     } else {
                       line.conversionFactor = 1;
                       line.currentBalance = line.originalBalance;
                     }
-
                     print("Factor: ${line.conversionFactor}");
                     print("UI Balance: ${line.currentBalance}");
-
                     // Update remaining balance in UI
-                    double issued =
-                        double.tryParse(line.quantityController.text) ?? 0;
-
+                    double issued = double.tryParse(line.quantityController.text) ?? 0;
                     line.remainingBalance = line.currentBalance - issued;
-
                     // Update entry totals
                     entry.currentBalance =
                         entry.lines.fold(0, (sum, l) => sum + l.currentBalance);
-
                     entry.remainingBalance =
                         entry.lines.fold(0, (sum, l) => sum + l.remainingBalance);
                   });
