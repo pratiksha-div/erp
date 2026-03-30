@@ -602,37 +602,36 @@ class _AddGatePassState extends State<AddGatePass> {
       _isSaving = true;
     });
 
-    final List<String> materialsIdList = [];
-    final List<String> issuedMaterialsList = [];
-    final List<String> quantityList = [];
-    final List<String> usedQuantityList = [];
-    final List<String> scrapList = [];
-    final List<String> rateList = [];
-    final List<String> amountList = [];
-    final List<String> consumedFlagList = []; // "1" or "0"
-    final List<String> unitList = [];
-    final List<String> currentBalanceList = [];
-    final List<String> categoryList = [];
-    final List<String> subCategoryList = [];
-    final List<String> differenceBalanceList = [];
-    String quantity = "";
-    String usedQuantity = "";
-    String scrap = "";
-    String rate = "";
-    String unit = "";
-    String currentBalance = "";
-    bool showQuality = false;
-    double qty = 0.0;
-    double usedQty = 0.0;
-    double scrapQty = 0.0;
-    String vehicleNameNo = "";
-    String toProjectName = "";
-    String fromWarehouse = "";
-    String toWarehouse = "";
-
-    final List<String> outTimeList = [];
-
     for (final entry in materialEntries) {
+      final List<String> materialsIdList = [];
+      final List<String> issuedMaterialsList = [];
+      final List<String> quantityList = [];
+      final List<String> usedQuantityList = [];
+      final List<String> scrapList = [];
+      final List<String> rateList = [];
+      final List<String> amountList = [];
+      final List<String> consumedFlagList = []; // "1" or "0"
+      final List<String> unitList = [];
+      final List<String> currentBalanceList = [];
+      final List<String> categoryList = [];
+      final List<String> subCategoryList = [];
+      final List<String> differenceBalanceList = [];
+      String quantity = "";
+      String usedQuantity = "";
+      String scrap = "";
+      String rate = "";
+      String unit = "";
+      String currentBalance = "";
+      bool showQuality = false;
+      double qty = 0.0;
+      double usedQty = 0.0;
+      double scrapQty = 0.0;
+      String vehicleNameNo = "";
+      String toProjectName = "";
+      String fromWarehouse = "";
+      String toWarehouse = "";
+
+      final List<String> outTimeList = [];
       outTimeList.add(entry.outTime?.format(context) ?? '');
 
       fromWarehouse = entry.selectedFromWarehouseId ?? "";
@@ -658,8 +657,8 @@ class _AddGatePassState extends State<AddGatePass> {
           scrap = line.scrapController.text.trim();
           rate = line.rateController.text.trim();
           unit = line.selectedUnit ?? "";
-          // currentBalance = line.remainingBalance.toString();
-          currentBalance = line.originalBalance.toString();
+          currentBalance = line.remainingBalance.toString();
+          // currentBalance = line.originalBalance.toString();
           showQuality = line.showQualityFields;
           // qty = double.tryParse(quantity) ?? 0.0;
           // usedQty = double.tryParse(usedQuantity) ?? 0.0;
@@ -720,85 +719,83 @@ class _AddGatePassState extends State<AddGatePass> {
           differenceBalanceList.add(remainingBase.toStringAsFixed(2));
         }
       }
-    }
-    // Build aggregated CSVs AFTER collecting everything
-    final String materialsIdCsv = materialsIdList.join(',');
-    final String issuedMaterialsCsv = issuedMaterialsList.join(',');
-    final String quantityCsv = quantityList.join(',');
-    final String usedQuantityCsv = usedQuantityList.join(',');
-    final String scrapCsv = scrapList.join(',');
-    final String rateCsv = rateList.join(',');
-    final String amountCsv = amountList.join(',');
-    final String consumedFlagCsv = consumedFlagList.join(',');
-    final String unitCsv = unitList.join(',');
-    final String currentBalanceCsv = currentBalanceList.join(',');
-    final String categoryCsv = categoryList.join(',');
-    final String subCategoryCsv = subCategoryList.join(',');
-    final String differenceBalanceCsv = differenceBalanceList.join(',');
-    final String outTimeCsv = outTimeList.join(',');
+      // Build aggregated CSVs AFTER collecting everything
+      final String materialsIdCsv = materialsIdList.join(',');
+      final String issuedMaterialsCsv = issuedMaterialsList.join(',');
+      final String quantityCsv = quantityList.join(',');
+      final String usedQuantityCsv = usedQuantityList.join(',');
+      final String scrapCsv = scrapList.join(',');
+      final String rateCsv = rateList.join(',');
+      final String amountCsv = amountList.join(',');
+      final String consumedFlagCsv = consumedFlagList.join(',');
+      final String unitCsv = unitList.join(',');
+      final String currentBalanceCsv = currentBalanceList.join(',');
+      final String categoryCsv = categoryList.join(',');
+      final String subCategoryCsv = subCategoryList.join(',');
+      final String differenceBalanceCsv = differenceBalanceList.join(',');
+      final String outTimeCsv = outTimeList.join(',');
 
-    String stripAmPm(String timeString) {
-      final cleaned = timeString.replaceAll(
-          RegExp(r'\s?(AM|PM)$', caseSensitive: false), '');
-      final parts = cleaned.split(':');
-      final hour = parts[0].padLeft(2, '0');
-      final minute = parts.length > 1 ? parts[1].padLeft(2, '0') : '00';
-      return "$hour:$minute";
-    }
+      String stripAmPm(String timeString) {
+        final cleaned = timeString.replaceAll(
+            RegExp(r'\s?(AM|PM)$', caseSensitive: false), '');
+        final parts = cleaned.split(':');
+        final hour = parts[0].padLeft(2, '0');
+        final minute = parts.length > 1 ? parts[1].padLeft(2, '0') : '00';
+        return "$hour:$minute";
+      }
 
-    print('''
-     ---- SUBMITTING GATE PASS (AGGREGATED) ----
-     date: $dateTimeStr
-     materialsId: $materialsIdCsv
-     issuedMaterials: $issuedMaterialsCsv
-     quantity: $quantityCsv
-     usedQuantity: $usedQuantityCsv
-     scrap: $scrapCsv
-     rate: $rateCsv
-     amount: $amountCsv
-     consumedFlags: $consumedFlagCsv
-     units: $unitCsv
-     currentBalances: $currentBalanceCsv
-     categories: $categoryCsv
-     subCategories: $subCategoryCsv
-     differenceBalances: $differenceBalanceCsv
-     outTimes: ${stripAmPm(outTimeCsv)}
-     -------------------------------------------
-    ''');
-    context.read<AddNewGatePassBloc>().add(
-          SubmitAddNewGatePassEvent(
-            transferType: transferTypeTop == "Warehouse Type"
-                ? "warehouse_type"
-                : "project_type",
-            date: dateTimeStr,
-            toProject: selectedToProjectListID ?? "",
-            toWarehouse: selectedToWarehouseID ?? "",
-            vehicleNameNo: vehicleNameNoTop,
-            issuedTo: issuedToTop,
-            issuedBy: issuedByTop,
-            gatePass: gatePassNoTop,
-            description: descTop,
-            fromWarehouse: fromWarehouse ?? "",
-            outTime: stripAmPm(outTimeCsv),
-            materialsId: materialsIdCsv,
-            issuedMaterials: issuedMaterialsCsv,
-            currentBalance: currentBalanceCsv,
-            unit: unitCsv,
-            category: categoryCsv,
-            subCategory: subCategoryCsv,
-            quantity: quantityCsv,
-            consumed: consumedFlagCsv,
-            usedQuantity: usedQuantityCsv,
-            scrap: scrapCsv,
-            rate: rateCsv,
-            amount: amountCsv,
-            differenceBalance: differenceBalanceCsv,
-          ),
-        );
-
-    if (transferTypeTop == "Warehouse Type") {
-      print("Warehouse Type");
-      print('''
+      // print('''
+      //  ---- SUBMITTING GATE PASS (AGGREGATED) ----
+      //  date: $dateTimeStr
+      //  materialsId: $materialsIdCsv
+      //  issuedMaterials: $issuedMaterialsCsv
+      //  quantity: $quantityCsv
+      //  usedQuantity: $usedQuantityCsv
+      //  scrap: $scrapCsv
+      //  rate: $rateCsv
+      //  amount: $amountCsv
+      //  consumedFlags: $consumedFlagCsv
+      //  units: $unitCsv
+      //  currentBalances: $currentBalanceCsv
+      //  categories: $categoryCsv
+      //  subCategories: $subCategoryCsv
+      //  differenceBalances: $differenceBalanceCsv
+      //  outTimes: ${stripAmPm(outTimeCsv)}
+      //  -------------------------------------------
+      // ''');
+      context.read<AddNewGatePassBloc>().add(
+        SubmitAddNewGatePassEvent(
+          transferType: transferTypeTop == "Warehouse Type"
+              ? "warehouse_type"
+              : "project_type",
+          date: dateTimeStr,
+          toProject: selectedToProjectListID ?? "",
+          toWarehouse: selectedToWarehouseID ?? "",
+          vehicleNameNo: vehicleNameNoTop,
+          issuedTo: issuedToTop,
+          issuedBy: issuedByTop,
+          gatePass: gatePassNoTop,
+          description: descTop,
+          fromWarehouse: fromWarehouse ?? "",
+          outTime: stripAmPm(outTimeCsv),
+          materialsId: materialsIdCsv,
+          issuedMaterials: issuedMaterialsCsv,
+          currentBalance: currentBalanceCsv,
+          unit: unitCsv,
+          category: categoryCsv,
+          subCategory: subCategoryCsv,
+          quantity: quantityCsv,
+          consumed: consumedFlagCsv,
+          usedQuantity: usedQuantityCsv,
+          scrap: scrapCsv,
+          rate: rateCsv,
+          amount: amountCsv,
+          differenceBalance: differenceBalanceCsv,
+        ),
+      );
+      if (transferTypeTop == "Warehouse Type") {
+        print("Warehouse Type");
+        print('''
               groupid: $categoryCsv,
               subgroupid: $subCategoryCsv,
               item_id: $materialsIdCsv,
@@ -810,23 +807,24 @@ class _AddGatePassState extends State<AddGatePass> {
               fromWarehouse: $fromWarehouse,
               toWarehouse: $toWarehouse,
               ''');
-      context.read<AddWarehouseTransferBloc>().add(
-            SubmitAddWarehouseTransferEvent(
-              groupid: categoryCsv,
-              subgroupid: subCategoryCsv,
-              item_id: materialsIdCsv,
-              item: issuedMaterialsCsv,
-              date: dateTimeStr,
-              unit: unit,
-              currentBalance: currentBalanceCsv,
-              quantity: quantityCsv,
-              fromWarehouse: fromWarehouse,
-              towarehouse: toWarehouse,
-            ),
-          );
-    } else if (transferTypeTop == "Project Type") {
-      print("Project Type");
-      print('''
+        context.read<AddWarehouseTransferBloc>().add(
+          SubmitAddWarehouseTransferEvent(
+            groupid: categoryCsv,
+            subgroupid: subCategoryCsv,
+            item_id: materialsIdCsv,
+            item: issuedMaterialsCsv,
+            date: dateTimeStr,
+            unit: unit,
+            currentBalance: currentBalanceCsv,
+            quantity: quantityCsv,
+            fromWarehouse: fromWarehouse,
+            towarehouse: toWarehouse,
+          ),
+        );
+      }
+      else if (transferTypeTop == "Project Type") {
+        print("Project Type");
+        print('''
                project_id:${toProjectName},
                date:$dateTimeStr,
                vehicle_id:$vehicleNameNo,
@@ -860,7 +858,9 @@ class _AddGatePassState extends State<AddGatePass> {
               unit: unitCsv
           ),
         );
+      }
     }
+
   }
 
   void getDate(String inputDate) {
@@ -1309,27 +1309,27 @@ class _AddGatePassState extends State<AddGatePass> {
                                                     .godown_name ??
                                                 '';
 
-                                            final selectedIds = materialEntries
-                                                .asMap()
-                                                .entries
-                                                .where((e) => e.key != i)
-                                                .map((e) => e.value
-                                                    .selectedFromWarehouseId)
-                                                .where((id) =>
-                                                    id != null &&
-                                                    id!.isNotEmpty)
-                                                .map((id) => id!.toString())
-                                                .toSet();
+                                            // final selectedIds = materialEntries
+                                            //     .asMap()
+                                            //     .entries
+                                            //     .where((e) => e.key != i)
+                                            //     .map((e) => e.value
+                                            //         .selectedFromWarehouseId)
+                                            //     .where((id) =>
+                                            //         id != null &&
+                                            //         id!.isNotEmpty)
+                                            //     .map((id) => id!.toString())
+                                            //     .toSet();
 
-                                            final filteredWarehouses =
-                                                state.warehouses.where((w) {
-                                              final wid =
-                                                  w.godown_id?.toString() ?? '';
-                                              return !selectedIds
-                                                      .contains(wid) ||
-                                                  wid == currentSelectedId;
-                                            }).toList();
-
+                                            // final filteredWarehouses =
+                                            //     state.warehouses.where((w) {
+                                            //   final wid =
+                                            //       w.godown_id?.toString() ?? '';
+                                            //   return !selectedIds
+                                            //           .contains(wid) ||
+                                            //       wid == currentSelectedId;
+                                            // }).toList();
+                                            final filteredWarehouses = state.warehouses;
                                             return Column(
                                               children: [
                                                 TransferDropdown<
@@ -1794,7 +1794,7 @@ class _AddGatePassState extends State<AddGatePass> {
                                                           // final key =
                                                           //     a.item ?? '';
                                                           final key = a.item_id ?? '';
-                                                          print("key ${key}");
+                                                          print("key item_id ${key}");
                                                           final cached = unitsByItem[key];
                                                           if (cached != null &&
                                                               cached
@@ -1826,6 +1826,7 @@ class _AddGatePassState extends State<AddGatePass> {
                                                             //         UnitsBloc>()
                                                             //     .add(FetchUnitsEvent(
                                                             //         itemName: key,));
+                                                            print("key : ${key}");
                                                             context
                                                                 .read<
                                                                 BasicUnitsBloc>()
@@ -2251,6 +2252,9 @@ class _AddGatePassState extends State<AddGatePass> {
                             EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       ),
                       onChanged: (val) {
+                        // if (val.trim().isEmpty) {
+                        //   return; // stop auto balance update when field is empty
+                        // }
                         double entered = double.tryParse(val) ?? 0.0;
                         if (entered < 0) entered = 0;
 
@@ -2307,6 +2311,7 @@ class _AddGatePassState extends State<AddGatePass> {
               const SizedBox(width: 10),
             ],
           ),
+          const SizedBox(height: 10),
           // Units dropdown
           // BlocListener<UnitsBloc, UnitsState>(
           //   listener: (context, state) {
@@ -2357,6 +2362,7 @@ class _AddGatePassState extends State<AddGatePass> {
 
                 setState(() {
                   List<UnitsData> combinedUnits = [];
+
                   for (var unit in fetchedUnits) {
 
                     /// ⭐ Add Basic Unit
@@ -2368,8 +2374,8 @@ class _AddGatePassState extends State<AddGatePass> {
                       combinedUnits.add(
                         UnitsData(
                           alt_unit_name: unit.basic_unit_name,
-                          basic_value: unit.basic_value,   // ⭐ IMPORTANT
-                          alt_value: unit.alt_value,       // ⭐ IMPORTANT
+                          basic_value: unit.basic_value,
+                          alt_value: unit.alt_value,
                         ),
                       );
                     }
@@ -2381,26 +2387,29 @@ class _AddGatePassState extends State<AddGatePass> {
                       combinedUnits.add(
                         UnitsData(
                           alt_unit_name: unit.alt_unit_name,
-                          basic_value: unit.basic_value,   // ⭐ IMPORTANT
-                          alt_value: unit.alt_value,       // ⭐ IMPORTANT
+                          basic_value: unit.basic_value,
+                          alt_value: unit.alt_value,
                         ),
                       );
                     }
                   }
+
                   /// assign units
                   unitsByItem[itemNameFromState] = combinedUnits;
                   unitsLoadingFor.remove(itemNameFromState);
-                  /// ⭐ Set default + update balance
+
+                  /// ⭐ Set default + update balance (already correct ✅)
                   for (final ent in materialEntries) {
                     for (final ln in ent.lines) {
                       if ((ln.data.item ?? '') == itemNameFromState &&
-                          ln.selectedUnit.isEmpty &&
-                          combinedUnits.isNotEmpty) {
+                          combinedUnits.isNotEmpty &&
+                          (ln.selectedUnit == null || ln.selectedUnit!.isEmpty)) {
 
                         final defaultUnit = combinedUnits.first;
 
                         ln.selectedUnit = defaultUnit.alt_unit_name ?? '';
                         ln.selectedUnitId = defaultUnit.alt_unit_name ?? '';
+
                         double basic =
                             double.tryParse(defaultUnit.basic_value?.toString() ?? '1') ?? 1;
 
@@ -2417,44 +2426,82 @@ class _AddGatePassState extends State<AddGatePass> {
                 });
               }
             },
-            child: TransferDropdown<UnitsData>(
-              title: 'Units',
-              hint: availableUnits.isEmpty
-                  ? 'No units available'
-                  : 'Select Units',
-              selectedVal: line.selectedUnit,
-              data: availableUnits,
-              displayText: (u) => u.alt_unit_name ?? '',
-              onChanged: (UnitsData u) {
-                  setState(() {
-                    line.selectedUnit = u.alt_unit_name ?? '';
-                    line.selectedUnitId = u.alt_unit_name ?? '';
 
-                    double basic =
-                        double.tryParse(u.basic_value?.toString() ?? '1') ?? 1;
-                    double alt =
-                        double.tryParse(u.alt_value?.toString() ?? '1') ?? 1;
-                    if (alt != 0) {
-                      // ⭐ conversion for saving (to base)
-                      line.conversionFactor = basic / alt;
-                      // ⭐ conversion for UI (from base to selected unit)
-                      line.currentBalance = line.originalBalance / line.conversionFactor;
-                    } else {
-                      line.conversionFactor = 1;
-                      line.currentBalance = line.originalBalance;
-                    }
-                    print("Factor: ${line.conversionFactor}");
-                    print("UI Balance: ${line.currentBalance}");
-                    // Update remaining balance in UI
-                    double issued = double.tryParse(line.quantityController.text) ?? 0;
-                    line.remainingBalance = line.currentBalance - issued;
-                    // Update entry totals
-                    entry.currentBalance =
-                        entry.lines.fold(0, (sum, l) => sum + l.currentBalance);
-                    entry.remainingBalance =
-                        entry.lines.fold(0, (sum, l) => sum + l.remainingBalance);
-                  });
+            /// ✅ UPDATED CHILD SECTION
+            child: Builder(
+              builder: (context) {
+
+                /// ✅ ADDED THIS BLOCK (IMPORTANT FIX)
+                if ((line.selectedUnit == null || line.selectedUnit!.isEmpty) &&
+                    availableUnits.isNotEmpty) {
+
+                  final defaultUnit = availableUnits.first;
+
+                  line.selectedUnit = defaultUnit.alt_unit_name ?? '';
+                  line.selectedUnitId = defaultUnit.alt_unit_name ?? '';
+
+                  double basic =
+                      double.tryParse(defaultUnit.basic_value?.toString() ?? '1') ?? 1;
+
+                  double alt =
+                      double.tryParse(defaultUnit.alt_value?.toString() ?? '1') ?? 1;
+
+                  line.updateBalanceWithUnit(
+                    basic: basic,
+                    alt: alt,
+                  );
                 }
+
+                return TransferDropdown<UnitsData>(
+                    title: 'Units',
+                    hint: availableUnits.isEmpty
+                        ? 'No units available'
+                        : 'Select Units',
+
+                    /// ✅ KEEP THIS (UI fallback)
+                    selectedVal: line.selectedUnit.isNotEmpty
+                        ? line.selectedUnit
+                        : (availableUnits.isNotEmpty
+                        ? availableUnits.first.alt_unit_name ?? ''
+                        : ''),
+
+                    data: availableUnits,
+                    displayText: (u) => u.alt_unit_name ?? '',
+
+                    onChanged: (UnitsData u) {
+                      setState(() {
+                        line.selectedUnit = u.alt_unit_name ?? '';
+                        line.selectedUnitId = u.alt_unit_name ?? '';
+
+                        double basic =
+                            double.tryParse(u.basic_value?.toString() ?? '1') ?? 1;
+
+                        double alt =
+                            double.tryParse(u.alt_value?.toString() ?? '1') ?? 1;
+
+                        if (alt != 0) {
+                          line.conversionFactor = basic / alt;
+                          line.currentBalance =
+                              line.originalBalance / line.conversionFactor;
+                        } else {
+                          line.conversionFactor = 1;
+                          line.currentBalance = line.originalBalance;
+                        }
+
+                        double issued =
+                            double.tryParse(line.quantityController.text) ?? 0;
+
+                        line.remainingBalance = line.currentBalance - issued;
+
+                        entry.currentBalance =
+                            entry.lines.fold(0, (sum, l) => sum + l.currentBalance);
+
+                        entry.remainingBalance =
+                            entry.lines.fold(0, (sum, l) => sum + l.remainingBalance);
+                      });
+                    }
+                );
+              },
             ),
           ),
           const SizedBox(height: 8),

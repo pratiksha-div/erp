@@ -9,7 +9,6 @@ import '../../../api/models/DAOGetGatePass.dart';
 import '../../../api/models/GetGatePassByID.dart';
 import '../../../bloc/GatePass/gate_pass_by_id_bloc.dart';
 import '../../Widgets/Custom_appbar.dart';
-import '../../Widgets/TextWidgets.dart';
 import '../../Utils/colors_constants.dart';
 
 class GatePassDetail extends StatefulWidget {
@@ -195,23 +194,16 @@ class _GatePassDetailState extends State<GatePassDetail> {
             ),
           Row(
             children: [
-              Text(
-                "${data.group_names}",
-                style: GoogleFonts.poppins(
-                    color: Colors.grey
-                        .withOpacity(0.95),
-                    fontSize: 10,
-                    height: 1,
-                    fontWeight: FontWeight.bold
-                ),
-              ),
-              Text(
-                ", ${data.subgroup_names}",
-                style: GoogleFonts.poppins(
-                    color: Colors.grey
-                        .withOpacity(0.95),
-                    fontSize: 10,
-                    fontWeight: FontWeight.w700
+              Expanded(
+                child: Text(
+                  "${data.group_names}, ${data.subgroup_names}",
+                  style: GoogleFonts.poppins(
+                      color: Colors.grey
+                          .withOpacity(0.95),
+                      fontSize: 10,
+                      height: 1,
+                      fontWeight: FontWeight.bold
+                  ),
                 ),
               ),
             ],
@@ -241,7 +233,7 @@ class _GatePassDetailState extends State<GatePassDetail> {
                     ),
                   ),
                   Container(
-                    width: 75.w,
+                    width: 60.w,
                     child: Text(
                       "${valueOrDash(widget.data.issued_to.toString().toLowerCase())} "
                           "- ${valueOrDash(widget.data.issued_by.toString().toLowerCase())}" ,
@@ -271,27 +263,29 @@ class _GatePassDetailState extends State<GatePassDetail> {
           ),
           Row(
             children: [
-              Text(
-                "${data.from_warehouse_name}",
-                style: GoogleFonts.poppins(
-                    color: ColorConstants.primary,
-                    fontSize: 13,
-                    height: 1,
-                    fontWeight: FontWeight.w700
+              Expanded(
+                child: Text(
+                  "${data.from_warehouse_name}",
+                  style: GoogleFonts.poppins(
+                      color: ColorConstants.primary,
+                      fontSize: 13,
+                      height: 1,
+                      fontWeight: FontWeight.w700
+                  ),
                 ),
               ),
-              Expanded(child: Text("")),
-              Icon(Icons.arrow_forward, size: 14, color: ColorConstants.primary),
-              Expanded(child: Text("")),
-              Text(
-                " ${(widget.data.transfer_type=="project_type"
-                    || widget.data.transfer_type=="Project Type"
-                )? widget.data.to_project_name :widget.data.to_warehouse_name}",
-                style: GoogleFonts.poppins(
-                    color: ColorConstants.primary,
-                    fontSize: 13,
-                    height: 1,
-                    fontWeight: FontWeight.w700
+              Expanded(child: Icon(Icons.arrow_forward, size: 14, color: ColorConstants.primary)),
+              Expanded(
+                child: Text(
+                  " ${(widget.data.transfer_type=="project_type"
+                      || widget.data.transfer_type=="Project Type"
+                  )? widget.data.to_project_name :widget.data.to_warehouse_name}",
+                  style: GoogleFonts.poppins(
+                      color: ColorConstants.primary,
+                      fontSize: 13,
+                      height: 1,
+                      fontWeight: FontWeight.w700
+                  ),
                 ),
               ),
             ],

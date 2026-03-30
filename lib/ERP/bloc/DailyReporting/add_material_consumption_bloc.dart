@@ -113,6 +113,22 @@ class AddMaterialConsumptionBloc extends Bloc<AddMaterialConsumptionEvent, AddMa
           consumedAmount:event.consumedAmount,
           consumption_id:event.consumption_id,
         );
+        print(
+          '''
+project_id: ${event.project_id},
+date:${event.date},
+gatePass:${event.gatePass},
+consumedMaterial:${event.consumedMaterial},
+item:${event.item},
+balanceQuantity:${event.balanceQuantity},
+consumedUnit:${event.consumedUnit},
+usedQuantity:${event.usedQuantity},
+consumedScrap:${event.consumedScrap},
+consumedRate:${event.consumedRate},
+consumedAmount:${event.consumedAmount},
+consumption_id:${event.consumption_id},
+          '''
+        );
 
         print("Add Material consumption API Response: $result");
         if (result.code == "200") {
