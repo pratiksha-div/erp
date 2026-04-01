@@ -1,7 +1,7 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-import '../../UI/Pages/DailyReporting/Add_Machine_Reading.dart';
+import '../../UI/Pages/DailyReporting/Add_Vehicle_Gate_Pass.dart';
 import '../../UI/Utils/messages_constants.dart';
 import '../../api/services/add_machine_reading_service.dart';
 import '../../api/services/add_new_entry.dart';

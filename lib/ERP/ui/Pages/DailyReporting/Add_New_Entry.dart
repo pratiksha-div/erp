@@ -20,16 +20,16 @@ import '../../Widgets/Custom_appbar.dart';
 import '../../Widgets/Custom_Dialog.dart';
 import '../../Widgets/TextWidgets.dart';
 
-class AddNewEntry extends StatefulWidget {
-  AddNewEntry({super.key, required this.id,this.isEditable=true});
+class AddNewReport extends StatefulWidget {
+  AddNewReport({super.key, required this.id,this.isEditable=true});
   String id;
   bool isEditable;
 
   @override
-  State<AddNewEntry> createState() => _AddNewEntryState();
+  State<AddNewReport> createState() => _AddNewReportState();
 }
 
-class _AddNewEntryState extends State<AddNewEntry> {
+class _AddNewReportState extends State<AddNewReport> {
   DateTime? _selectedDate;
   final TextEditingController projectName = TextEditingController();
   final TextEditingController description = TextEditingController();
@@ -112,23 +112,23 @@ class _AddNewEntryState extends State<AddNewEntry> {
       valid = false;
     }
 
-    if (_selectedEmployeeTypeId == null || _selectedEmployeeTypeId!.isEmpty) {
-      employeeTypeError = "Please Select Employee Type";
-      valid = false;
-    }
-
-    final type = (_selectedEmployeeTypeName ?? "").toLowerCase();
-
-    if (type == "permanent employee" &&
-        (_selectedEmployeeId == null || _selectedEmployeeId!.isEmpty)) {
-      employeeError = "Please Select Employee";
-      valid = false;
-    }
-
-    if (type == "contractor" && employeeName.text.trim().isEmpty) {
-      employeeError = "Please Enter Employee Name";
-      valid = false;
-    }
+    // if (_selectedEmployeeTypeId == null || _selectedEmployeeTypeId!.isEmpty) {
+    //   employeeTypeError = "Please Select Employee Type";
+    //   valid = false;
+    // }
+    //
+    // final type = (_selectedEmployeeTypeName ?? "").toLowerCase();
+    //
+    // if (type == "permanent employee" &&
+    //     (_selectedEmployeeId == null || _selectedEmployeeId!.isEmpty)) {
+    //   employeeError = "Please Select Employee";
+    //   valid = false;
+    // }
+    //
+    // if (type == "contractor" && employeeName.text.trim().isEmpty) {
+    //   employeeError = "Please Enter Employee Name";
+    //   valid = false;
+    // }
 
     setState(() {});
     return valid;
@@ -280,14 +280,14 @@ class _AddNewEntryState extends State<AddNewEntry> {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 child: Column(
                   children: [
-                    CustomAppbar(context, title: "Add New Entry", subTitle: "Smart, fast, and secure entry"),
+                    CustomAppbar(context, title: "Add New Report", subTitle: "Smart, fast, and secure report management"),
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(height: 20),
-                            subTitle("Mention gate entry information ", leftMargin: 5),
+                            subTitle("Mention report detail ", leftMargin: 5),
                             const SizedBox(height: 10),
                             // PROJECT DROPDOWN
                             BlocBuilder<ProjectListBloc, ProjectListState>(
@@ -341,89 +341,89 @@ class _AddNewEntryState extends State<AddNewEntry> {
                             if (dateError != null)errorText(dateError),
                             const SizedBox(height: 20),
                             // EMPLOYEE TYPE DROPDOWN
-                            BlocBuilder<EmployeeTypeBloc, EmployeeTypeState>(
-                              builder: (context, state) {
-                                if (state is EmployeeTypeLoadSuccess) {
-                                  final selectedEmployeeType = state.EmployeeTypes.firstWhere(
-                                        (data) => data.LookupDataId == _selectedEmployeeTypeId,
-                                    orElse: () => EmployeeTypeData(LookupDataId: "", LookupValue: ""),
-                                  );
-
-                                  return Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      TransferDropdown<EmployeeTypeData>(
-                                        title: 'Employee Type',
-                                        hint: 'Select Employee Type',
-                                        selectedVal: selectedEmployeeType.LookupValue ?? _selectedEmployeeTypeName ?? "",
-                                        data: state.EmployeeTypes,
-                                        displayText: (data) => data.LookupValue ?? '',
-                                        isEditable:widget.isEditable,
-                                        onChanged: (val) {
-                                          setState(() {
-                                            _selectedEmployeeTypeId = val.LookupDataId ?? "";
-                                            _selectedEmployeeTypeName = val.LookupValue ?? "";
-                                            employeeTypeError = null;
-                                            employeeError = null;
-                                            print("selectedEmployeeTypeId $_selectedEmployeeTypeId");
-                                            print("selectedEmployeeTypeName $_selectedEmployeeTypeName");
-                                          });
-                                        },
-                                      ),
-                                      if (employeeTypeError != null)
-                                        errorText(employeeTypeError),
-                                    ],
-                                  );
-                                }
-                                return const SizedBox.shrink();
-                              },
-                            ),
-
-                            const SizedBox(height: 20),
-
-                            // If Contractor or other free-text types -> show free-text field for employee name
-                            if ((_selectedEmployeeTypeName ?? "").toLowerCase() == "contractor".toLowerCase() ||
-                                (_selectedEmployeeTypeName ?? "").isEmpty)
-                              ...[
-                                txtFiled(context, employeeName, "Enter Employee Name", "Employee Name",enable: widget.isEditable),
-                                if (employeeError != null)errorText(employeeError),
-                                const SizedBox(height: 10),
-                              ],
-
-                            // If Permanent Employee -> show dropdown of employees
-                            if ((_selectedEmployeeTypeName ?? "").toLowerCase() == "permanent employee".toLowerCase())
-                            BlocBuilder<EmployeeBloc, EmployeeState>(
-                                builder: (context, state) {
-                                  if (state is EmployeeLoadSuccess) {
-                                    final selectedEmp = state.employees.firstWhere(
-                                          (coordinator) => coordinator.EmployeeId == _selectedEmployeeId,
-                                      orElse: () => EmployeeData(EmployeeName: "", EmployeeId: ""),
-                                    );
-                                    return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
-                                      children: [
-                                        TransferDropdown<EmployeeData>(
-                                          title: 'Employee Name',
-                                          hint: 'Select Employee',
-                                          selectedVal: selectedEmp.EmployeeName ?? _selectedEmployeeName ?? "",
-                                          data: state.employees,
-                                          displayText: (data) => data.EmployeeName ?? '',
-                                          isEditable:widget.isEditable,
-                                          onChanged: (val) {
-                                            setState(() {
-                                              _selectedEmployeeId = val.EmployeeId ?? "";
-                                              _selectedEmployeeName = val.EmployeeName ?? "";
-                                            });
-                                          },
-                                        ),
-                                        if (employeeError != null)errorText(employeeError),
-                                      ],
-                                    );
-                                  }
-                                  return const SizedBox.shrink();
-                                },
-                            ),
-                            const SizedBox(height: 10),
+                            // BlocBuilder<EmployeeTypeBloc, EmployeeTypeState>(
+                            //   builder: (context, state) {
+                            //     if (state is EmployeeTypeLoadSuccess) {
+                            //       final selectedEmployeeType = state.EmployeeTypes.firstWhere(
+                            //             (data) => data.LookupDataId == _selectedEmployeeTypeId,
+                            //         orElse: () => EmployeeTypeData(LookupDataId: "", LookupValue: ""),
+                            //       );
+                            //
+                            //       return Column(
+                            //         crossAxisAlignment: CrossAxisAlignment.start,
+                            //         children: [
+                            //           TransferDropdown<EmployeeTypeData>(
+                            //             title: 'Employee Type',
+                            //             hint: 'Select Employee Type',
+                            //             selectedVal: selectedEmployeeType.LookupValue ?? _selectedEmployeeTypeName ?? "",
+                            //             data: state.EmployeeTypes,
+                            //             displayText: (data) => data.LookupValue ?? '',
+                            //             isEditable:widget.isEditable,
+                            //             onChanged: (val) {
+                            //               setState(() {
+                            //                 _selectedEmployeeTypeId = val.LookupDataId ?? "";
+                            //                 _selectedEmployeeTypeName = val.LookupValue ?? "";
+                            //                 employeeTypeError = null;
+                            //                 employeeError = null;
+                            //                 print("selectedEmployeeTypeId $_selectedEmployeeTypeId");
+                            //                 print("selectedEmployeeTypeName $_selectedEmployeeTypeName");
+                            //               });
+                            //             },
+                            //           ),
+                            //           if (employeeTypeError != null)
+                            //             errorText(employeeTypeError),
+                            //         ],
+                            //       );
+                            //     }
+                            //     return const SizedBox.shrink();
+                            //   },
+                            // ),
+                            //
+                            // const SizedBox(height: 20),
+                            //
+                            // // If Contractor or other free-text types -> show free-text field for employee name
+                            // if ((_selectedEmployeeTypeName ?? "").toLowerCase() == "contractor".toLowerCase() ||
+                            //     (_selectedEmployeeTypeName ?? "").isEmpty)
+                            //   ...[
+                            //     txtFiled(context, employeeName, "Enter Employee Name", "Employee Name",enable: widget.isEditable),
+                            //     if (employeeError != null)errorText(employeeError),
+                            //     const SizedBox(height: 10),
+                            //   ],
+                            //
+                            // // If Permanent Employee -> show dropdown of employees
+                            // if ((_selectedEmployeeTypeName ?? "").toLowerCase() == "permanent employee".toLowerCase())
+                            // BlocBuilder<EmployeeBloc, EmployeeState>(
+                            //     builder: (context, state) {
+                            //       if (state is EmployeeLoadSuccess) {
+                            //         final selectedEmp = state.employees.firstWhere(
+                            //               (coordinator) => coordinator.EmployeeId == _selectedEmployeeId,
+                            //           orElse: () => EmployeeData(EmployeeName: "", EmployeeId: ""),
+                            //         );
+                            //         return Column(
+                            //           crossAxisAlignment: CrossAxisAlignment.start,
+                            //           children: [
+                            //             TransferDropdown<EmployeeData>(
+                            //               title: 'Employee Name',
+                            //               hint: 'Select Employee',
+                            //               selectedVal: selectedEmp.EmployeeName ?? _selectedEmployeeName ?? "",
+                            //               data: state.employees,
+                            //               displayText: (data) => data.EmployeeName ?? '',
+                            //               isEditable:widget.isEditable,
+                            //               onChanged: (val) {
+                            //                 setState(() {
+                            //                   _selectedEmployeeId = val.EmployeeId ?? "";
+                            //                   _selectedEmployeeName = val.EmployeeName ?? "";
+                            //                 });
+                            //               },
+                            //             ),
+                            //             if (employeeError != null)errorText(employeeError),
+                            //           ],
+                            //         );
+                            //       }
+                            //       return const SizedBox.shrink();
+                            //     },
+                            // ),
+                            // const SizedBox(height: 10),
                             // DESCRIPTION
                             txtFiled(context, description, "Enter Description", "Note", maxLines: 5,enable: widget.isEditable),
                             const SizedBox(height: 20),

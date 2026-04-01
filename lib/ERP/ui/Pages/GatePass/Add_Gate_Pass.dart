@@ -1055,7 +1055,7 @@ class _AddGatePassState extends State<AddGatePass> {
                                 ),
                               ],
                               if (selectedTransfer == "Project Type") ...[
-                                SizedBox(
+                              SizedBox(
                                   height: 10,
                                 ),
                                 BlocBuilder<ProjectListBloc, ProjectListState>(
@@ -2312,6 +2312,7 @@ class _AddGatePassState extends State<AddGatePass> {
             ],
           ),
           const SizedBox(height: 10),
+
           // Units dropdown
           // BlocListener<UnitsBloc, UnitsState>(
           //   listener: (context, state) {
@@ -2467,7 +2468,6 @@ class _AddGatePassState extends State<AddGatePass> {
 
                     data: availableUnits,
                     displayText: (u) => u.alt_unit_name ?? '',
-
                     onChanged: (UnitsData u) {
                       setState(() {
                         line.selectedUnit = u.alt_unit_name ?? '';

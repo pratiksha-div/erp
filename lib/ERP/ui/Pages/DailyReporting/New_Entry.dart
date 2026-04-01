@@ -18,14 +18,14 @@ import '../../Widgets/TextWidgets.dart';
 import '../../Utils/colors_constants.dart';
 import 'Add_New_Entry.dart';
 
-class NewEntry extends StatefulWidget {
-  const NewEntry({super.key});
+class NewReport extends StatefulWidget {
+  const NewReport({super.key});
 
   @override
-  State<NewEntry> createState() => _NewEntryState();
+  State<NewReport> createState() => _NewReportState();
 }
 
-class _NewEntryState extends State<NewEntry> {
+class _NewReportState extends State<NewReport> {
   final ScrollController _scrollController = ScrollController();
 
   static const int _pageSize = 10;
@@ -166,8 +166,8 @@ class _NewEntryState extends State<NewEntry> {
                 children: [
                   CustomAppbar(
                     context,
-                    title: "New Entry List",
-                    subTitle: "Smart, fast, and secure gate entry",
+                    title: "New Report List",
+                    subTitle: "Smart, fast, and secure report management",
                   ),
                   Expanded(
                     child: RefreshIndicator(
@@ -242,7 +242,7 @@ class _NewEntryState extends State<NewEntry> {
                   //   height: 10,
                   // ),
                   Text(
-                    'No records found\nPlease add new entry',
+                    'No records found\nPlease add new report',
                      textAlign: TextAlign.center,
                     style: GoogleFonts.poppins(
                       color: ColorConstants.primary.withOpacity(.6),
@@ -263,7 +263,7 @@ class _NewEntryState extends State<NewEntry> {
         children: [
           InkWell(
             onTap: () async {
-              final result = await Utils.navigateTo(context, AddNewEntry(id: ""));
+              final result = await Utils.navigateTo(context, AddNewReport(id: ""));
               if (result == "true") _onRefresh();
             },
             child: Container(
@@ -279,7 +279,7 @@ class _NewEntryState extends State<NewEntry> {
               ),
               child: Center(
                 child: Text(
-                  "Add New Entry",
+                  "Add New Report",
                   style: txt_bold(color: Colors.black, textSize: 12),
                 ),
               ),
@@ -312,7 +312,7 @@ class _NewEntryState extends State<NewEntry> {
       onTap: () async {
         final result = await Utils.navigateTo(
           context,
-          AddNewEntry(id: i.work_detail_id ?? "",isEditable: isOwner,),
+          AddNewReport(id: i.work_detail_id ?? "",isEditable: isOwner,),
         );
         if (result == "true") _onRefresh();
       },
@@ -353,7 +353,7 @@ class _NewEntryState extends State<NewEntry> {
             Row(
               children: [
                 Container(
-                  height: 30,
+                  height: 20,
                   width: 5,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(10),
@@ -396,6 +396,8 @@ class _NewEntryState extends State<NewEntry> {
                           i.projectname ?? "",
                           style: GoogleFonts.poppins(
                             fontSize: 13,
+                            // color: Colors.black,
+                            fontWeight: FontWeight.bold,
                             color: Colors.black.withOpacity(.6),
                           ),
                         ),

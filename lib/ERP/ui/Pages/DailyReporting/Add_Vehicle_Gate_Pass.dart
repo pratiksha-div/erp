@@ -345,7 +345,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                   child: Column(
                     children: [
                       CustomAppbar(context,
-                          title: "Add Machine Reading", subTitle: "Smart and fast operation"),
+                          title: "Add Vehicle Gate Pass", subTitle: "Smart and fast operation"),
                       Expanded(
                         child: Container(
                           padding: const EdgeInsets.symmetric(vertical: 20),
@@ -391,7 +391,7 @@ class _AddMachineReadingState extends State<AddMachineReading> {
                                   },
                                 ),
                                 const SizedBox(height: 10),
-                                subTitle("Mention machine Start,End Time and Date"),
+                                subTitle("Mention vehicle Start,End Time and Date"),
                                 const SizedBox(height: 10),
                                 Container(
                                   // padding: const EdgeInsets.only(left: 10),

@@ -6,7 +6,7 @@ import '../../Widgets/TextWidgets.dart';
 import '../../Widgets/Custom_Drawer.dart';
 import '../DailyReporting/Daily_Reporting.dart';
 import '../GateEntry/GateEntry.dart';
-import '../GatePass/Gate_Pass.dart';
+import '../GatePass/Gate_Pass_Section.dart';
 import '../GoodsReceivedNotes/GoodsReceiveNotes.dart';
 import '../Projects/All_Projects.dart';
 import '../../Utils/colors_constants.dart';
@@ -97,8 +97,8 @@ class _HomeState extends State<Home> {
   }
 
   AccountItem _gatePass() => AccountItem(
-    title: 'Gate Pass',
-    subtitle: 'All gate pass records',
+    title: 'Gate Pass Control',
+    subtitle: 'Material and Vehicle gate passs.',
     icon: Icons.touch_app_rounded,
   );
 
@@ -134,8 +134,8 @@ class _HomeState extends State<Home> {
     Widget page;
 
     switch (items[index].title) {
-      case 'Gate Pass':
-        page = GatePass();
+      case 'Gate Pass Control':
+        page = GatePassSection();
         break;
       case 'Projects':
         page = AllProjects();
@@ -153,7 +153,7 @@ class _HomeState extends State<Home> {
         page = GateEntry(); // adjust if different screen
         break;
       default:
-        page = GatePass();
+        page = GatePassSection();
     }
 
     await Navigator.of(context).push(

@@ -18,16 +18,16 @@ import '../../Widgets/Date_Formate.dart';
 import '../../Widgets/Gradient.dart';
 import '../../Widgets/TextWidgets.dart';
 import '../../Utils/colors_constants.dart';
-import 'Add_Machine_Reading.dart';
+import 'Add_Vehicle_Gate_Pass.dart';
 
-class MachineReading extends StatefulWidget {
-  const MachineReading({super.key});
+class VehicleGatePass extends StatefulWidget {
+  const VehicleGatePass({super.key});
 
   @override
-  State<MachineReading> createState() => _MachineReadingState();
+  State<VehicleGatePass> createState() => _VehicleGatePassState();
 }
 
-class _MachineReadingState extends State<MachineReading>  with SingleTickerProviderStateMixin {
+class _VehicleGatePassState extends State<VehicleGatePass>  with SingleTickerProviderStateMixin {
   final TextEditingController searchController = TextEditingController();
   final ScrollController _scrollController = ScrollController();
 
@@ -150,7 +150,7 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 CustomAppbar(context,
-                    title: "Machine Reading", subTitle: "Log and monitor machine readings efficiently"),
+                    title: "Vehicle Gate Pass", subTitle: "Log and monitor vehicle passes efficiently"),
                 Expanded(
                   child: MultiBlocListener(
                     listeners: [
@@ -309,7 +309,7 @@ class _MachineReadingState extends State<MachineReading>  with SingleTickerProvi
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Text(
-                        "Add Machine Reading",
+                        "Add Vehicle Gate Pass",
                         style: txt_bold(color: Colors.black, textSize: 12),
                       ),
                     ],
@@ -877,4 +877,3 @@ class _BlinkingCardState extends State<BlinkingCard>
     );
   }
 }
-

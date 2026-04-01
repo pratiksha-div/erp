@@ -98,13 +98,13 @@ class AccountCard extends StatelessWidget {
           children: [
             // icon circle
             Container(
-              width: 50,
-              height: 50,
+              width: 45,
+              height: 45,
               decoration: BoxDecoration(
                 color: selected?Colors.white.withOpacity(.3): Colors.grey.withOpacity(.06),
                 shape: BoxShape.circle,
               ),
-              child: Icon(item.icon, color: ColorConstants.primary, size: 25),
+              child: Icon(item.icon, color: ColorConstants.primary, size: 22),
             ),
             SizedBox(
               height: 5,
