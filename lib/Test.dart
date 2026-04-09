@@ -921,4 +921,17 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
   }
 }
 
-//
+// Total experience - 4 years
+// Experience as a Flutter Developer - 4 years
+// Flutter Experience - 4 years
+// Dart Experience - 4 years
+// Bloc Experience - 2 years
+//Experience with current company - 6 months
+// Current CTC-4.25
+// Expected CTC - 8
+// Notice Period - 30 days
+//Current Location - Bhilai, CG
+// Native Location - Bhilai, CG
+// Highest Qualification - Masters in Computer Application
+// Current Company - Divyal Technologies, STPI, Bhilai
+// Availability for interview - After 7 April any time

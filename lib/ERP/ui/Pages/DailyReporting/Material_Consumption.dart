@@ -419,7 +419,7 @@ class _MaterialConsumptionState extends State<MaterialConsumption> {
                       Row(
                         children: [
                           Text(
-                            "Gate Number: ",
+                            "Gate Pass: ",
                             style: GoogleFonts.poppins(
                               fontSize: 14,
                               color:ColorConstants.primary,

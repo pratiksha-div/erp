@@ -29,6 +29,8 @@ MaterialConsumptionUsedData _$MaterialConsumptionUsedDataFromJson(
   material_used: json['material_used'] as String?,
   balance: json['balance'] as String?,
   unit: json['unit'] as String?,
+  subgroupname: json['subgroupname'] as String?,
+  groupname: json['groupname'] as String?,
 );
 
 Map<String, dynamic> _$MaterialConsumptionUsedDataToJson(
@@ -38,4 +40,6 @@ Map<String, dynamic> _$MaterialConsumptionUsedDataToJson(
   'material_used': instance.material_used,
   'balance': instance.balance,
   'unit': instance.unit,
+  'subgroupname': instance.subgroupname,
+  'groupname': instance.groupname,
 };

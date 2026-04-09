@@ -4,9 +4,8 @@ import '../../Utils/utils.dart';
 import '../../Widgets/Cards.dart';
 import '../../Widgets/Custom_appbar.dart';
 import '../../Widgets/Module_Section_Card.dart';
-import '../../Widgets/TextWidgets.dart';
 import '../DailyReporting/Vehicle_Gate_Pass.dart';
-import 'Add_Gate_Pass.dart';
+import 'Gate_Pass.dart';
 
 class GatePassSection extends StatefulWidget {
   const GatePassSection({super.key});
@@ -36,7 +35,7 @@ class _GatePassSectionState extends State<GatePassSection> {
 
     Future.delayed(const Duration(milliseconds: 300), () {
       if (index == 0) {
-        Utils.navigateTo(context, AddGatePassPage(id: ""));
+        Utils.navigateTo(context, GatePass());
       } else if (index == 1) {
         // Utils.navigateTo(context, GatePassHistory());
         Utils.navigateTo(context, VehicleGatePass());

@@ -16,7 +16,7 @@ import '../../Widgets/Custom_appbar.dart';
 import '../../Widgets/Date_Formate.dart';
 import '../../Widgets/TextWidgets.dart';
 import '../../Utils/colors_constants.dart';
-import 'Add_New_Entry.dart';
+import 'Add_New_Report.dart';
 
 class NewReport extends StatefulWidget {
   const NewReport({super.key});
@@ -166,7 +166,7 @@ class _NewReportState extends State<NewReport> {
                 children: [
                   CustomAppbar(
                     context,
-                    title: "New Report List",
+                    title: "Your Daily Reporting List",
                     subTitle: "Smart, fast, and secure report management",
                   ),
                   Expanded(
@@ -279,12 +279,12 @@ class _NewReportState extends State<NewReport> {
               ),
               child: Center(
                 child: Text(
-                  "Add New Report",
+                  "Add Your Daily Reporting",
                   style: txt_bold(color: Colors.black, textSize: 12),
                 ),
               ),
             ),
-          )
+          ),
         ],
       ),
     );

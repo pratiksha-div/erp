@@ -2,15 +2,12 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:intl/intl.dart';
-import '../../../api/models/DAOGetEmployee.dart';
-import '../../../api/models/DAOGetEmployeeType.dart';
 import '../../../api/models/DAOGetProjectList.dart';
 import '../../../bloc/DailyReporting/add_new_entry_bloc.dart';
 import '../../../bloc/DailyReporting/entry_by_id_bloc.dart';
 import '../../../bloc/DropDownValueBloc/employee_type_bloc.dart';
 import '../../../bloc/DropDownValueBloc/emplyee_list_bloc.dart';
 import '../../../bloc/DropDownValueBloc/project_list_bloc.dart';
-import '../../../data/local/AppUtils.dart';
 import '../../Utils/colors_constants.dart';
 import '../../Utils/date_picker.dart';
 import '../../Widgets/Custom_Date_Time_Picker.dart';
@@ -280,14 +277,14 @@ class _AddNewReportState extends State<AddNewReport> {
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 child: Column(
                   children: [
-                    CustomAppbar(context, title: "Add New Report", subTitle: "Smart, fast, and secure report management"),
+                    CustomAppbar(context, title: "Add Your Daily Reporting", subTitle: "Smart, fast, and secure report management"),
                     Expanded(
                       child: SingleChildScrollView(
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             const SizedBox(height: 20),
-                            subTitle("Mention report detail ", leftMargin: 5),
+                            subTitle("Mention your daily report detail ", leftMargin: 5),
                             const SizedBox(height: 10),
                             // PROJECT DROPDOWN
                             BlocBuilder<ProjectListBloc, ProjectListState>(
@@ -332,7 +329,9 @@ class _AddNewReportState extends State<AddNewReport> {
                               children: [
                                 CustomDateTimeTextField(
                                   onTap: _pickDate,
-                                  hint: _selectedDate == null ? '-- Date --' : DateFormat("d MMMM y").format(_selectedDate!),
+                                  hint:  DateFormat("d MMMM y")
+                                      .format(_selectedDate ?? DateTime.now()),
+                                  // hint: _selectedDate == null ? '-- Date --' : DateFormat("d MMMM y").format(_selectedDate!),
                                   icon: Icons.calendar_month,
                                   isEdit: widget.isEditable,
                                 ),

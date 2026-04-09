@@ -8,7 +8,7 @@ import '../../Widgets/Module_Section_Card.dart';
 import '../../Widgets/TextWidgets.dart';
 import 'Vehicle_Gate_Pass.dart';
 import 'Material_Consumption.dart';
-import 'New_Entry.dart';
+import 'New_Report.dart';
 
 class DailyReporting extends StatefulWidget {
   DailyReporting({super.key, required this.roles});
@@ -37,8 +37,8 @@ class _DailyReportingState extends State<DailyReporting> {
           icon: Icons.apartment_rounded));
     }
     list.add(AccountItem(
-        title: 'Add New Report',
-        subtitle: 'Add and manage new report.',
+        title: 'Add Your Daily Reporting',
+        subtitle: 'Add and manage daily report.',
         icon: Icons.add));
     return list;
   }
@@ -50,7 +50,7 @@ class _DailyReportingState extends State<DailyReporting> {
     Future.delayed(const Duration(milliseconds: 300), () async {
       if (item.title == 'Add Material Consumption') {
         await Utils.navigateTo(context, MaterialConsumption());
-      } else if (item.title == 'Add New Report') {
+      } else if (item.title == 'Add Your Daily Reporting') {
         await Utils.navigateTo(context, NewReport());
       }
       if (mounted) setState(() => selectedIndex = -1);

@@ -28,6 +28,9 @@ class MaterialEntry {
   String? selectedMaterialId;
   String selectedUnit;
   String? selectedUnitId;
+  String? selectedSubGroupName;
+  String? selectedGroupName;
+  String? unit;
 
   double currentBalance;      // ✅ changed to double
   double remainingBalance;    // ✅ changed to double
@@ -46,6 +49,9 @@ class MaterialEntry {
     this.remainingBalance = 0.0,
     this.showQualityFields = false,
     this.consumptionId,
+    this.selectedGroupName,
+    this.selectedSubGroupName,
+    this.unit,
   })  : quantityController = TextEditingController(),
         usedQuantityController = TextEditingController(),
         scrapController = TextEditingController(),
@@ -221,23 +227,21 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
   }
 
   void addMaterialField() {
-    if (!_materialContextLocked) {
-      // Fluttertoast.showToast(
-      //   msg: "Please select Project, Date and Time first",
-      // );
       if (selectedProjectId == null || selectedProjectId!.isEmpty) {
         setState(() {
-          err_project=true;
+          err_project = true;
         });
+        return;
       }
-      if (_selectedDate == null){
+      if (_selectedDate == null || _selectedTime == null) {
         setState(() {
-          err_date_time=true;
+          err_date_time = true;
         });
+        return;
       }
-      return;
-    }
     setState(() {
+      err_project = false;
+      err_date_time = false;
       materialEntries.add(MaterialEntry());
     });
   }
@@ -294,9 +298,11 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
           : e.quantityController.text.trim();
 
       final rateStr = e.rateController.text.trim();
+      final scrapStr = e.scrapController.text.trim();
       final double usedQnum = double.tryParse(usedQty) ?? 0;
       final double rateNum = double.tryParse(rateStr) ?? 0;
-      final double amtNum = usedQnum * rateNum;
+      final double scrapNum=double.tryParse(scrapStr)??0;
+      final double amtNum = (usedQnum + scrapNum)* rateNum;
       final String consumedAmount = amtNum == amtNum.roundToDouble()
           ? amtNum.toInt().toString()
           : amtNum.toStringAsFixed(2);
@@ -314,6 +320,22 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
       final String consumedAmountStr = consumedAmount;
 
       print("balanceQuantity ${balanceQuantity}");
+      print(
+        '''
+         project_id: $project_id,
+         date: $date,
+         gatePass: $gatePassValue,
+         consumedMaterial: $consumedMaterialValue,
+         item: $item,
+         balanceQuantity: $balanceQuantity,
+         consumedUnit: $consumedUnit,
+         usedQuantity: $usedQuantity,
+         consumedScrap: $consumedScrap,
+         consumedRate: $consumedRate,
+         consumedAmount: $consumedAmountStr,
+         consumption_id: ${e.consumptionId ?? widget.id},
+        '''
+      );
       context.read<AddMaterialConsumptionBloc>().add(
         SubmitAddMaterialConsumptionEvent(
           project_id: project_id,
@@ -337,6 +359,10 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
   void initState() {
     super.initState();
     print("ID : ${widget.id}");
+    final now = DateTime.now();
+
+    _selectedDate ??= now;
+    _selectedTime ??= TimeOfDay(hour: now.hour, minute: now.minute);
     WidgetsBinding.instance.addPostFrameCallback((_) {
       context.read<ProjectListBloc>().add(const FetchProjectListsEvent());
       if (widget.id.isNotEmpty) {
@@ -344,7 +370,6 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
           context.read<MaterialConsumptionByIDBloc>().add(FetchMaterialConsumptionByIDEvent(consumption_id: widget.id));
         } catch (_) {}
       }
-      context.read<ProjectListBloc>().add(const FetchProjectListsEvent());
       // context.read<MaterialConsumptionUsedBloc>().add(FetchMaterialConsumptionUsedEvent(projectId: '',consumedDate: ''));
     });
   }
@@ -452,7 +477,6 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
     _materialContextLocked = false;
   }
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -547,6 +571,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                                             err_project=false;
                                             _resetMaterialContext();
                                           });
+                                          print("selectedProjectId ${selectedProjectId}");
                                           _tryFetchMaterialUsed();
                                         },
                                       ),
@@ -565,20 +590,23 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                               children: [
                                 CustomDateTimeTextField(
                                     onTap:  _pickDate,
-                                    hint: _selectedDate == null
-                                        ? '-- Date --'
-                                        : DateFormat("d MMMM y")
-                                        .format(_selectedDate!),
+                                    hint:  DateFormat("d MMMM y")
+                                        .format(_selectedDate ?? DateTime.now()),
+                                    // _selectedDate == null
+                                    //     ? '-- Date --'
+                                    //     : DateFormat("d MMMM y")
+                                    //     .format(_selectedDate!),
                                     isEdit: widget.isEditable,
                                     icon: Icons.calendar_month),
                                 const SizedBox(width: 10),
                                 CustomDateTimeTextField(
                                     onTap: _pickTime,
                                     title: "Select Time",
-                                    hint: _selectedTime == null
-                                        ? '-- Time --'
-                                        : formatTimeWithSpace(
-                                        _selectedTime!),
+                                    // hint: _selectedTime == null
+                                    //     ? '-- Time --'
+                                    //     : formatTimeWithSpace(
+                                    //     _selectedTime!),
+                                    hint: formatTimeWithSpace(_selectedTime ?? TimeOfDay.now()),
                                     isEdit: widget.isEditable,
                                     icon: Icons.watch_later_outlined),
                               ],
@@ -628,7 +656,19 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
   }
 
   Widget _buildMaterialEntryCard(int i) {
+
     final entry = materialEntries[i];
+    final selectedMaterialIds = materialEntries
+        .map((e) => e.selectedMaterialId)
+        .where((id) => id != null)
+        .toSet();
+
+    final availableMaterials = materialIssuedList.where((material) {
+      final id = material.material_id?.toString();
+      return id == entry.selectedMaterialId ||
+          !selectedMaterialIds.contains(id);
+    }).toList();
+
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
       margin: const EdgeInsets.only(bottom: 15),
@@ -640,11 +680,33 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // TransferDropdown<MaterialConsumptionUsedData>(
+          //   title: 'Material Used',
+          //   hint: 'Select Material',
+          //   selectedVal: entry.selectedMaterial,
+          //   data: materialIssuedList,
+          //   displayText: (d) => d.material_used ?? '',
+          //   isEditable: widget.isEditable,
+          //   onChanged: (MaterialConsumptionUsedData selected) {
+          //     final display = selected.material_used ?? '';
+          //     setState(() {
+          //       entry.selectedMaterial = display;
+          //       entry.selectedMaterialId = selected.material_id?.toString();
+          //       entry.currentBalance = double.tryParse(selected.balance?.toString() ?? '0') ?? 0.0;
+          //       entry.quantityController.text = '0';
+          //       entry.remainingBalance = entry.currentBalance;
+          //       entry.selectedGroupName=selected.groupname;
+          //       entry.selectedSubGroupName=selected.subgroupname;
+          //       entry.unit=selected.unit;
+          //     });
+          //   },
+          // ),
+          //
           TransferDropdown<MaterialConsumptionUsedData>(
             title: 'Material Used',
             hint: 'Select Material',
             selectedVal: entry.selectedMaterial,
-            data: materialIssuedList,
+            data: availableMaterials, // 👈 filtered list applied
             displayText: (d) => d.material_used ?? '',
             isEditable: widget.isEditable,
             onChanged: (MaterialConsumptionUsedData selected) {
@@ -652,30 +714,39 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
               setState(() {
                 entry.selectedMaterial = display;
                 entry.selectedMaterialId = selected.material_id?.toString();
-                entry.currentBalance = double.tryParse(selected.balance?.toString() ?? '0') ?? 0.0;
+                entry.currentBalance =
+                    double.tryParse(selected.balance?.toString() ?? '0') ?? 0.0;
                 entry.quantityController.text = '0';
                 entry.remainingBalance = entry.currentBalance;
+                entry.selectedGroupName = selected.groupname;
+                entry.selectedSubGroupName = selected.subgroupname;
+                entry.unit = selected.unit;
               });
             },
           ),
-          Row(
-            children: [
-              Text(
-               "Material used : ",
-                style: const TextStyle(fontSize: 14, color: Colors.grey),
-              ),
-              Expanded(
-                child: Text(
-                 "${entry.selectedMaterial}",
-                  style:TextStyle(
-                      fontSize: 14,
-                      height: 1,
-                      color: ColorConstants.primary,
-                      fontWeight: FontWeight.bold
-                  ),
-                ),
-              ),
-            ],
+          SizedBox(
+            height: 10,
+          ),
+          if(entry.selectedMaterial.isNotEmpty)
+          Container(
+            decoration: BoxDecoration(
+              color: ColorConstants.primary.withOpacity(.01),
+              borderRadius: BorderRadius.circular(5),
+              border: Border.all(width: 1, color: ColorConstants.primary.withOpacity(.1)),
+            ),
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 10),
+            child: Column(
+              children: [
+                if(entry.selectedMaterial!=null)
+                  buildMaterialIssuedEntry("Material used : ", entry.selectedMaterial),
+                if(entry.selectedGroupName!=null)
+                  buildMaterialIssuedEntry("Sub-Category : ", entry.selectedGroupName??""),
+                if(entry.selectedSubGroupName!=null)
+                  buildMaterialIssuedEntry("Category : ", entry.selectedSubGroupName??""),
+                if(entry.unit!=null)
+                  buildMaterialIssuedEntry("Unt : ", entry.unit??"")
+              ],
+            ),
           ),
           // Text(
           //   _materialContextLocked
@@ -690,7 +761,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Current Bal", style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500)),
+                  const Text("Balance", style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500)),
                   const SizedBox(height: 5),
                   Container(
                     width: 100,
@@ -704,7 +775,25 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                   )
                 ],
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 10),
+              Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const Text("Current Bal", style: TextStyle(fontSize: 14, color: Colors.grey, fontWeight: FontWeight.w500)),
+                  const SizedBox(height: 5),
+                  Container(
+                    width: 100,
+                    padding: const EdgeInsets.symmetric(vertical: 8),
+                    decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: ColorConstants.primary.withOpacity(.1)),
+                    child: Center(
+                      child: Text("${  entry.remainingBalance == entry.remainingBalance.roundToDouble()
+                          ? entry.remainingBalance.toInt().toString()
+                          : entry.remainingBalance.toStringAsFixed(2)}", style: const TextStyle(fontSize: 14, color: Colors.black, fontWeight: FontWeight.w500)),
+                    ),
+                  )
+                ],
+              ),
+              const SizedBox(width: 10),
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
@@ -733,8 +822,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                             if (entered > current) {
                               entered = current;
                               entry.usedQuantityController.text = entered.toString();
-                              entry.usedQuantityController.selection =
-                                  TextSelection.collapsed(offset: entered.toString().length);
+                              entry.usedQuantityController.selection = TextSelection.collapsed(offset: entered.toString().length);
 
                               Fluttertoast.showToast(
                                 msg: 'Quantity cannot exceed balance (${current.toStringAsFixed(2)})',
@@ -819,7 +907,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                   ),
                 ],
               ),
-              const SizedBox(width: 20),
+              const SizedBox(width: 10),
               txtField(context, "Rate", entry.rateController, onChange: (val) {
                 final rate = double.tryParse(val) ?? 0;
                 final usedQty =
@@ -848,9 +936,10 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                   child: Center(
                     child: Text(
                           () {
-                        final q = double.tryParse(entry.usedQuantityController.text) ?? 0;
-                        final r = double.tryParse(entry.rateController.text) ?? 0;
-                        final amt = q * r;
+                        final quantity = double.tryParse(entry.usedQuantityController.text) ?? 0;
+                        final rate = double.tryParse(entry.rateController.text) ?? 0;
+                        final scrap = double.tryParse(entry.scrapController.text)?? 0;
+                        final amt = (quantity + scrap) * rate;
                         if (amt == amt.roundToDouble()) return amt.toInt().toString();
                         return amt.toStringAsFixed(2);
                       }(),
@@ -876,5 +965,31 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
       ),
     );
   }
+
+  Widget buildMaterialIssuedEntry(String title,String value) {
+    return  Container(
+      padding: EdgeInsets.only(bottom: 5),
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+          children: [
+            Text(
+              title,
+              style: const TextStyle(fontSize: 13, color: Colors.black),
+            ),
+            Text(
+              value,
+              textAlign: TextAlign.end,
+              style:TextStyle(
+                  fontSize: 14,
+                  height: 1,
+                  color: ColorConstants.primary,
+                  fontWeight: FontWeight.bold
+              ),
+            ),
+          ]
+      ),
+    );
+  }
+
 
 }

@@ -22,13 +22,16 @@ class MaterialConsumptionUsedData {
   String? material_used;
   String? balance;
   String? unit;
+  String? subgroupname;
+  String? groupname;
 
   MaterialConsumptionUsedData({
     this.material_id,
     this.material_used,
     this.balance,
-    this.unit
-
+    this.unit,
+    this.subgroupname,
+    this.groupname,
   });
 
   factory MaterialConsumptionUsedData.fromJson(Map<String, dynamic> json) => _$MaterialConsumptionUsedDataFromJson(json);

@@ -857,15 +857,24 @@ class _GatePassState extends State<GatePass> {
           children: [
             /// Gate Pass Number
             if (!_isEmpty(i.gate_pass))
-              Text(
-                "Gno. ${i.gate_pass}",
-                style: GoogleFonts.poppins(
-                  fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                ),
+              Row(
+                children: [
+                  Text(
+                    "Gate Pass: ",
+                    style: GoogleFonts.poppins(
+                      fontSize: 12,
+                    ),
+                  ),
+                  Text(
+                    "${i.gate_pass}",
+                    style: GoogleFonts.poppins(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ],
               ),
             const SizedBox(height: 5),
-
             /// Material + Quantity + Out Time
             Row(
               crossAxisAlignment: CrossAxisAlignment.start,

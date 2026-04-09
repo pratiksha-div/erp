@@ -68,6 +68,13 @@ class _AddMachineReadingState extends State<AddMachineReading> {
   void dispose() {
     projectName.dispose();
     description.dispose();
+    startReading.dispose();
+    stopReading.dispose();
+    spentTime.dispose();
+    vehicleNo.dispose();
+    gatePass.dispose();
+    amount.dispose();
+    total_run.dispose();
     super.dispose();
   }
 

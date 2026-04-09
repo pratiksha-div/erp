@@ -2090,7 +2090,8 @@ class _AddGatePassState extends State<AddGatePass> {
 
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
-      padding: const EdgeInsets.all(8),
+      // padding: const EdgeInsets.all(8),
+      padding:EdgeInsets.symmetric(vertical: 5,horizontal: 5),
       decoration: BoxDecoration(
         color: ColorConstants.primary.withOpacity(.01),
         borderRadius: BorderRadius.circular(6),
@@ -2099,15 +2100,12 @@ class _AddGatePassState extends State<AddGatePass> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          // header: item name + remove button
+          // header: item name + remove buttonF
           Row(
             children: [
               cText("Issued Material : ", color: Colors.black),
               Expanded(
-                child: Text(
-                  line.data.item ?? '',
-                  style: const TextStyle(fontWeight: FontWeight.w600),
-                ),
+                child: Text(line.data.item ?? '', style: const TextStyle(fontWeight: FontWeight.w600),),
               ),
               GestureDetector(
                 onTap: () {
