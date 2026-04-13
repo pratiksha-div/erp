@@ -19,9 +19,11 @@ abstract class DeleteMaterialConsumptionEvent extends Equatable {
 
 class SubmitDeleteMaterialConsumptionEvent extends DeleteMaterialConsumptionEvent {
   final String consumption_id;
+  final String scarp;
 
   const SubmitDeleteMaterialConsumptionEvent({
     required this.consumption_id,
+    required this.scarp
   });
 
   @override
@@ -68,7 +70,11 @@ class DeleteMaterialConsumptionBloc extends Bloc<DeleteMaterialConsumptionEvent,
       emit(DeleteMaterialConsumptionLoading());
 
       try {
-        final result = await DeleteMaterialConsumptionService().deleteMaterialConsumptionsData(event.consumption_id,);
+        final result = await DeleteMaterialConsumptionService().
+        deleteMaterialConsumptionsData(
+          event.consumption_id,
+          event.scarp
+        );
         if (result is BaseResponse) {
           emit(DeleteMaterialConsumptionSuccess(message: 'Material Consumption Deleted'));
 

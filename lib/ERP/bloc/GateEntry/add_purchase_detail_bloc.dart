@@ -33,6 +33,7 @@ class SubmitAddPurchaseDetailEvent extends AddPurchaseDetailEvent {
   final String project_id;
   final String rate;
   final String grand_total;
+  final String item_description;
 
   const SubmitAddPurchaseDetailEvent({
     required this.gate_entry_id,
@@ -55,7 +56,8 @@ class SubmitAddPurchaseDetailEvent extends AddPurchaseDetailEvent {
     required this.bill_date,
     required this.project_id,
     required this.rate,
-    required this.grand_total
+    required this.grand_total,
+    required this.item_description,
   });
 
   @override
@@ -80,7 +82,8 @@ class SubmitAddPurchaseDetailEvent extends AddPurchaseDetailEvent {
     bill_date,
     project_id,
     rate,
-    grand_total
+    grand_total,
+    item_description
   ];
 }
 
@@ -144,7 +147,8 @@ class AddPurchaseDetailBloc extends Bloc<AddPurchaseDetailEvent, AddPurchaseDeta
           bill_date: event.bill_date,
           project_id: event.project_id,
           rate:event.rate,
-          grand_total:event.grand_total
+          grand_total:event.grand_total,
+          item_description:event.item_description,
         );
         if (result.code == "200") {
           emit(AddPurchaseDetailSuccess(message: result.massage ??"Saved",gen_no: result.gen_no??""));

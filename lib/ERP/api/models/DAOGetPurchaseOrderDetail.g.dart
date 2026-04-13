@@ -35,6 +35,7 @@ PurchaseDetail _$PurchaseDetailFromJson(Map<String, dynamic> json) =>
       po_balance: json['po_balance'] as String?,
       project_id: json['project_id'] as String?,
       grand_total: json['grand_total'] as String?,
+      item_description: json['item_description'] as String?,
     )..rate = json['rate'] as String?;
 
 Map<String, dynamic> _$PurchaseDetailToJson(PurchaseDetail instance) =>
@@ -54,4 +55,5 @@ Map<String, dynamic> _$PurchaseDetailToJson(PurchaseDetail instance) =>
       'project_id': instance.project_id,
       'rate': instance.rate,
       'grand_total': instance.grand_total,
+      'item_description': instance.item_description,
     };

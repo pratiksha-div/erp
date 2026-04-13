@@ -32,6 +32,7 @@ import '../../Widgets/Custom_Date_Time_Picker.dart';
 import '../../Widgets/Custom_Dialog.dart';
 import '../../Widgets/Custom_Dropdown.dart';
 import '../../Widgets/Custom_appbar.dart';
+import '../../Widgets/Gradient.dart';
 import '../../Widgets/TextWidgets.dart';
 
 class GateEntry extends StatefulWidget {
@@ -1413,154 +1414,264 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                       ),
                     ),
                     const SizedBox(height: 10),
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                        horizontal: 15,
-                        vertical: 15,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(5),
-                        color: ColorConstants.primary.withOpacity(.1),
-                      ),
-                      child: Column(
-                        children: [
-                          Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text(
-                                "Items",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: ColorConstants.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              Text(
-                                "Quantity",
-                                style: GoogleFonts.poppins(
-                                  fontSize: 12,
-                                  color: ColorConstants.primary,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 8),
-                          Divider(
-                            color: ColorConstants.primary.withOpacity(.1),
-                          ),
-                          const SizedBox(height: 12),
-                          for (var row in details)
-                            Container(
+                    // Container(
+                    //   padding: const EdgeInsets.symmetric(
+                    //     horizontal: 15,
+                    //     vertical: 15,
+                    //   ),
+                    //   decoration: BoxDecoration(
+                    //     borderRadius: BorderRadius.circular(5),
+                    //     color: ColorConstants.primary.withOpacity(.1),
+                    //   ),
+                    //   child: Column(
+                    //     children: [
+                    //       Row(
+                    //         mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    //         children: [
+                    //           Text(
+                    //             "Items",
+                    //             style: GoogleFonts.poppins(
+                    //               fontSize: 12,
+                    //               color: ColorConstants.primary,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //           Text(
+                    //             "Quantity",
+                    //             style: GoogleFonts.poppins(
+                    //               fontSize: 12,
+                    //               color: ColorConstants.primary,
+                    //               fontWeight: FontWeight.bold,
+                    //             ),
+                    //           ),
+                    //         ],
+                    //       ),
+                    //       const SizedBox(height: 8),
+                    //       Divider(
+                    //         color: ColorConstants.primary.withOpacity(.1),
+                    //       ),
+                    //       const SizedBox(height: 12),
+                    //       for (var row in details)
+                    //         Container(
+                    //           margin: const EdgeInsets.only(bottom: 12),
+                    //           child: Builder(
+                    //             builder: (_) {
+                    //               final itemList = (row.item_name ?? '')
+                    //                   .split(',');
+                    //               final quantityList = (row.quantity ?? '')
+                    //                   .split(',');
+                    //               final poBalanceRaw = row.po_balance ?? '';
+                    //               final poBalanceList = poBalanceRaw.split(
+                    //                 ',',
+                    //               );
+                    //
+                    //               return Row(
+                    //                 mainAxisAlignment:
+                    //                     MainAxisAlignment.spaceBetween,
+                    //                 crossAxisAlignment:
+                    //                     CrossAxisAlignment.start,
+                    //                 children: [
+                    //                   /// LEFT: Item Names
+                    //                   Expanded(
+                    //                     child: Column(
+                    //                       crossAxisAlignment:
+                    //                           CrossAxisAlignment.start,
+                    //                       children: List.generate(
+                    //                         itemList.length,
+                    //                         (i) {
+                    //                           final poVal =
+                    //                               (i < poBalanceList.length)
+                    //                                   ? poBalanceList[i]
+                    //                                       .trim()
+                    //                                   : '';
+                    //
+                    //                           /// RULE 2: If po_balance is "0" → hide row
+                    //                           if (poVal == '0')
+                    //                             return const SizedBox.shrink();
+                    //
+                    //                           return Padding(
+                    //                             padding:
+                    //                                 const EdgeInsets.only(
+                    //                                   bottom: 4,
+                    //                                 ),
+                    //                             child: Text(
+                    //                               itemList[i].trim(),
+                    //                               style: GoogleFonts.poppins(
+                    //                                 fontSize: 14,
+                    //                                 color: Colors.black87,
+                    //                               ),
+                    //                             ),
+                    //                           );
+                    //                         },
+                    //                       ),
+                    //                     ),
+                    //                   ),
+                    //
+                    //                   const SizedBox(width: 8),
+                    //
+                    //                   /// RIGHT: Quantity / PO Balance
+                    //                   Column(
+                    //                     crossAxisAlignment:
+                    //                         CrossAxisAlignment.end,
+                    //                     children: List.generate(
+                    //                       itemList.length,
+                    //                       (i) {
+                    //                         final poVal =
+                    //                             (i < poBalanceList.length)
+                    //                                 ? poBalanceList[i].trim()
+                    //                                 : '';
+                    //                         final qtyVal =
+                    //                             (i < quantityList.length)
+                    //                                 ? quantityList[i].trim()
+                    //                                 : '';
+                    //
+                    //                         /// RULE 2: If po_balance is "0" → hide row
+                    //                         if (poVal == '0')
+                    //                           return const SizedBox.shrink();
+                    //
+                    //                         /// RULE 1 & 3
+                    //                         final displayValue =
+                    //                             poVal.isEmpty
+                    //                                 ? qtyVal
+                    //                                 : poVal;
+                    //
+                    //                         return Padding(
+                    //                           padding: const EdgeInsets.only(
+                    //                             bottom: 4,
+                    //                           ),
+                    //                           child: Text(
+                    //                             displayValue,
+                    //                             style: GoogleFonts.poppins(
+                    //                               fontSize: 14,
+                    //                               color: Colors.black54,
+                    //                               fontWeight: FontWeight.bold,
+                    //                             ),
+                    //                           ),
+                    //                         );
+                    //                       },
+                    //                     ),
+                    //                   ),
+                    //                 ],
+                    //               );
+                    //             },
+                    //           ),
+                    //         ),
+                    //     ],
+                    //   ),
+                    // ),
+                    Column(
+                    children: [
+                      for (var row in details)
+                        ...List.generate(
+                          (row.item_name ?? '').split(',').length,
+                              (i) {
+                            final itemList = (row.item_name ?? '').split(',');
+                            final quantityList = (row.quantity ?? '').split(',');
+                            final poBalanceList = (row.po_balance ?? '').split(',');
+                            final descriptionList = (row.item_description ?? '').split(',');
+                            final unitList = (row.unit ?? '').split(',');
+
+                            final item = itemList[i].trim();
+                            final poVal =
+                            (i < poBalanceList.length)
+                                ? poBalanceList[i].trim()
+                                : '';
+                            final qtyVal =
+                            (i < quantityList.length)
+                                ? quantityList[i].trim()
+                                : '';
+
+                            final descVal =
+                            (i < descriptionList.length)
+                                ? descriptionList[i].trim()
+                                : '';
+
+                            final unitVal =
+                            (i < unitList.length)
+                                ? unitList[i].trim()
+                                : '';
+
+                            /// RULE: hide if po_balance == 0
+                            if (poVal == '0') return const SizedBox.shrink();
+
+                            final displayValue = poVal.isEmpty ? qtyVal : poVal;
+                            return Container(
                               margin: const EdgeInsets.only(bottom: 12),
-                              child: Builder(
-                                builder: (_) {
-                                  final itemList = (row.item_name ?? '')
-                                      .split(',');
-                                  final quantityList = (row.quantity ?? '')
-                                      .split(',');
-                                  final poBalanceRaw = row.po_balance ?? '';
-                                  final poBalanceList = poBalanceRaw.split(
-                                    ',',
-                                  );
-
-                                  return Row(
-                                    mainAxisAlignment:
-                                        MainAxisAlignment.spaceBetween,
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 15,
+                                vertical: 15,
+                              ),
+                              decoration: BoxDecoration(
+                                borderRadius: BorderRadius.circular(5),
+                                color: Colors.grey.withOpacity(.01),
+                                border: Border.all(
+                                  color: ColorConstants.primary.withOpacity(.15),
+                                  width: 1
+                                )
+                              ),
+                              child: Row(
+                                crossAxisAlignment: CrossAxisAlignment.center,
+                                children: [
+                                  sideGradientBar(ht: 30),
+                                  SizedBox(
+                                    width: 10,
+                                  ),
+                                  /// ITEM NAME
+                                  Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      /// LEFT: Item Names
-                                      Expanded(
-                                        child: Column(
-                                          crossAxisAlignment:
-                                              CrossAxisAlignment.start,
-                                          children: List.generate(
-                                            itemList.length,
-                                            (i) {
-                                              final poVal =
-                                                  (i < poBalanceList.length)
-                                                      ? poBalanceList[i]
-                                                          .trim()
-                                                      : '';
-
-                                              /// RULE 2: If po_balance is "0" → hide row
-                                              if (poVal == '0')
-                                                return const SizedBox.shrink();
-
-                                              return Padding(
-                                                padding:
-                                                    const EdgeInsets.only(
-                                                      bottom: 4,
-                                                    ),
-                                                child: Text(
-                                                  itemList[i].trim(),
-                                                  style: GoogleFonts.poppins(
-                                                    fontSize: 14,
-                                                    color: Colors.black87,
-                                                  ),
-                                                ),
-                                              );
-                                            },
-                                          ),
+                                      Text(
+                                        "Item - Description ",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.grey,
                                         ),
                                       ),
-
-                                      const SizedBox(width: 8),
-
-                                      /// RIGHT: Quantity / PO Balance
-                                      Column(
-                                        crossAxisAlignment:
-                                            CrossAxisAlignment.end,
-                                        children: List.generate(
-                                          itemList.length,
-                                          (i) {
-                                            final poVal =
-                                                (i < poBalanceList.length)
-                                                    ? poBalanceList[i].trim()
-                                                    : '';
-                                            final qtyVal =
-                                                (i < quantityList.length)
-                                                    ? quantityList[i].trim()
-                                                    : '';
-
-                                            /// RULE 2: If po_balance is "0" → hide row
-                                            if (poVal == '0')
-                                              return const SizedBox.shrink();
-
-                                            /// RULE 1 & 3
-                                            final displayValue =
-                                                poVal.isEmpty
-                                                    ? qtyVal
-                                                    : poVal;
-
-                                            return Padding(
-                                              padding: const EdgeInsets.only(
-                                                bottom: 4,
-                                              ),
-                                              child: Text(
-                                                displayValue,
-                                                style: GoogleFonts.poppins(
-                                                  fontSize: 14,
-                                                  color: Colors.black54,
-                                                  fontWeight: FontWeight.bold,
-                                                ),
-                                              ),
-                                            );
-                                          },
+                                      Text(
+                                        item,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          height: 1,
+                                          color: Colors.black87,
+                                          fontWeight: FontWeight.bold
+                                        ),
+                                      ),Text(
+                                        "${descVal}",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 14,
+                                          color: Colors.grey,
                                         ),
                                       ),
                                     ],
-                                  );
-                                },
+                                  ),
+                                  Expanded(child: Text("")),
+                                  /// VALUE (PO / QTY)
+                                  Column(
+                                    children: [
+                                      Text(
+                                        displayValue,
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 18,
+                                          color: ColorConstants.primary,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
+                                      Text(
+                                        "(${unitVal})",
+                                        style: GoogleFonts.poppins(
+                                          fontSize: 12,
+                                          color: Colors.grey,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ],
                               ),
-                            ),
-                        ],
-                      ),
-                    ),
-                    Container(
-
-                    ),
+                            );
+                          },
+                        ),
+                    ],
+                  ),
                     const SizedBox(height: 20),
                     if (widget.save)
                     PrimaryButton(
@@ -1600,6 +1711,9 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                           final unit = details
                               .map((d) => (d.unit?.toString() ?? '-'))
                               .join(',');
+                          final description = details
+                              .map((d) => (d.item_description?.toString() ?? '-'))
+                              .join(',');
                           final to_warehouse_id = details
                               .map(
                                 (d) => (d.to_warehouse_id?.toString() ?? '-'),
@@ -1628,6 +1742,7 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                         gate_entry_date: ${DateFormat('yyyy-MM-dd').format(_selectedGateEntryDate!)},
                         bill_date: ${DateFormat('yyyy-MM-dd').format(_selectedBillDate!)},
                         project_id: $project_id,
+                        item_description: $description,
                         ''');
                           final addBloc =
                               context.read<AddPurchaseDetailBloc>();
@@ -1652,7 +1767,8 @@ class _PurchaseOrderDetailState extends State<PurchaseOrderDetail> {
                               bill_date: _selectedBillDate.toString(),
                               project_id: project_id,
                               rate:rate,
-                              grand_total: grand_total
+                              grand_total: grand_total,
+                              item_description:description
                             ),
                           );
                         },

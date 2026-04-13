@@ -544,7 +544,11 @@ class _MaterialConsumptionState extends State<MaterialConsumption> {
                                 // Dispatch delete; DO NOT call _onRefresh() here.
                                 parentContext
                                     .read<DeleteMaterialConsumptionBloc>()
-                                    .add(SubmitDeleteMaterialConsumptionEvent(consumption_id: i.consumption_id??""));
+                                    .add(SubmitDeleteMaterialConsumptionEvent(
+                                    consumption_id: i.consumption_id??"",
+                                    scarp: i.scrap
+                                  )
+                                );
 
                                 Navigator.of(sheetContext).pop();
                               },

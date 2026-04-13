@@ -126,7 +126,8 @@ class AddPurchaseDetailService {
     String? bill_date,
     String? project_id,
     String? rate,
-    String? grand_total
+    String? grand_total,
+    String? item_description,
   }) async {
     final url =
         '${AppConfig.BASE_URL}${AppConfig.Save_Gate_Entry_Url}${AppConfig.reload}';
@@ -159,6 +160,7 @@ class AddPurchaseDetailService {
       "project_id":$project_id
       "rate":$rate,
       "grand_total":$grand_total
+      "item_description":$item_description
       '''
     );
 
@@ -183,7 +185,8 @@ class AddPurchaseDetailService {
       "bill_date":bill_date,
       "project_id":project_id,
       "rate":rate,
-      "grand_total":grand_total
+      "grand_total":grand_total,
+      "item_description":item_description,
     });
 
     try {

@@ -32,6 +32,7 @@ class PurchaseDetail {
   String? project_id;
   String? rate;
   String? grand_total;
+  String? item_description;
 
   PurchaseDetail({
     this.vendor_name,
@@ -47,7 +48,8 @@ class PurchaseDetail {
     this.to_warehouse_id,
     this.po_balance,
     this.project_id,
-    this.grand_total
+    this.grand_total,
+    this.item_description
   });
 
   factory PurchaseDetail.fromJson(Map<String, dynamic> json) => _$PurchaseDetailFromJson(json);

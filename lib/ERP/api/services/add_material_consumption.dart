@@ -112,9 +112,8 @@ class MaterialConsumptionService {
 }
 
 class DeleteMaterialConsumptionService {
-  Future<String> deleteMaterialConsumptionsData(String consumption_id) async {
-    final url =
-        '${AppConfig.BASE_URL}${AppConfig.Delete_New_Material_Consumption_Url}${AppConfig.reload}';
+  Future<String> deleteMaterialConsumptionsData(String consumption_id,String scrap) async {
+    final url ='${AppConfig.BASE_URL}${AppConfig.Delete_New_Material_Consumption_Url}${AppConfig.reload}';
     final token = await AppUtils().getToken();
 
     final headers = {
@@ -123,7 +122,7 @@ class DeleteMaterialConsumptionService {
       "Authorization": "Bearer $token",
     };
 
-    final dataBody = {"consumption_id": consumption_id};
+    final dataBody = {"consumption_id": consumption_id,"scrap":scrap};
 
     try {
       final dio = Dio();

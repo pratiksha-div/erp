@@ -721,6 +721,7 @@ class _AddMaterialConsumptionState extends State<AddMaterialConsumption> {
                 entry.selectedGroupName = selected.groupname;
                 entry.selectedSubGroupName = selected.subgroupname;
                 entry.unit = selected.unit;
+                entry.selectedUnit = selected.unit ?? "";
               });
             },
           ),
