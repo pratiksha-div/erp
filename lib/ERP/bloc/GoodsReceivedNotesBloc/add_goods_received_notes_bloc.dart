@@ -41,6 +41,7 @@ class SubmitAddGoodsReceivedNotesEvent extends AddGoodsReceivedNotesEvent {
   final String unit;
   final String grand_total;
   final String remarks;
+  final String item_description;
 
   const SubmitAddGoodsReceivedNotesEvent({
     required this.grn_date,
@@ -71,7 +72,8 @@ class SubmitAddGoodsReceivedNotesEvent extends AddGoodsReceivedNotesEvent {
     required this.sub_group_id,
     required this.unit,
     required this.grand_total,
-    required this.remarks
+    required this.remarks,
+    required this.item_description,
   });
 
   @override
@@ -104,7 +106,8 @@ class SubmitAddGoodsReceivedNotesEvent extends AddGoodsReceivedNotesEvent {
    sub_group_id,
    unit,
    grand_total,
-   remarks
+   remarks,
+   item_description
   ];
 }
 
@@ -177,6 +180,7 @@ class AddGoodsReceivedNotesBloc extends Bloc<AddGoodsReceivedNotesEvent, AddGood
          unit : ${event.unit}
          grand_total : ${event.grand_total}
          remarks : ${event.remarks}
+         item_description : ${event.item_description}
         '''
       );
 
@@ -211,6 +215,7 @@ class AddGoodsReceivedNotesBloc extends Bloc<AddGoodsReceivedNotesEvent, AddGood
             unit: event.unit,
             grand_total: event.grand_total,
             remarks:event.remarks,
+            item_description:event.item_description
         );
         print("Add Goods Received Service Response: $result");
         if (result.code == "200") {

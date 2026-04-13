@@ -32,6 +32,7 @@ class GRNItem {
   final TextEditingController shortQty = TextEditingController();
   final TextEditingController excessQty = TextEditingController();
   final TextEditingController poBalanceQty = TextEditingController();
+  final TextEditingController description = TextEditingController();
 
 
   EditSource lastEdited = EditSource.received;
@@ -241,6 +242,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
     final excessQty = grnItems.map((e) => e.excessQty.text).join(',');
     final rejectedQty = grnItems.map((e) => e.rejectedQty.text.isNotEmpty ? e.rejectedQty.text : '0').join(',');
     final acceptedQty = grnItems.map((e) => e.acceptedQty.text).join(',');
+    final description = grnItems.map((e) => e.description.text).join(',');
     final poBalance = grnItems.map((e) => e.poBalanceQty.text).join(',');
     final units = grnItems.map((e) => e.unit).join(',');
     // final amount = grnItems.map((e) => '0').join(',');
@@ -305,6 +307,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
        amount: ${amount},   
        grand_total: ${grand_total},
        remarks:${remark.text},
+       item_description:${description},
       '''
     );
     context.read<AddGoodsReceivedNotesBloc>().add(
@@ -337,7 +340,8 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
         sub_group_id: subGroupId,
         unit: units,
         grand_total: grand_total,
-        remarks: remark.text
+        remarks: remark.text,
+        item_description:description
       ),
     );
   }
@@ -801,6 +805,13 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                   "PO Balance",
                   controller: item.poBalanceQty,
                 ),
+                inputField(
+                  item.description,
+                  "Description",
+                  enabled: !isEditMode,
+                  bottomMargin: 2,
+                  inputType:TextInputType.text
+                ),
               ],
             ),
           ),
@@ -811,8 +822,8 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
   }
 
   Widget inputField(TextEditingController controller,
-      String title,{bool enabled = true,double bottomMargin=15.0,final onChange}) {
-    return txt(controller, title, enabled: enabled,bottomMargin: bottomMargin,onChanged: onChange);
+      String title,{bool enabled = true,double bottomMargin=15.0,final onChange, TextInputType inputType=TextInputType.number}) {
+    return txt(controller, title, enabled: enabled,bottomMargin: bottomMargin,onChanged: onChange,textInputType: inputType);
   }
 
   Widget readOnlyField(String value, String title,
@@ -854,7 +865,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
   }
 
   Widget txt(dynamic controller, String title,
-      {bool enabled = true,double bottomMargin=15.0,final onChanged}) {
+      {bool enabled = true,double bottomMargin=15.0,final onChanged, TextInputType textInputType=TextInputType.number}) {
     return Container(
       margin:  EdgeInsets.only(bottom: bottomMargin),
       // height: 30,
@@ -877,7 +888,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
             child: TextField(
               controller: controller is String ? TextEditingController(text: controller) : controller,
               enabled: enabled,
-              keyboardType: TextInputType.number,
+              keyboardType: textInputType,
               onChanged: (val){
                 onChanged;
               },

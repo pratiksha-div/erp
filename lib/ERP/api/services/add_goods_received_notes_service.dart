@@ -75,7 +75,8 @@ class AddGoodsReceivedNotesService {
     String? sub_group_id,
     String? unit,
     String? grand_total,
-    String? remarks
+    String? remarks,
+    String? item_description
   }) async {
     final url =
         '${AppConfig.BASE_URL}${AppConfig.Add_Goods_Received_Notes_Url}${AppConfig.reload}';
@@ -116,7 +117,8 @@ class AddGoodsReceivedNotesService {
       "sub_group_id":sub_group_id,
       "unit":unit,
       "grand_total":grand_total,
-      "remarks":remarks
+      "remarks":remarks,
+      "item_description":item_description,
     });
 
     try {
