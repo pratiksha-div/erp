@@ -49,6 +49,7 @@ class MaterialLine {
   double remainingBalance;
   double conversionFactor;     //
   bool showQualityFields;
+  bool isUnitInitialized = false;
 
   MaterialLine({
     required this.data,
@@ -69,25 +70,52 @@ class MaterialLine {
         showQualityFields = false;
 
   /// ⭐ UNIT CONVERSION METHOD
+  // void updateBalanceWithUnit({
+  //   required double basic,
+  //   required double alt,
+  // }) {
+  //   if (basic == 0) return;
+  //
+  //   /// ⭐ If basic unit selected → reset to original
+  //   if (basic == alt) {
+  //     currentBalance = originalBalance;
+  //     remainingBalance = originalBalance;
+  //     return;
+  //   }
+  //
+  //   /// ⭐ Apply conversion
+  //   double converted =
+  //       (originalBalance * alt) / basic;
+  //
+  //   currentBalance = converted;
+  //   remainingBalance = converted;
+  // }
+
   void updateBalanceWithUnit({
     required double basic,
     required double alt,
   }) {
     if (basic == 0) return;
 
-    /// ⭐ If basic unit selected → reset to original
+    // همیشه original سے start (prevents double conversion)
+    double base = originalBalance;
+
+    double converted;
+
     if (basic == alt) {
-      currentBalance = originalBalance;
-      remainingBalance = originalBalance;
-      return;
+      converted = base;
+      conversionFactor = 1.0;
+    } else {
+      conversionFactor = alt / basic;
+      converted = base * conversionFactor;
     }
 
-    /// ⭐ Apply conversion
-    double converted =
-        (originalBalance * alt) / basic;
-
     currentBalance = converted;
-    remainingBalance = converted;
+
+    // ✅ Preserve issued quantity
+    double issued = double.tryParse(quantityController.text) ?? 0;
+
+    remainingBalance = currentBalance - issued;
   }
 
   void dispose() {
@@ -1722,8 +1750,7 @@ class _AddGatePassState extends State<AddGatePass> {
                                                     materialEntries[i]
                                                         .selectedSubCategoryId!
                                                         .isNotEmpty) ...[
-                                                  MultiSelectDropdown<
-                                                      MaterialIssuedData>(
+                                                  MultiSelectDropdown<MaterialIssuedData>(
                                                     title: 'Issued Material',
                                                     hint: 'Select Material',
                                                     data: issuedMaterials,
@@ -2250,9 +2277,10 @@ class _AddGatePassState extends State<AddGatePass> {
                             EdgeInsets.symmetric(horizontal: 10, vertical: 8),
                       ),
                       onChanged: (val) {
-                        // if (val.trim().isEmpty) {
-                        //   return; // stop auto balance update when field is empty
-                        // }
+                        print("val ${val}");
+                        if (val.trim().isEmpty) {
+                          return; // stop auto balance update when field is empty
+                        }
                         double entered = double.tryParse(val) ?? 0.0;
                         if (entered < 0) entered = 0;
 
@@ -2353,6 +2381,189 @@ class _AddGatePassState extends State<AddGatePass> {
           //     },
           //   ),
           // ),
+          // BlocListener<BasicUnitsBloc, BasicUnitsState>(
+          //   listener: (context, state) {
+          //     if (state is BasicUnitsLoadSuccess) {
+          //       final fetchedUnits = state.basicUnits;
+          //       final itemNameFromState = state.itemName;
+          //
+          //       setState(() {
+          //         List<UnitsData> combinedUnits = [];
+          //
+          //         // for (var unit in fetchedUnits) {
+          //         //
+          //         //   /// ⭐ Add Basic Unit
+          //         //   if (unit.basic_unit_name != null &&
+          //         //       unit.basic_unit_name!.isNotEmpty &&
+          //         //       !combinedUnits.any(
+          //         //               (e) => e.alt_unit_name == unit.basic_unit_name)) {
+          //         //
+          //         //     combinedUnits.add(
+          //         //       UnitsData(
+          //         //         alt_unit_name: unit.basic_unit_name,
+          //         //         basic_value: unit.basic_value,
+          //         //         alt_value: unit.alt_value,
+          //         //       ),
+          //         //     );
+          //         //   }
+          //         //
+          //         //   /// ⭐ Add Alt Unit
+          //         //   if (unit.alt_unit_name != null &&
+          //         //       unit.alt_unit_name!.isNotEmpty) {
+          //         //
+          //         //     combinedUnits.add(
+          //         //       UnitsData(
+          //         //         alt_unit_name: unit.alt_unit_name,
+          //         //         basic_value: unit.basic_value,
+          //         //         alt_value: unit.alt_value,
+          //         //       ),
+          //         //     );
+          //         //   }
+          //         // }
+          //         for (var unit in fetchedUnits) {
+          //
+          //           /// ✅ BASIC UNIT (no conversion)
+          //           if (unit.basic_unit_name != null &&
+          //               unit.basic_unit_name!.isNotEmpty &&
+          //               !combinedUnits.any(
+          //                       (e) => e.alt_unit_name == unit.basic_unit_name)) {
+          //
+          //             combinedUnits.add(
+          //               UnitsData(
+          //                 alt_unit_name: unit.basic_unit_name,
+          //                 basic_value: "1",   // ⭐ FIX
+          //                 alt_value: "1",     // ⭐ FIX
+          //               ),
+          //             );
+          //           }
+          //
+          //           /// ✅ ALT UNIT (actual conversion)
+          //           if (unit.alt_unit_name != null &&
+          //               unit.alt_unit_name!.isNotEmpty) {
+          //
+          //             combinedUnits.add(
+          //               UnitsData(
+          //                 alt_unit_name: unit.alt_unit_name,
+          //                 basic_value: unit.basic_value,
+          //                 alt_value: unit.alt_value,
+          //               ),
+          //             );
+          //           }
+          //         }
+          //         /// assign units
+          //         unitsByItem[itemNameFromState] = combinedUnits;
+          //         unitsLoadingFor.remove(itemNameFromState);
+          //
+          //         /// ⭐ Set default + update balance (already correct ✅)
+          //         for (final ent in materialEntries) {
+          //           for (final ln in ent.lines) {
+          //             if ((ln.data.item ?? '') == itemNameFromState &&
+          //                 combinedUnits.isNotEmpty &&
+          //                 (ln.selectedUnit == null || ln.selectedUnit!.isEmpty)) {
+          //
+          //               final defaultUnit = combinedUnits.first;
+          //
+          //               ln.selectedUnit = defaultUnit.alt_unit_name ?? '';
+          //               ln.selectedUnitId = defaultUnit.alt_unit_name ?? '';
+          //
+          //               double basic =
+          //                   double.tryParse(defaultUnit.basic_value?.toString() ?? '1') ?? 1;
+          //
+          //               double alt =
+          //                   double.tryParse(defaultUnit.alt_value?.toString() ?? '1') ?? 1;
+          //
+          //               ln.updateBalanceWithUnit(
+          //                 basic: basic,
+          //                 alt: alt,
+          //               );
+          //             }
+          //           }
+          //         }
+          //       });
+          //     }
+          //   },
+          //
+          //   /// ✅ UPDATED CHILD SECTION
+          //   child: Builder(
+          //     builder: (context) {
+          //
+          //       /// ✅ ADDED THIS BLOCK (IMPORTANT FIX)
+          //       // if ((line.selectedUnit == null || line.selectedUnit!.isEmpty) &&
+          //       //     availableUnits.isNotEmpty)
+          //       // if (!line.isUnitInitialized &&
+          //       //     (line.selectedUnit == null || line.selectedUnit!.isEmpty) &&
+          //       //     availableUnits.isNotEmpty)
+          //       // {
+          //       //
+          //       //   final defaultUnit = availableUnits.first;
+          //       //
+          //       //   line.selectedUnit = defaultUnit.alt_unit_name ?? '';
+          //       //   line.selectedUnitId = defaultUnit.alt_unit_name ?? '';
+          //       //
+          //       //   double basic =
+          //       //       double.tryParse(defaultUnit.basic_value?.toString() ?? '1') ?? 1;
+          //       //
+          //       //   double alt =
+          //       //       double.tryParse(defaultUnit.alt_value?.toString() ?? '1') ?? 1;
+          //       //
+          //       //   line.updateBalanceWithUnit(
+          //       //     basic: basic,
+          //       //     alt: alt,
+          //       //   );
+          //       //   line.isUnitInitialized = true;
+          //       // }
+          //
+          //       return TransferDropdown<UnitsData>(
+          //           title: 'Units',
+          //           hint: availableUnits.isEmpty
+          //               ? 'No units available'
+          //               : 'Select Units',
+          //
+          //           /// ✅ KEEP THIS (UI fallback)
+          //           selectedVal: line.selectedUnit.isNotEmpty
+          //               ? line.selectedUnit
+          //               : (availableUnits.isNotEmpty
+          //               ? availableUnits.first.alt_unit_name ?? ''
+          //               : ''),
+          //
+          //           data: availableUnits,
+          //           displayText: (u) => u.alt_unit_name ?? '',
+          //           onChanged: (UnitsData u) {
+          //             setState(() {
+          //               line.selectedUnit = u.alt_unit_name ?? '';
+          //               line.selectedUnitId = u.alt_unit_name ?? '';
+          //
+          //               double basic =
+          //                   double.tryParse(u.basic_value?.toString() ?? '1') ?? 1;
+          //
+          //               double alt =
+          //                   double.tryParse(u.alt_value?.toString() ?? '1') ?? 1;
+          //
+          //               if (alt != 0) {
+          //                 line.conversionFactor = basic / alt;
+          //                 line.currentBalance =
+          //                     line.originalBalance / line.conversionFactor;
+          //               } else {
+          //                 line.conversionFactor = 1;
+          //                 line.currentBalance = line.originalBalance;
+          //               }
+          //
+          //               double issued =
+          //                   double.tryParse(line.quantityController.text) ?? 0;
+          //
+          //               line.remainingBalance = line.currentBalance - issued;
+          //
+          //               entry.currentBalance =
+          //                   entry.lines.fold(0, (sum, l) => sum + l.currentBalance);
+          //
+          //               entry.remainingBalance =
+          //                   entry.lines.fold(0, (sum, l) => sum + l.remainingBalance);
+          //             });
+          //           }
+          //       );
+          //     },
+          //   ),
+          // ),
           BlocListener<BasicUnitsBloc, BasicUnitsState>(
             listener: (context, state) {
               if (state is BasicUnitsLoadSuccess) {
@@ -2364,7 +2575,7 @@ class _AddGatePassState extends State<AddGatePass> {
 
                   for (var unit in fetchedUnits) {
 
-                    /// ⭐ Add Basic Unit
+                    /// ✅ BASIC UNIT (no conversion)
                     if (unit.basic_unit_name != null &&
                         unit.basic_unit_name!.isNotEmpty &&
                         !combinedUnits.any(
@@ -2373,13 +2584,13 @@ class _AddGatePassState extends State<AddGatePass> {
                       combinedUnits.add(
                         UnitsData(
                           alt_unit_name: unit.basic_unit_name,
-                          basic_value: unit.basic_value,
-                          alt_value: unit.alt_value,
+                          basic_value: "1",
+                          alt_value: "1",
                         ),
                       );
                     }
 
-                    /// ⭐ Add Alt Unit
+                    /// ✅ ALT UNIT (actual conversion)
                     if (unit.alt_unit_name != null &&
                         unit.alt_unit_name!.isNotEmpty) {
 
@@ -2397,7 +2608,7 @@ class _AddGatePassState extends State<AddGatePass> {
                   unitsByItem[itemNameFromState] = combinedUnits;
                   unitsLoadingFor.remove(itemNameFromState);
 
-                  /// ⭐ Set default + update balance (already correct ✅)
+                  /// ✅ SAFE DEFAULT UNIT SET (NO DOUBLE CONVERSION)
                   for (final ent in materialEntries) {
                     for (final ln in ent.lines) {
                       if ((ln.data.item ?? '') == itemNameFromState &&
@@ -2415,10 +2626,20 @@ class _AddGatePassState extends State<AddGatePass> {
                         double alt =
                             double.tryParse(defaultUnit.alt_value?.toString() ?? '1') ?? 1;
 
-                        ln.updateBalanceWithUnit(
-                          basic: basic,
-                          alt: alt,
-                        );
+                        /// 🔥 FIX: ALWAYS CALCULATE FROM ORIGINAL
+                        if (alt != 0) {
+                          ln.conversionFactor = basic / alt;
+                          ln.currentBalance =
+                              ln.originalBalance / ln.conversionFactor;
+                        } else {
+                          ln.conversionFactor = 1;
+                          ln.currentBalance = ln.originalBalance;
+                        }
+
+                        double issued =
+                            double.tryParse(ln.quantityController.text) ?? 0;
+
+                        ln.remainingBalance = ln.currentBalance - issued;
                       }
                     }
                   }
@@ -2430,74 +2651,57 @@ class _AddGatePassState extends State<AddGatePass> {
             child: Builder(
               builder: (context) {
 
-                /// ✅ ADDED THIS BLOCK (IMPORTANT FIX)
-                if ((line.selectedUnit == null || line.selectedUnit!.isEmpty) &&
-                    availableUnits.isNotEmpty) {
-
-                  final defaultUnit = availableUnits.first;
-
-                  line.selectedUnit = defaultUnit.alt_unit_name ?? '';
-                  line.selectedUnitId = defaultUnit.alt_unit_name ?? '';
-
-                  double basic =
-                      double.tryParse(defaultUnit.basic_value?.toString() ?? '1') ?? 1;
-
-                  double alt =
-                      double.tryParse(defaultUnit.alt_value?.toString() ?? '1') ?? 1;
-
-                  line.updateBalanceWithUnit(
-                    basic: basic,
-                    alt: alt,
-                  );
-                }
-
                 return TransferDropdown<UnitsData>(
-                    title: 'Units',
-                    hint: availableUnits.isEmpty
-                        ? 'No units available'
-                        : 'Select Units',
+                  title: 'Units',
+                  hint: availableUnits.isEmpty
+                      ? 'No units available'
+                      : 'Select Units',
 
-                    /// ✅ KEEP THIS (UI fallback)
-                    selectedVal: line.selectedUnit.isNotEmpty
-                        ? line.selectedUnit
-                        : (availableUnits.isNotEmpty
-                        ? availableUnits.first.alt_unit_name ?? ''
-                        : ''),
+                  /// ✅ UI fallback
+                  selectedVal: line.selectedUnit.isNotEmpty
+                      ? line.selectedUnit
+                      : (availableUnits.isNotEmpty
+                      ? availableUnits.first.alt_unit_name ?? ''
+                      : ''),
 
-                    data: availableUnits,
-                    displayText: (u) => u.alt_unit_name ?? '',
-                    onChanged: (UnitsData u) {
-                      setState(() {
-                        line.selectedUnit = u.alt_unit_name ?? '';
-                        line.selectedUnitId = u.alt_unit_name ?? '';
+                  data: availableUnits,
+                  displayText: (u) => u.alt_unit_name ?? '',
 
-                        double basic =
-                            double.tryParse(u.basic_value?.toString() ?? '1') ?? 1;
+                  onChanged: (UnitsData u) {
+                    setState(() {
+                      line.selectedUnit = u.alt_unit_name ?? '';
+                      line.selectedUnitId = u.alt_unit_name ?? '';
 
-                        double alt =
-                            double.tryParse(u.alt_value?.toString() ?? '1') ?? 1;
+                      double basic =
+                          double.tryParse(u.basic_value?.toString() ?? '1') ?? 1;
 
-                        if (alt != 0) {
-                          line.conversionFactor = basic / alt;
-                          line.currentBalance =
-                              line.originalBalance / line.conversionFactor;
-                        } else {
-                          line.conversionFactor = 1;
-                          line.currentBalance = line.originalBalance;
-                        }
+                      double alt =
+                          double.tryParse(u.alt_value?.toString() ?? '1') ?? 1;
 
-                        double issued =
-                            double.tryParse(line.quantityController.text) ?? 0;
+                      /// 🔥 MAIN FIX: ALWAYS USE ORIGINAL BALANCE
+                      if (alt != 0) {
+                        double conversionFactor = basic / alt;
 
-                        line.remainingBalance = line.currentBalance - issued;
+                        line.conversionFactor = conversionFactor;
+                        line.currentBalance =
+                            line.originalBalance / conversionFactor;
+                      } else {
+                        line.conversionFactor = 1;
+                        line.currentBalance = line.originalBalance;
+                      }
 
-                        entry.currentBalance =
-                            entry.lines.fold(0, (sum, l) => sum + l.currentBalance);
+                      double issued =
+                          double.tryParse(line.quantityController.text) ?? 0;
 
-                        entry.remainingBalance =
-                            entry.lines.fold(0, (sum, l) => sum + l.remainingBalance);
-                      });
-                    }
+                      line.remainingBalance = line.currentBalance - issued;
+
+                      entry.currentBalance =
+                          entry.lines.fold(0, (sum, l) => sum + l.currentBalance);
+
+                      entry.remainingBalance =
+                          entry.lines.fold(0, (sum, l) => sum + l.remainingBalance);
+                    });
+                  },
                 );
               },
             ),

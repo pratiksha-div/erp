@@ -37,6 +37,7 @@ GENData _$GENDataFromJson(Map<String, dynamic> json) => GENData(
   requested_by_name: json['requested_by_name'],
   rate: json['rate'],
   grand_total: json['grand_total'],
+  item_description: json['item_description'],
 );
 
 Map<String, dynamic> _$GENDataToJson(GENData instance) => <String, dynamic>{
@@ -59,4 +60,5 @@ Map<String, dynamic> _$GENDataToJson(GENData instance) => <String, dynamic>{
   'requested_by_name': instance.requested_by_name,
   'rate': instance.rate,
   'grand_total': instance.grand_total,
+  'item_description': instance.item_description,
 };

@@ -436,6 +436,13 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                   selectedEntryNumber = detail.gen_no;
                   remark.text = detail.remarks??"";
 
+                  print(
+                    '''
+                    selectedEntryId ${selectedEntryId}
+                    selectedEntryNumber ${selectedEntryNumber}
+                    '''
+                  );
+
                   _grnData = GENData(
                     bill_no: detail.bill_no,
                     challan_no: detail.challan_no,
@@ -445,6 +452,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                     to_warehouse: detail.to_warehouse,
                     ordered_by: detail.requested_by,
                     contact: detail.contact,
+                    item_description: detail.item_description
                   );
 
                   grnItems.clear();
@@ -456,6 +464,7 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                   final shortQty = (detail.short_qty ?? '').split(',');
                   final excessQty = (detail.excess_qty ?? '').split(',');
                   final poBalanceQty = (detail.po_balance ?? '').split(',');
+                  final item_description=(detail.item_description??"").split(',');
 
                   for (int i = 0; i < itemNames.length; i++) {
                     final item = GRNItem(
@@ -466,10 +475,8 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                     );
 
                     initItem(item);
-
                     // 🔒 disable calculations
                     // item.isInitializing = true;
-
                     item.receivedQty.text = receivedQty[i];
                     item.acceptedQty.text = acceptedQty[i];
                     item.rejectedQty.text = rejectedQty[i];
@@ -477,9 +484,9 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                     item.excessQty.text = excessQty[i];
                     item.poBalanceQty.text = poBalanceQty[i];
                     item.lastEdited = EditSource.accepted;
+                    item.description.text=item_description[i];
 
                     // item.isInitializing = false;
-
                     grnItems.add(item);
                   }
                 });
@@ -521,10 +528,10 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                           BlocBuilder<GateEntryNumberBloc, GateEntryNumberState>(
                             builder: (context, state) {
                               if (state is GateEntryNumberLoadSuccess) {
-                                final selectedGEN = state.gateEntryNumbers.firstWhere(
-                                      (element) => element.gen_id == selectedEntryId,
-                                  orElse: () => GENumberData(gen_no: "", gen_id: ""),
-                                );
+                                // final selectedGEN = state.gateEntryNumbers.firstWhere(
+                                //       (element) => element.gen_id == selectedEntryId,
+                                //   orElse: () => GENumberData(gen_no: "", gen_id: ""),
+                                // );
 
                                 final bool isDisabled = widget.grn_id.isNotEmpty;
 
@@ -541,28 +548,55 @@ class _AddGoodsReceivedNotesState extends State<AddGoodsReceivedNotes> {
                                       opacity: isDisabled ? 0.6 : 1.0,
                                       child: IgnorePointer(
                                         ignoring: isDisabled,
+                                        // child: TransferDropdown<GENumberData>(
+                                        //   title: 'GE Number',
+                                        //   hint: 'Select GE Number',
+                                        //   selectedVal: selectedGEN.gen_no?.isNotEmpty == true
+                                        //       ? selectedGEN.gen_no!
+                                        //       : "",
+                                        //   data: state.gateEntryNumbers,
+                                        //   displayText: (data) => data.gen_no ?? '',
+                                        //   onChanged: isDisabled
+                                        //       ? null
+                                        //       : (val) {
+                                        //     setState(() {
+                                        //       selectedEntryId = val.gen_id;
+                                        //       selectedEntryNumber = val.gen_no;
+                                        //       errEntryNumber=null;
+                                        //       grnItems.clear();
+                                        //     });
+                                        //     print("selectedEntryId ${selectedEntryId}");
+                                        //
+                                        //     context
+                                        //         .read<GoodsReceivedNotesByIDBloc>()
+                                        //         .add(
+                                        //       FetchGoodsReceivedNotesByIDEvent(
+                                        //         gen_id: selectedEntryId ?? "",
+                                        //       ),
+                                        //     );
+                                        //   },
+                                        // ),
                                         child: TransferDropdown<GENumberData>(
                                           title: 'GE Number',
                                           hint: 'Select GE Number',
-                                          selectedVal: selectedGEN.gen_no?.isNotEmpty == true
-                                              ? selectedGEN.gen_no!
-                                              : "",
+
+                                          /// ⭐ FIXED: Use stored value directly
+                                          selectedVal: selectedEntryNumber ?? "",
+
                                           data: state.gateEntryNumbers,
                                           displayText: (data) => data.gen_no ?? '',
+
                                           onChanged: isDisabled
                                               ? null
                                               : (val) {
                                             setState(() {
                                               selectedEntryId = val.gen_id;
                                               selectedEntryNumber = val.gen_no;
-                                              errEntryNumber=null;
+                                              errEntryNumber = null;
                                               grnItems.clear();
                                             });
-                                            print("selectedEntryId ${selectedEntryId}");
 
-                                            context
-                                                .read<GoodsReceivedNotesByIDBloc>()
-                                                .add(
+                                            context.read<GoodsReceivedNotesByIDBloc>().add(
                                               FetchGoodsReceivedNotesByIDEvent(
                                                 gen_id: selectedEntryId ?? "",
                                               ),

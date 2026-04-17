@@ -47,6 +47,7 @@ GRNDetailByIDData _$GRNDetailByIDDataFromJson(Map<String, dynamic> json) =>
       to_warehouse: json['to_warehouse'],
       vehicle_no: json['vehicle_no'],
       remarks: json['remarks'] as String?,
+      item_description: json['item_description'] as String?,
     );
 
 Map<String, dynamic> _$GRNDetailByIDDataToJson(GRNDetailByIDData instance) =>
@@ -77,4 +78,5 @@ Map<String, dynamic> _$GRNDetailByIDDataToJson(GRNDetailByIDData instance) =>
       'to_warehouse': instance.to_warehouse,
       'vehicle_no': instance.vehicle_no,
       'remarks': instance.remarks,
+      'item_description': instance.item_description,
     };

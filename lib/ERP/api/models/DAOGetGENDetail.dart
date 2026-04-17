@@ -35,6 +35,7 @@ class GENData {
   dynamic requested_by_name;
   dynamic rate;
   dynamic grand_total;
+  dynamic item_description;
 
   GENData(
       {
@@ -56,7 +57,8 @@ class GENData {
          this.unit,
          this.requested_by_name,
          this.rate,
-         this.grand_total
+         this.grand_total,
+         this.item_description
       });
 
   factory GENData.fromJson(Map<String, dynamic> json) =>

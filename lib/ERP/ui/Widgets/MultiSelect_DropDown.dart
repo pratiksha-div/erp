@@ -128,100 +128,275 @@ class _MultiSelectDropdownState<T> extends State<MultiSelectDropdown<T>> {
 
   void _unfocus() => FocusScope.of(context).unfocus();
 
+  // Future<void> _openSelectionDialog() async {
+  //   _unfocus();
+  //   // show dialog with checkboxes and Done button
+  //   final selectedCopy = List<T>.from(_selected);
+  //   final picked = await showDialog<List<T>>(
+  //     context: context,
+  //     builder: (context) {
+  //       return StatefulBuilder(builder: (context, setStateDialog) {
+  //         bool _isSelectedDialog(T item) => selectedCopy.any((s) => widget.displayText(s) == widget.displayText(item));
+  //         void _toggleDialog(T item) {
+  //           final already = _isSelectedDialog(item);
+  //           setStateDialog(() {
+  //             if (already) {
+  //               selectedCopy.removeWhere((s) => widget.displayText(s) == widget.displayText(item));
+  //             } else {
+  //               selectedCopy.add(item);
+  //             }
+  //           });
+  //         }
+  //
+  //         return AlertDialog(
+  //           backgroundColor: Colors.white,
+  //           title: Text(
+  //             'Select ${widget.title}',
+  //             style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.bold),
+  //           ),
+  //           content: SizedBox(
+  //             width: double.maxFinite,
+  //             child: SingleChildScrollView(
+  //               child: Column(
+  //                 children: widget.data.map((item) {
+  //                   final label = widget.displayText(item);
+  //                   final checked = _isSelectedDialog(item);
+  //                   return Theme(
+  //                     data: Theme.of(context).copyWith(
+  //                       checkboxTheme: CheckboxThemeData(
+  //                         side:  BorderSide(
+  //                           color: Colors.grey.withOpacity(.6), // <-- custom border color
+  //                           width: 1,
+  //                         ),
+  //                         fillColor: MaterialStateProperty.resolveWith<Color?>((states) {
+  //                           if (states.contains(MaterialState.selected)) {
+  //                             return ColorConstants.primary; // selected fill color
+  //                           }
+  //                           return Colors.white; // unselected fill background
+  //                         }),
+  //                         checkColor: MaterialStateProperty.all(Colors.white), // tick color
+  //                       ),
+  //                     ),
+  //                     child: CheckboxListTile(
+  //                       dense: true,
+  //                       activeColor: ColorConstants.primary,
+  //                       contentPadding: EdgeInsets.zero,
+  //                       controlAffinity: ListTileControlAffinity.leading,
+  //                       title: Text(label, style: GoogleFonts.poppins(fontSize: 13)),
+  //                       value: checked,
+  //                       onChanged: (_) => _toggleDialog(item),
+  //                     ),
+  //                   );
+  //                 }).toList(),
+  //               ),
+  //             ),
+  //           ),
+  //           actions: [
+  //             Row(
+  //               mainAxisAlignment: MainAxisAlignment.spaceBetween,
+  //               children: [
+  //                 InkWell(
+  //                   onTap: (){
+  //                     Navigator.of(context).pop(null);
+  //                   },
+  //                   child: Container(
+  //                     padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+  //                     child: Center(
+  //                       child:cText("Cancel",color:ColorConstants.primary),
+  //                     ),
+  //                   ),
+  //                 ),
+  //                 InkWell(
+  //                   onTap: (){
+  //                     Navigator.of(context).pop(selectedCopy);
+  //                   },
+  //                   child: Container(
+  //                     padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
+  //                     child: Center(
+  //                       child:cText("Done",color:ColorConstants.primary),
+  //                     ),
+  //                   ),
+  //                 ),
+  //               ],
+  //             ),
+  //           ],
+  //         );
+  //       });
+  //     },
+  //   );
+  //
+  //   if (picked != null) {
+  //     setState(() {
+  //       _selected = List<T>.from(picked);
+  //       _updateTextFromSelected();
+  //     });
+  //     if (widget.onChanged != null) widget.onChanged!(List<T>.from(_selected));
+  //   }
+  // }
   Future<void> _openSelectionDialog() async {
     _unfocus();
-    // show dialog with checkboxes and Done button
+
     final selectedCopy = List<T>.from(_selected);
+
+    // ✅ Keep these OUTSIDE builder (important)
+    List<T> filteredList = List.from(widget.data);
+    final TextEditingController searchController = TextEditingController();
+
     final picked = await showDialog<List<T>>(
       context: context,
       builder: (context) {
-        return StatefulBuilder(builder: (context, setStateDialog) {
-          bool _isSelectedDialog(T item) => selectedCopy.any((s) => widget.displayText(s) == widget.displayText(item));
-          void _toggleDialog(T item) {
-            final already = _isSelectedDialog(item);
-            setStateDialog(() {
-              if (already) {
-                selectedCopy.removeWhere((s) => widget.displayText(s) == widget.displayText(item));
-              } else {
-                selectedCopy.add(item);
-              }
-            });
-          }
+        return StatefulBuilder(
+          builder: (context, setStateDialog) {
 
-          return AlertDialog(
-            backgroundColor: Colors.white,
-            title: Text(
-              'Select ${widget.title}',
-              style: GoogleFonts.poppins(fontSize: 15, fontWeight: FontWeight.bold),
-            ),
-            content: SizedBox(
-              width: double.maxFinite,
-              child: SingleChildScrollView(
-                child: Column(
-                  children: widget.data.map((item) {
-                    final label = widget.displayText(item);
-                    final checked = _isSelectedDialog(item);
-                    return Theme(
-                      data: Theme.of(context).copyWith(
-                        checkboxTheme: CheckboxThemeData(
-                          side:  BorderSide(
-                            color: Colors.grey.withOpacity(.6), // <-- custom border color
-                            width: 1,
-                          ),
-                          fillColor: MaterialStateProperty.resolveWith<Color?>((states) {
-                            if (states.contains(MaterialState.selected)) {
-                              return ColorConstants.primary; // selected fill color
-                            }
-                            return Colors.white; // unselected fill background
-                          }),
-                          checkColor: MaterialStateProperty.all(Colors.white), // tick color
-                        ),
-                      ),
-                      child: CheckboxListTile(
-                        dense: true,
-                        activeColor: ColorConstants.primary,
-                        contentPadding: EdgeInsets.zero,
-                        controlAffinity: ListTileControlAffinity.leading,
-                        title: Text(label, style: GoogleFonts.poppins(fontSize: 13)),
-                        value: checked,
-                        onChanged: (_) => _toggleDialog(item),
-                      ),
-                    );
-                  }).toList(),
-                ),
-              ),
-            ),
-            actions: [
-              Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+            bool _isSelectedDialog(T item) =>
+                selectedCopy.any((s) =>
+                widget.displayText(s) == widget.displayText(item));
+
+            void _toggleDialog(T item) {
+              final already = _isSelectedDialog(item);
+              setStateDialog(() {
+                if (already) {
+                  selectedCopy.removeWhere((s) =>
+                  widget.displayText(s) == widget.displayText(item));
+                } else {
+                  selectedCopy.add(item);
+                }
+              });
+            }
+
+            // ✅ Search filter
+            void _filter(String query) {
+              setStateDialog(() {
+                filteredList = widget.data
+                    .where((item) => widget
+                    .displayText(item)
+                    .toLowerCase()
+                    .contains(query.toLowerCase()))
+                    .toList();
+              });
+            }
+
+            return AlertDialog(
+              backgroundColor: Colors.white,
+
+              title: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  InkWell(
-                    onTap: (){
-                      Navigator.of(context).pop(null);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
-                      child: Center(
-                        child:cText("Cancel",color:ColorConstants.primary),
-                      ),
+                  Text(
+                    'Select ${widget.title}',
+                    style: GoogleFonts.poppins(
+                      fontSize: 15,
+                      fontWeight: FontWeight.bold,
                     ),
                   ),
-                  InkWell(
-                    onTap: (){
-                      Navigator.of(context).pop(selectedCopy);
-                    },
-                    child: Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 15,vertical: 10),
-                      child: Center(
-                        child:cText("Done",color:ColorConstants.primary),
+                  const SizedBox(height: 10),
+
+                  // 🔍 SEARCH FIELD
+                  Container(
+                    height: 40,
+                    padding: const EdgeInsets.symmetric(horizontal: 10),
+                    decoration: BoxDecoration(
+                      border: Border.all(color: Colors.grey.shade400),
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: TextField(
+                      controller: searchController,
+                      onChanged: _filter,
+                      textAlignVertical: TextAlignVertical.center,
+                      decoration: const InputDecoration(
+                        hintText: "Search material...",
+                        border: InputBorder.none,
+                        contentPadding: EdgeInsets.only(bottom: 13),
+                        icon: Icon(Icons.search,size:16 ,),
                       ),
                     ),
                   ),
                 ],
               ),
-            ],
-          );
-        });
+
+              content: SizedBox(
+                width: double.maxFinite,
+                child: SingleChildScrollView(
+                  child: Column(
+                    children: filteredList.map((item) {
+                      final label = widget.displayText(item);
+                      final checked = _isSelectedDialog(item);
+
+                      return Theme(
+                        data: Theme.of(context).copyWith(
+                          checkboxTheme: CheckboxThemeData(
+                            side: BorderSide(
+                              color: Colors.grey.withOpacity(.6),
+                              width: 1,
+                            ),
+                            fillColor:
+                            MaterialStateProperty.resolveWith<Color?>(
+                                  (states) {
+                                if (states.contains(MaterialState.selected)) {
+                                  return ColorConstants.primary;
+                                }
+                                return Colors.white;
+                              },
+                            ),
+                            checkColor:
+                            MaterialStateProperty.all(Colors.white),
+                          ),
+                        ),
+                        child: CheckboxListTile(
+                          dense: true,
+                          activeColor: ColorConstants.primary,
+                          contentPadding: EdgeInsets.zero,
+                          controlAffinity:
+                          ListTileControlAffinity.leading,
+                          title: Text(
+                            label,
+                            style: GoogleFonts.poppins(fontSize: 13),
+                          ),
+                          value: checked,
+                          onChanged: (_) => _toggleDialog(item),
+                        ),
+                      );
+                    }).toList(),
+                  ),
+                ),
+              ),
+
+              actions: [
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop(null);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
+                        child: Center(
+                          child: cText("Cancel",
+                              color: ColorConstants.primary),
+                        ),
+                      ),
+                    ),
+                    InkWell(
+                      onTap: () {
+                        Navigator.of(context).pop(selectedCopy);
+                      },
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                            horizontal: 15, vertical: 10),
+                        child: Center(
+                          child:
+                          cText("Done", color: ColorConstants.primary),
+                        ),
+                      ),
+                    ),
+                  ],
+                ),
+              ],
+            );
+          },
+        );
       },
     );
 
@@ -230,7 +405,9 @@ class _MultiSelectDropdownState<T> extends State<MultiSelectDropdown<T>> {
         _selected = List<T>.from(picked);
         _updateTextFromSelected();
       });
-      if (widget.onChanged != null) widget.onChanged!(List<T>.from(_selected));
+      if (widget.onChanged != null) {
+        widget.onChanged!(List<T>.from(_selected));
+      }
     }
   }
 
