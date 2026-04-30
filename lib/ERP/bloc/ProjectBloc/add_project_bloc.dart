@@ -1,11 +1,9 @@
 import 'package:equatable/equatable.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:fluttertoast/fluttertoast.dart';
-
 import '../../UI/Utils/messages_constants.dart';
 import '../../api/models/AddProjectModel.dart';
 import '../../api/services/add_project_service.dart';
-
 
 // Event
 abstract class AddProjectEvent extends Equatable {
@@ -98,6 +96,25 @@ class AddProjectBloc extends Bloc<AddProjectEvent, AddProjectState> {
       emit(AddProjectLoading());
 
       try {
+        print(
+          '''
+          Adding project
+          customerName: ${event.customerName},
+          projectName: ${event.projectName},
+          ProjectCo_ordinator: ${event.projectCoordinator},
+          projectManager: ${event.projectManager},
+          projectType: ${event.projectType},
+          startDate: ${event.startDate},
+          endDate: ${event.endDate},
+          expectedCost: ${event.Expected_Cost},
+          status: ${event.Status},
+          state: ${event.state},
+          address: ${event.Address},
+          godownlist: ${event.godownlist},
+          projectDescription: ${event.project_dscription},
+          projectId: ${event.project_id},
+          '''
+        );
         final result = await AddProjectService().addProject(
           customerName: event.customerName,
           projectName: event.projectName,

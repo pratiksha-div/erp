@@ -44,30 +44,34 @@ class MaterialLine {
   String selectedUnit;
   String? selectedUnitId;
 
-  double originalBalance;   // ⭐ store API value permanently
+  double originalBalance; // ⭐ store API value permanently
   double currentBalance;
   double remainingBalance;
-  double conversionFactor;     //
+  double conversionFactor; //
   bool showQualityFields;
   bool isUnitInitialized = false;
 
-  MaterialLine({
-    required this.data,
-    double? currentBalanceFromApi,
-  })  : quantityController = TextEditingController(text: '0'),
-        usedQuantityController = TextEditingController(),
-        scrapController = TextEditingController(),
-        rateController = TextEditingController(),
-        selectedUnit = '',
-        selectedUnitId = null,
-        originalBalance = currentBalanceFromApi ??
-            double.tryParse(data.current_balance?.toString() ?? '0') ?? 0.0,
-        currentBalance = currentBalanceFromApi ??
-            double.tryParse(data.current_balance?.toString() ?? '0') ?? 0.0,
-        remainingBalance = currentBalanceFromApi ??
-            double.tryParse(data.current_balance?.toString() ?? '0') ?? 0.0,
-        conversionFactor = 1.0,
-        showQualityFields = false;
+  MaterialLine({required this.data, double? currentBalanceFromApi})
+    : quantityController = TextEditingController(text: '0'),
+      usedQuantityController = TextEditingController(),
+      scrapController = TextEditingController(),
+      rateController = TextEditingController(),
+      selectedUnit = '',
+      selectedUnitId = null,
+      originalBalance =
+          currentBalanceFromApi ??
+          double.tryParse(data.current_balance?.toString() ?? '0') ??
+          0.0,
+      currentBalance =
+          currentBalanceFromApi ??
+          double.tryParse(data.current_balance?.toString() ?? '0') ??
+          0.0,
+      remainingBalance =
+          currentBalanceFromApi ??
+          double.tryParse(data.current_balance?.toString() ?? '0') ??
+          0.0,
+      conversionFactor = 1.0,
+      showQualityFields = false;
 
   /// ⭐ UNIT CONVERSION METHOD
   // void updateBalanceWithUnit({
@@ -91,10 +95,7 @@ class MaterialLine {
   //   remainingBalance = converted;
   // }
 
-  void updateBalanceWithUnit({
-    required double basic,
-    required double alt,
-  }) {
+  void updateBalanceWithUnit({required double basic, required double alt}) {
     if (basic == 0) return;
 
     // همیشه original سے start (prevents double conversion)
@@ -159,23 +160,23 @@ class MaterialEntry {
     this.currentBalance = 0,
     this.remainingBalance = 0,
     this.showQualityFields = false,
-  })  : quantityController = TextEditingController(),
-        usedQuantityController = TextEditingController(),
-        scrapController = TextEditingController(),
-        rateController = TextEditingController(),
-        outTime = null,
-        selectedMaterial = initialMaterial,
-        selectedUnit = initialUnit,
-        selectedMaterialsList = [],
-        selectedMaterialIds = [],
-        selectedGroupIds = [],
-        selectedSubgroupIds = [],
-        selectedFromWarehouseId = null,
-        selectedFromWarehouseName = 'Select Warehouse',
-        selectedCategoryId = null,
-        selectedCategoryName = 'Select Category',
-        selectedSubCategoryId = null,
-        selectedSubCategoryName = 'Select Sub Category';
+  }) : quantityController = TextEditingController(),
+       usedQuantityController = TextEditingController(),
+       scrapController = TextEditingController(),
+       rateController = TextEditingController(),
+       outTime = null,
+       selectedMaterial = initialMaterial,
+       selectedUnit = initialUnit,
+       selectedMaterialsList = [],
+       selectedMaterialIds = [],
+       selectedGroupIds = [],
+       selectedSubgroupIds = [],
+       selectedFromWarehouseId = null,
+       selectedFromWarehouseName = 'Select Warehouse',
+       selectedCategoryId = null,
+       selectedCategoryName = 'Select Category',
+       selectedSubCategoryId = null,
+       selectedSubCategoryName = 'Select Sub Category';
 
   void dispose() {
     quantityController.dispose();
@@ -323,7 +324,7 @@ class _AddGatePassState extends State<AddGatePass> {
     if (date != null && mounted) {
       setState(() {
         _selectedDate = date;
-        err_dateTime=null;
+        err_dateTime = null;
       });
     }
   }
@@ -364,7 +365,7 @@ class _AddGatePassState extends State<AddGatePass> {
     if (time != null) {
       setState(() {
         _selectedTime = time;
-        err_dateTime=null;
+        err_dateTime = null;
       });
     }
   }
@@ -435,31 +436,26 @@ class _AddGatePassState extends State<AddGatePass> {
 
     // Warehouse / Project validation
     if (selectedTransfer == "Warehouse Type") {
-      if (selectedToWarehouseID == null ||
-          selectedToWarehouseID!.isEmpty) {
+      if (selectedToWarehouseID == null || selectedToWarehouseID!.isEmpty) {
         err_toWarehouse = 'Please select warehouse for Warehouse transfer';
         valid = false;
       }
     }
 
     if (selectedTransfer == "Project Type") {
-      if (selectedToProjectListID == null ||
-          selectedToProjectListID!.isEmpty) {
-        err_toProject =
-        'Please select project for Project transfer';
+      if (selectedToProjectListID == null || selectedToProjectListID!.isEmpty) {
+        err_toProject = 'Please select project for Project transfer';
         valid = false;
       }
     }
 
     // Issued To / By
-    if (selectedIssuedToID == null ||
-        selectedIssuedToID!.isEmpty) {
+    if (selectedIssuedToID == null || selectedIssuedToID!.isEmpty) {
       err_issuedTo = 'Please select "Issued To"';
       valid = false;
     }
 
-    if (selectedIssuedByID == null ||
-        selectedIssuedByID!.isEmpty) {
+    if (selectedIssuedByID == null || selectedIssuedByID!.isEmpty) {
       err_issuedBy = 'Please select "Issued By"';
       valid = false;
     }
@@ -477,7 +473,11 @@ class _AddGatePassState extends State<AddGatePass> {
     }
 
     // Loop through material entries
-    for (int entryIndex = 0; entryIndex < materialEntries.length; entryIndex++) {
+    for (
+      int entryIndex = 0;
+      entryIndex < materialEntries.length;
+      entryIndex++
+    ) {
       final entry = materialEntries[entryIndex];
 
       // From Warehouse
@@ -504,11 +504,11 @@ class _AddGatePassState extends State<AddGatePass> {
         continue;
       }
 
-      final bool hasSelectedMaterials =
-          entry.selectedMaterialsList.isNotEmpty;
+      final bool hasSelectedMaterials = entry.selectedMaterialsList.isNotEmpty;
 
       final bool hasMeaningfulLine = entry.lines.any((line) {
-        final hasItem = (line.data.item ?? '').trim().isNotEmpty ||
+        final hasItem =
+            (line.data.item ?? '').trim().isNotEmpty ||
             (line.data.item_id ?? '').trim().isNotEmpty;
         // final hasQty = line.quantityController.text.trim().isNotEmpty ||
         //     line.usedQuantityController.text.trim().isNotEmpty ||
@@ -528,30 +528,27 @@ class _AddGatePassState extends State<AddGatePass> {
       for (final line in entry.lines) {
         final hasAnyInput =
             (line.data.item ?? '').trim().isNotEmpty ||
-                (line.data.item_id ?? '').trim().isNotEmpty ||
-                line.quantityController.text.trim().isNotEmpty ||
-                line.usedQuantityController.text.trim().isNotEmpty ||
-                line.scrapController.text.trim().isNotEmpty;
+            (line.data.item_id ?? '').trim().isNotEmpty ||
+            line.quantityController.text.trim().isNotEmpty ||
+            line.usedQuantityController.text.trim().isNotEmpty ||
+            line.scrapController.text.trim().isNotEmpty;
 
         if (!hasAnyInput) continue;
 
         print("Quantity ${line.quantityController.text}");
 
         if (line.showQualityFields && selectedTransfer == "Project Type") {
-          if(line.quantityController.text.isEmpty || line.quantityController.text=="0")
-            {
-              err_materialEntry[entryIndex] = 'Please enter valid quantity';
-              valid=false;
-            }
-          else if(line.usedQuantityController.text.isEmpty){
+          if (line.quantityController.text.isEmpty ||
+              line.quantityController.text == "0") {
+            err_materialEntry[entryIndex] = 'Please enter valid quantity';
+            valid = false;
+          } else if (line.usedQuantityController.text.isEmpty) {
             err_materialEntry[entryIndex] = 'Please enter valid used quantity';
-            valid=false;
-          }
-          else if(line.scrapController.text.isEmpty){
+            valid = false;
+          } else if (line.scrapController.text.isEmpty) {
             err_materialEntry[entryIndex] = 'Please enter valid scarp value';
-            valid=false;
-          }
-          else if(line.rateController.text.isEmpty){
+            valid = false;
+          } else if (line.rateController.text.isEmpty) {
             err_materialEntry[entryIndex] = 'Please enter valid rate';
             valid = false;
           }
@@ -580,44 +577,47 @@ class _AddGatePassState extends State<AddGatePass> {
     if (!hasDateTime) {
       showDialog(
         context: context,
-        builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.transparent,
-          child: UploadErrorCard(
-            title: 'Failed',
-            subtitle: "Please select date and time",
-            onRetry: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
+        builder:
+            (context) => Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              backgroundColor: Colors.transparent,
+              child: UploadErrorCard(
+                title: 'Failed',
+                subtitle: "Please select date and time",
+                onRetry: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
       );
       return;
     }
     if (materialEntries.isEmpty) {
       showDialog(
         context: context,
-        builder: (context) => Dialog(
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          backgroundColor: Colors.transparent,
-          child: UploadErrorCard(
-            title: 'Failed',
-            subtitle: "Please add at least one material entry",
-            onRetry: () {
-              Navigator.pop(context);
-            },
-          ),
-        ),
+        builder:
+            (context) => Dialog(
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              backgroundColor: Colors.transparent,
+              child: UploadErrorCard(
+                title: 'Failed',
+                subtitle: "Please add at least one material entry",
+                onRetry: () {
+                  Navigator.pop(context);
+                },
+              ),
+            ),
       );
       return;
     }
-    final String dateTimeStr = (_selectedDate != null && _selectedTime != null)
-        ? dateTimeFormat(_selectedDate!, _selectedTime!)
-        : "";
+    final String dateTimeStr =
+        (_selectedDate != null && _selectedTime != null)
+            ? dateTimeFormat(_selectedDate!, _selectedTime!)
+            : "";
     String transferTypeTop = selectedTransfer;
     String gatePassNoTop = gatePass.text.trim();
     String descTop = description.text.trim();
@@ -673,17 +673,20 @@ class _AddGatePassState extends State<AddGatePass> {
       }
       if (entry.lines.isNotEmpty) {
         for (final line in entry.lines) {
-          final String materialUsed = (line.data.item ?? '') != ''
-              ? (line.data.item ?? '')
-              : (entry.selectedMaterial ?? "");
-          final String materialUsedID = (line.data.item_id ?? '') != ''
-              ? (line.data.item_id ?? '')
-              : (entry.selectedMaterialId ?? "");
+          final String materialUsed =
+              (line.data.item ?? '') != ''
+                  ? (line.data.item ?? '')
+                  : (entry.selectedMaterial ?? "");
+          final String materialUsedID =
+              (line.data.item_id ?? '') != ''
+                  ? (line.data.item_id ?? '')
+                  : (entry.selectedMaterialId ?? "");
 
           quantity = line.quantityController.text.trim();
           usedQuantity = line.usedQuantityController.text.trim();
           scrap = line.scrapController.text.trim();
           rate = line.rateController.text.trim();
+          print(" line.selectedUnit ${line.selectedUnit}");
           unit = line.selectedUnit ?? "";
           currentBalance = line.remainingBalance.toString();
           // currentBalance = line.originalBalance.toString();
@@ -693,23 +696,20 @@ class _AddGatePassState extends State<AddGatePass> {
           // scrapQty = double.tryParse(scrap) ?? 0.0;
           final double factor = line.conversionFactor;
 
-// Convert entered values to BASE
-          final double qtyBase =
-              (double.tryParse(quantity) ?? 0.0) * factor;
+          // Convert entered values to BASE
+          final double qtyBase = (double.tryParse(quantity) ?? 0.0) * factor;
 
           final double usedBase =
               (double.tryParse(usedQuantity) ?? 0.0) * factor;
 
-          final double scrapBase =
-              (double.tryParse(scrap) ?? 0.0) * factor;
+          final double scrapBase = (double.tryParse(scrap) ?? 0.0) * factor;
 
-// Always subtract from ORIGINAL BASE STOCK
-          double remainingBase =
-              line.originalBalance - (usedBase + scrapBase);
+          // Always subtract from ORIGINAL BASE STOCK
+          double remainingBase = line.originalBalance - (usedBase + scrapBase);
 
           if (remainingBase < 0) remainingBase = 0.0;
 
-// Store internally in BASE
+          // Store internally in BASE
           line.remainingBalance = remainingBase;
           // double bal = qty - (usedQty + scrapQty);
           // if (bal < 0) bal = 0.0;
@@ -720,9 +720,10 @@ class _AddGatePassState extends State<AddGatePass> {
           // final double amountD = qty * rateD;
           // final double amountD = (usedQty + scrapQty) * rateD;
           final double amountD = (usedBase + scrapBase) * rateD;
-          final String amount = (amountD == amountD.roundToDouble())
-              ? amountD.toInt().toString()
-              : amountD.toStringAsFixed(2);
+          final String amount =
+              (amountD == amountD.roundToDouble())
+                  ? amountD.toInt().toString()
+                  : amountD.toStringAsFixed(2);
 
           print("Selected category id: ${entry.selectedCategoryId}");
           final String category = entry.selectedCategoryId ?? '';
@@ -765,37 +766,40 @@ class _AddGatePassState extends State<AddGatePass> {
 
       String stripAmPm(String timeString) {
         final cleaned = timeString.replaceAll(
-            RegExp(r'\s?(AM|PM)$', caseSensitive: false), '');
+          RegExp(r'\s?(AM|PM)$', caseSensitive: false),
+          '',
+        );
         final parts = cleaned.split(':');
         final hour = parts[0].padLeft(2, '0');
         final minute = parts.length > 1 ? parts[1].padLeft(2, '0') : '00';
         return "$hour:$minute";
       }
 
-      // print('''
-      //  ---- SUBMITTING GATE PASS (AGGREGATED) ----
-      //  date: $dateTimeStr
-      //  materialsId: $materialsIdCsv
-      //  issuedMaterials: $issuedMaterialsCsv
-      //  quantity: $quantityCsv
-      //  usedQuantity: $usedQuantityCsv
-      //  scrap: $scrapCsv
-      //  rate: $rateCsv
-      //  amount: $amountCsv
-      //  consumedFlags: $consumedFlagCsv
-      //  units: $unitCsv
-      //  currentBalances: $currentBalanceCsv
-      //  categories: $categoryCsv
-      //  subCategories: $subCategoryCsv
-      //  differenceBalances: $differenceBalanceCsv
-      //  outTimes: ${stripAmPm(outTimeCsv)}
-      //  -------------------------------------------
-      // ''');
+      print('''
+       ---- SUBMITTING GATE PASS (AGGREGATED) ----
+       date: $dateTimeStr
+       materialsId: $materialsIdCsv
+       issuedMaterials: $issuedMaterialsCsv
+       quantity: $quantityCsv
+       usedQuantity: $usedQuantityCsv
+       scrap: $scrapCsv
+       rate: $rateCsv
+       amount: $amountCsv
+       consumedFlags: $consumedFlagCsv
+       units: $unitCsv
+       currentBalances: $currentBalanceCsv
+       categories: $categoryCsv
+       subCategories: $subCategoryCsv
+       differenceBalances: $differenceBalanceCsv
+       outTimes: ${stripAmPm(outTimeCsv)}
+       -------------------------------------------
+      ''');
       context.read<AddNewGatePassBloc>().add(
         SubmitAddNewGatePassEvent(
-          transferType: transferTypeTop == "Warehouse Type"
-              ? "warehouse_type"
-              : "project_type",
+          transferType:
+              transferTypeTop == "Warehouse Type"
+                  ? "warehouse_type"
+                  : "project_type",
           date: dateTimeStr,
           toProject: selectedToProjectListID ?? "",
           toWarehouse: selectedToWarehouseID ?? "",
@@ -849,8 +853,7 @@ class _AddGatePassState extends State<AddGatePass> {
             towarehouse: toWarehouse,
           ),
         );
-      }
-      else if (transferTypeTop == "Project Type") {
+      } else if (transferTypeTop == "Project Type") {
         print("Project Type");
         print('''
                project_id:${toProjectName},
@@ -870,25 +873,24 @@ class _AddGatePassState extends State<AddGatePass> {
          ''');
         context.read<AddWarehouseToProjectBloc>().add(
           SubmitAddWarehouseToProjectEvent(
-              project_id: toProjectName,
-              date: dateTimeStr,
-              vehicle_id: vehicleNameNo,
-              issued_to_id: issuedToTop,
-              issued_by_id: issuedByTop,
-              gatePass: gatePassNoTop,
-              description: descTop,
-              fromWarehouse: fromWarehouse,
-              outTime: stripAmPm(outTimeCsv),
-              materialsId: materialsIdCsv,
-              issuedMaterials: issuedMaterialsCsv,
-              currentBalance: currentBalanceCsv,
-              quantity: quantityCsv,
-              unit: unitCsv
+            project_id: toProjectName,
+            date: dateTimeStr,
+            vehicle_id: vehicleNameNo,
+            issued_to_id: issuedToTop,
+            issued_by_id: issuedByTop,
+            gatePass: gatePassNoTop,
+            description: descTop,
+            fromWarehouse: fromWarehouse,
+            outTime: stripAmPm(outTimeCsv),
+            materialsId: materialsIdCsv,
+            issuedMaterials: issuedMaterialsCsv,
+            currentBalance: currentBalanceCsv,
+            quantity: quantityCsv,
+            unit: unitCsv,
           ),
         );
       }
     }
-
   }
 
   void getDate(String inputDate) {
@@ -910,11 +912,11 @@ class _AddGatePassState extends State<AddGatePass> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-        backgroundColor: ColorConstants.background,
-        body: MultiBlocListener(
-          listeners: [
-            BlocListener<AddNewGatePassBloc, AddNewGatePassState>(
-                listener: (context, state) {
+      backgroundColor: ColorConstants.background,
+      body: MultiBlocListener(
+        listeners: [
+          BlocListener<AddNewGatePassBloc, AddNewGatePassState>(
+            listener: (context, state) {
               if (state is AddNewGatePassSuccess) {
                 Navigator.pop(context, "true");
                 Fluttertoast.showToast(msg: state.message);
@@ -926,64 +928,69 @@ class _AddGatePassState extends State<AddGatePass> {
                 showDialog(
                   context: context,
                   barrierDismissible: false,
-                  builder: (context) => Dialog(
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(20),
-                    ),
-                    backgroundColor: Colors.transparent,
-                    child: UploadErrorCard(
-                      title: "Failed to Add Project",
-                      subtitle: state.message,
-                      onRetry: () {
-                        Navigator.pop(context);
-                      },
-                    ),
-                  ),
+                  builder:
+                      (context) => Dialog(
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        backgroundColor: Colors.transparent,
+                        child: UploadErrorCard(
+                          title: "Failed to Gate Pass",
+                          subtitle: state.message,
+                          onRetry: () {
+                            Navigator.pop(context);
+                          },
+                        ),
+                      ),
                 );
                 setState(() {
                   _isSaving = false;
                 });
               }
-            }),
-            BlocListener<GatePassByIDBloc, GatePassByIDState>(
-              listener: (context, state) {
-                if (state is GatePassByIDLoadSuccess) {
-                  print("GatePassByIDLoadSuccess");
-                  if (widget.id != "") {
-                    final data = state.gatePassByID.isNotEmpty
-                        ? state.gatePassByID.first
-                        : null;
-                    if (data != null) {
-                      gatePass.text = data.gate_pass.toString();
-                      description.text = data.description??"";
-                      quantity.text = data.quantity.toString();
-                      getDate(data.date ?? "");
-                      selectedFromWarehouseID = data.from_warehouse??"";
-                      selectedToWarehouseID = data.to_warehouse;
-                      selectedToProjectListID = data.to_project??"";
-                      selectedIssuedByID = data.issued_by;
-                      selectedIssuedToID = data.issued_to;
-                      selectedVehicleNoID = data.vehicle_no;
-                      amount.text = data.amount??"";
-                      scrap.text = data.scrap??"";
-                      rate.text = data.rate??"";
-                      setState(() {});
-                    }
+            },
+          ),
+          BlocListener<GatePassByIDBloc, GatePassByIDState>(
+            listener: (context, state) {
+              if (state is GatePassByIDLoadSuccess) {
+                print("GatePassByIDLoadSuccess");
+                if (widget.id != "") {
+                  final data =
+                      state.gatePassByID.isNotEmpty
+                          ? state.gatePassByID.first
+                          : null;
+                  if (data != null) {
+                    gatePass.text = data.gate_pass.toString();
+                    description.text = data.description ?? "";
+                    quantity.text = data.quantity.toString();
+                    getDate(data.date ?? "");
+                    selectedFromWarehouseID = data.from_warehouse ?? "";
+                    selectedToWarehouseID = data.to_warehouse;
+                    selectedToProjectListID = data.to_project ?? "";
+                    selectedIssuedByID = data.issued_by;
+                    selectedIssuedToID = data.issued_to;
+                    selectedVehicleNoID = data.vehicle_no;
+                    amount.text = data.amount ?? "";
+                    scrap.text = data.scrap ?? "";
+                    rate.text = data.rate ?? "";
+                    setState(() {});
                   }
                 }
-              },
-            ),
-          ],
-          child: BlocBuilder<AddNewGatePassBloc, AddNewGatePassState>(
-              builder: (context, state) {
+              }
+            },
+          ),
+        ],
+        child: BlocBuilder<AddNewGatePassBloc, AddNewGatePassState>(
+          builder: (context, state) {
             return SafeArea(
               child: Container(
                 padding: EdgeInsets.symmetric(horizontal: 20, vertical: 15),
                 child: Column(
                   children: [
-                    CustomAppbar(context,
-                        title: "Add New Gate Pass",
-                        subTitle: "Create and log gate passes for materials"),
+                    CustomAppbar(
+                      context,
+                      title: "Add New Gate Pass",
+                      subTitle: "Create and log gate passes for materials",
+                    ),
                     Expanded(
                       child: Container(
                         padding: EdgeInsets.symmetric(vertical: 20),
@@ -992,8 +999,11 @@ class _AddGatePassState extends State<AddGatePass> {
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               const SizedBox(height: 20),
-                              subTitle("Mention Transfer Type/Date/Time",
-                                  leftMargin: 10.0, bottomMargin: 5),
+                              subTitle(
+                                "Mention Transfer Type/Date/Time",
+                                leftMargin: 10.0,
+                                bottomMargin: 5,
+                              ),
                               // transfer type
                               TransferDropdown<String>(
                                 title: "Transfer Type",
@@ -1003,78 +1013,93 @@ class _AddGatePassState extends State<AddGatePass> {
                                 displayText: (t) => t,
                                 onChanged: (val) {
                                   selectedTransfer = val;
-                                  err_transferType=null;
+                                  err_transferType = null;
                                   print("selectedTransfer $selectedTransfer");
                                   setState(() {});
                                 },
                               ),
-                              if (err_transferType != null)errorText(err_transferType),
-                              SizedBox(
-                                height: 10,
-                              ),
+                              if (err_transferType != null)
+                                errorText(err_transferType),
+                              SizedBox(height: 10),
                               // date/time row
                               Container(
                                 padding: const EdgeInsets.only(left: 10),
                                 child: Row(
                                   children: [
                                     CustomDateTimeTextField(
-                                        onTap: _pickDate,
-                                        hint: _selectedDate == null
-                                            ? '-- Date --'
-                                            : DateFormat("d MMMM y")
-                                                .format(_selectedDate!),
-                                        icon: Icons.calendar_month),
+                                      onTap: _pickDate,
+                                      hint:
+                                          _selectedDate == null
+                                              ? '-- Date --'
+                                              : DateFormat(
+                                                "d MMMM y",
+                                              ).format(_selectedDate!),
+                                      icon: Icons.calendar_month,
+                                    ),
                                     const SizedBox(width: 10),
                                     CustomDateTimeTextField(
-                                        onTap: _pickTime,
-                                        title: "Select Time",
-                                        hint: _selectedTime == null
-                                            ? '-- Time --'
-                                            : formatTimeWithSpace(
-                                                _selectedTime!),
-                                        icon: Icons.watch_later_outlined),
+                                      onTap: _pickTime,
+                                      title: "Select Time",
+                                      hint:
+                                          _selectedTime == null
+                                              ? '-- Time --'
+                                              : formatTimeWithSpace(
+                                                _selectedTime!,
+                                              ),
+                                      icon: Icons.watch_later_outlined,
+                                    ),
                                   ],
                                 ),
                               ),
-                              if (err_dateTime != null)errorText(err_dateTime),
+                              if (err_dateTime != null) errorText(err_dateTime),
                               if (selectedTransfer == "Warehouse Type") ...[
-                                SizedBox(
-                                  height: 20,
+                                SizedBox(height: 20),
+                                subTitle(
+                                  "Select To Warehouse",
+                                  leftMargin: 10.0,
+                                  bottomMargin: 5,
                                 ),
-                                subTitle("Select To Warehouse",
-                                    leftMargin: 10.0, bottomMargin: 5),
                                 BlocBuilder<WarehouseBloc, WarehouseState>(
                                   builder: (context, state) {
                                     if (state is WarehouseLoadSuccess) {
                                       // find the coordinator whose id matches the selected id
-                                      final selectedToWarehouse =
-                                          state.warehouses.firstWhere(
-                                        (coordinator) =>
-                                            coordinator.godown_id ==
-                                            selectedToWarehouseID,
-                                        orElse: () => WarehouseData(
-                                            godown_id: "", godown_name: ""),
-                                      );
+                                      final selectedToWarehouse = state
+                                          .warehouses
+                                          .firstWhere(
+                                            (coordinator) =>
+                                                coordinator.godown_id ==
+                                                selectedToWarehouseID,
+                                            orElse:
+                                                () => WarehouseData(
+                                                  godown_id: "",
+                                                  godown_name: "",
+                                                ),
+                                          );
                                       return Column(
-                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        crossAxisAlignment:
+                                            CrossAxisAlignment.start,
                                         children: [
                                           TransferDropdown<WarehouseData>(
                                             title: 'To Warehouse',
                                             hint: 'Select warehouse',
                                             selectedVal:
-                                                selectedToWarehouse.godown_name ??
-                                                    "",
+                                                selectedToWarehouse
+                                                    .godown_name ??
+                                                "",
                                             data: state.warehouses,
-                                            displayText: (data) =>
-                                                data.godown_name ?? '',
+                                            displayText:
+                                                (data) =>
+                                                    data.godown_name ?? '',
                                             onChanged: (val) {
                                               setState(() {
-                                                selectedToWarehouseID = val.godown_id ?? "";
-                                                err_toWarehouse=null;
+                                                selectedToWarehouseID =
+                                                    val.godown_id ?? "";
+                                                err_toWarehouse = null;
                                               });
                                             },
                                           ),
-                                          if (err_toWarehouse != null)errorText(err_toWarehouse),
+                                          if (err_toWarehouse != null)
+                                            errorText(err_toWarehouse),
                                         ],
                                       );
                                     }
@@ -1083,45 +1108,53 @@ class _AddGatePassState extends State<AddGatePass> {
                                 ),
                               ],
                               if (selectedTransfer == "Project Type") ...[
-                              SizedBox(
-                                  height: 10,
-                                ),
+                                SizedBox(height: 10),
                                 BlocBuilder<ProjectListBloc, ProjectListState>(
                                   builder: (context, state) {
                                     if (state is ProjectListLoadSuccess) {
                                       // find the coordinator whose id matches the selected id
-                                      final selectedToProjectList =
-                                          state.projectLists.firstWhere(
-                                        (coordinator) =>
-                                            coordinator.project_id ==
-                                            selectedToProjectListID,
-                                        orElse: () => ProjectListData(
-                                            project_name: "", project_id: ""),
-                                      );
+                                      final selectedToProjectList = state
+                                          .projectLists
+                                          .firstWhere(
+                                            (coordinator) =>
+                                                coordinator.project_id ==
+                                                selectedToProjectListID,
+                                            orElse:
+                                                () => ProjectListData(
+                                                  project_name: "",
+                                                  project_id: "",
+                                                ),
+                                          );
                                       return Column(
                                         crossAxisAlignment:
                                             CrossAxisAlignment.start,
                                         children: [
-                                          subTitle("Mention To Project",
-                                              leftMargin: 10.0,bottomMargin: 5),
+                                          subTitle(
+                                            "Mention To Project",
+                                            leftMargin: 10.0,
+                                            bottomMargin: 5,
+                                          ),
                                           TransferDropdown<ProjectListData>(
                                             title: 'To Project List',
                                             hint: 'Select Project',
-                                            selectedVal: selectedToProjectList
+                                            selectedVal:
+                                                selectedToProjectList
                                                     .project_name ??
                                                 "",
                                             data: state.projectLists,
-                                            displayText: (data) =>
-                                                data?.project_name ?? '',
+                                            displayText:
+                                                (data) =>
+                                                    data?.project_name ?? '',
                                             onChanged: (val) {
                                               setState(() {
                                                 selectedToProjectListID =
                                                     val.project_id ?? "";
-                                                err_toProject=null;
+                                                err_toProject = null;
                                               });
                                             },
                                           ),
-                                          if (err_toProject != null)errorText(err_toProject),
+                                          if (err_toProject != null)
+                                            errorText(err_toProject),
                                         ],
                                       );
                                     }
@@ -1129,41 +1162,47 @@ class _AddGatePassState extends State<AddGatePass> {
                                   },
                                 ),
                               ],
-                              SizedBox(
-                                height:20
-                              ),
+                              SizedBox(height: 20),
                               BlocBuilder<VehicleBloc, VehicleState>(
                                 builder: (context, state) {
                                   if (state is VehicleLoadSuccess) {
                                     // find the coordinator whose id matches the selected id
-                                    final selectedVehicle =
-                                        state.vehicles.firstWhere(
-                                      (coordinator) =>
-                                          coordinator.vehicleid ==
-                                          selectedVehicleNoID,
-                                      orElse: () => VehicleNoData(
-                                          vehicleid: "",
-                                          vehiclename: "",
-                                          vehicleno: ""),
-                                    );
+                                    final selectedVehicle = state.vehicles
+                                        .firstWhere(
+                                          (coordinator) =>
+                                              coordinator.vehicleid ==
+                                              selectedVehicleNoID,
+                                          orElse:
+                                              () => VehicleNoData(
+                                                vehicleid: "",
+                                                vehiclename: "",
+                                                vehicleno: "",
+                                              ),
+                                        );
                                     return Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        subTitle("Mention Vehicle Name",
-                                            leftMargin: 10.0, bottomMargin: 5),
+                                        subTitle(
+                                          "Mention Vehicle Name",
+                                          leftMargin: 10.0,
+                                          bottomMargin: 5,
+                                        ),
                                         TransferDropdown<VehicleNoData>(
                                           title: 'Vehicle Name/No',
                                           hint: 'Select Vehicle Name',
                                           // selectedVal: selectedVehicle.vehiclename ?? "",
-                                          selectedVal: selectedVehicle.vehiclename!.isNotEmpty
-                                              ? "${selectedVehicle.vehiclename} (${selectedVehicle.vehicleno})"
-                                              : "",
+                                          selectedVal:
+                                              selectedVehicle
+                                                      .vehiclename!
+                                                      .isNotEmpty
+                                                  ? "${selectedVehicle.vehiclename} (${selectedVehicle.vehicleno})"
+                                                  : "",
                                           data: state.vehicles,
-                                          displayText: (data) =>
-                                              data.vehiclename ?? '',
-                                          subDisplayText: (data) =>
-                                              data.vehicleno ?? '',
+                                          displayText:
+                                              (data) => data.vehiclename ?? '',
+                                          subDisplayText:
+                                              (data) => data.vehicleno ?? '',
                                           onChanged: (val) {
                                             setState(() {
                                               selectedVehicleNoID =
@@ -1177,46 +1216,48 @@ class _AddGatePassState extends State<AddGatePass> {
                                   return const SizedBox.shrink();
                                 },
                               ),
-                              SizedBox(
-                                height: 20,
-                              ),
+                              SizedBox(height: 20),
                               BlocBuilder<EmployeeBloc, EmployeeState>(
                                 builder: (context, state) {
                                   if (state is EmployeeLoadSuccess) {
                                     // find the coordinator whose id matches the selected id
-                                    final issuedTo =
-                                        state.employees.firstWhere(
+                                    final issuedTo = state.employees.firstWhere(
                                       (coordinator) =>
                                           coordinator.EmployeeId ==
                                           selectedIssuedToID,
-                                      orElse: () => EmployeeData(
-                                          EmployeeName: "", EmployeeId: ""),
+                                      orElse:
+                                          () => EmployeeData(
+                                            EmployeeName: "",
+                                            EmployeeId: "",
+                                          ),
                                     );
                                     return Column(
                                       crossAxisAlignment:
                                           CrossAxisAlignment.start,
                                       children: [
-                                        subTitle("Mention Issued To/By Person",
-                                            leftMargin: 10.0, bottomMargin: 5),
+                                        subTitle(
+                                          "Mention Issued To/By Person",
+                                          leftMargin: 10.0,
+                                          bottomMargin: 5,
+                                        ),
                                         TransferDropdown<EmployeeData>(
                                           title: 'Issued To',
                                           hint: 'Select Person',
                                           selectedVal:
-                                          issuedTo.EmployeeName ??
-                                                  "",
+                                              issuedTo.EmployeeName ?? "",
                                           data: state.employees,
-                                          displayText: (data) =>
-                                              data.EmployeeName ?? '',
+                                          displayText:
+                                              (data) => data.EmployeeName ?? '',
                                           onChanged: (val) {
                                             setState(() {
                                               selectedIssuedToID =
                                                   val.EmployeeId ?? "";
-                                              err_issuedTo=null;
+                                              err_issuedTo = null;
                                             });
                                           },
                                         ),
-                                        if (err_issuedTo != null)errorText(err_issuedTo),
-
+                                        if (err_issuedTo != null)
+                                          errorText(err_issuedTo),
                                       ],
                                     );
                                   }
@@ -1227,112 +1268,140 @@ class _AddGatePassState extends State<AddGatePass> {
                                 builder: (context, state) {
                                   if (state is EmployeeLoadSuccess) {
                                     // find the coordinator whose id matches the selected id
-                                    final issuedBy =
-                                        state.employees.firstWhere(
+                                    final issuedBy = state.employees.firstWhere(
                                       (coordinator) =>
                                           coordinator.EmployeeId ==
                                           selectedIssuedByID,
-                                      orElse: () => EmployeeData(
-                                          EmployeeName: "", EmployeeId: ""),
+                                      orElse:
+                                          () => EmployeeData(
+                                            EmployeeName: "",
+                                            EmployeeId: "",
+                                          ),
                                     );
                                     return Column(
-                                      crossAxisAlignment: CrossAxisAlignment.start,
+                                      crossAxisAlignment:
+                                          CrossAxisAlignment.start,
                                       children: [
                                         TransferDropdown<EmployeeData>(
                                           title: 'Issued By',
                                           hint: 'Select Person',
                                           selectedVal:
-                                          issuedBy.EmployeeName ?? "",
+                                              issuedBy.EmployeeName ?? "",
                                           data: state.employees,
-                                          displayText: (data) =>
-                                              data.EmployeeName ?? '',
+                                          displayText:
+                                              (data) => data.EmployeeName ?? '',
                                           onChanged: (val) {
                                             setState(() {
                                               selectedIssuedByID =
                                                   val.EmployeeId ?? "";
-                                              err_issuedBy=null;
+                                              err_issuedBy = null;
                                             });
                                           },
                                         ),
-                                        if (err_issuedBy != null)errorText(err_issuedBy),
+                                        if (err_issuedBy != null)
+                                          errorText(err_issuedBy),
                                       ],
                                     );
                                   }
                                   return const SizedBox.shrink();
                                 },
                               ),
-                              SizedBox(
-                                height: 20,
+                              SizedBox(height: 20),
+                              subTitle(
+                                "Description and Gate Pass Number",
+                                bottomMargin: 5,
                               ),
-                              subTitle("Description and Gate Pass Number",
-                                  bottomMargin: 5),
-                              txtFiled(context, gatePass,
-                                  "Enter Gate Pass Number", "Gate Pass",
-                                  isNumber: true),
-                              if (err_gatePass != null)errorText(err_gatePass),
+                              txtFiled(
+                                context,
+                                gatePass,
+                                "Enter Gate Pass Number",
+                                "Gate Pass",
+                                isNumber: true,
+                              ),
+                              if (err_gatePass != null) errorText(err_gatePass),
                               const SizedBox(height: 10),
-                              txtFiled(context, description,
-                                  "Enter Description", "Description",
-                                  maxLines: 5),
+                              txtFiled(
+                                context,
+                                description,
+                                "Enter Description",
+                                "Description",
+                                maxLines: 5,
+                              ),
                               const SizedBox(height: 20),
-                              BlocListener<MaterialIssuedBloc, MaterialIssuedState>(
+                              BlocListener<
+                                MaterialIssuedBloc,
+                                MaterialIssuedState
+                              >(
                                 listener: (context, state) {
                                   if (state is MaterialIssuedLoadSuccess) {
                                     setState(() {
                                       materialIssuedList = state.materials;
                                     });
                                     print(
-                                        "Parent listener updated materialIssuedList: ${materialIssuedList.length}");
+                                      "Parent listener updated materialIssuedList: ${materialIssuedList.length}",
+                                    );
                                   } else if (state is MaterialIssuedFailure) {
                                     print(
-                                        "MaterialIssued fetch failed: ${state.error}");
+                                      "MaterialIssued fetch failed: ${state.error}",
+                                    );
                                     // optionally show a snackbar or toast
                                   }
                                 },
                                 child: const SizedBox.shrink(),
                               ),
                               for (int i = 0; i < materialEntries.length; i++)
-                              Container(
+                                Container(
                                   padding: const EdgeInsets.symmetric(
-                                      horizontal: 10, vertical: 10),
+                                    horizontal: 10,
+                                    vertical: 10,
+                                  ),
                                   margin: const EdgeInsets.only(bottom: 15),
                                   decoration: BoxDecoration(
-                                    color:
-                                        ColorConstants.primary.withOpacity(.01),
+                                    color: ColorConstants.primary.withOpacity(
+                                      .01,
+                                    ),
                                     borderRadius: BorderRadius.circular(5),
                                     border: Border.all(
                                       width: 1,
-                                      color: ColorConstants.primary
-                                          .withOpacity(.2),
+                                      color: ColorConstants.primary.withOpacity(
+                                        .2,
+                                      ),
                                     ),
                                   ),
                                   child: Column(
                                     crossAxisAlignment:
                                         CrossAxisAlignment.start,
                                     children: [
-                                      subTitle("Select From Warehouse",
-                                          leftMargin: 10.0, bottomMargin: 5),
+                                      subTitle(
+                                        "Select From Warehouse",
+                                        leftMargin: 10.0,
+                                        bottomMargin: 5,
+                                      ),
                                       // --- Warehouse dropdown ---
-                                      BlocBuilder<WarehouseBloc,
-                                          WarehouseState>(
+                                      BlocBuilder<
+                                        WarehouseBloc,
+                                        WarehouseState
+                                      >(
                                         builder: (context, state) {
                                           if (state is WarehouseLoadSuccess) {
                                             final currentSelectedId =
                                                 materialEntries[i]
-                                                        .selectedFromWarehouseId
-                                                        ?.toString() ??
-                                                    '';
-                                            final displayName = state.warehouses
+                                                    .selectedFromWarehouseId
+                                                    ?.toString() ??
+                                                '';
+                                            final displayName =
+                                                state.warehouses
                                                     .firstWhere(
                                                       (w) =>
                                                           (w.godown_id
                                                                   ?.toString() ??
                                                               '') ==
                                                           currentSelectedId,
-                                                      orElse: () =>
-                                                          WarehouseData(
-                                                              godown_id: "",
-                                                              godown_name: ""),
+                                                      orElse:
+                                                          () => WarehouseData(
+                                                            godown_id: "",
+                                                            godown_name: "",
+                                                          ),
                                                     )
                                                     .godown_name ??
                                                 '';
@@ -1357,48 +1426,68 @@ class _AddGatePassState extends State<AddGatePass> {
                                             //           .contains(wid) ||
                                             //       wid == currentSelectedId;
                                             // }).toList();
-                                            final filteredWarehouses = state.warehouses;
+                                            final filteredWarehouses =
+                                                state.warehouses;
                                             return Column(
                                               children: [
-                                                TransferDropdown<
-                                                    WarehouseData>(
+                                                TransferDropdown<WarehouseData>(
                                                   title: 'From Warehouse',
                                                   hint: 'Select warehouse',
-                                                  selectedVal: materialEntries[i]
-                                                          .selectedFromWarehouseName
-                                                          .isNotEmpty
-                                                      ? materialEntries[i]
-                                                          .selectedFromWarehouseName
-                                                      : (displayName.isNotEmpty
-                                                          ? displayName
-                                                          : ''),
+                                                  selectedVal:
+                                                      materialEntries[i]
+                                                              .selectedFromWarehouseName
+                                                              .isNotEmpty
+                                                          ? materialEntries[i]
+                                                              .selectedFromWarehouseName
+                                                          : (displayName
+                                                                  .isNotEmpty
+                                                              ? displayName
+                                                              : ''),
                                                   data: filteredWarehouses,
-                                                  displayText: (data) =>
-                                                      data.godown_name ?? '',
+                                                  displayText:
+                                                      (data) =>
+                                                          data.godown_name ??
+                                                          '',
                                                   onChanged: (val) {
-                                                    final selectedWarehouseId = val.godown_id?.toString() ?? '';
+                                                    final selectedWarehouseId =
+                                                        val.godown_id
+                                                            ?.toString() ??
+                                                        '';
 
-                                                    if (selectedWarehouseId == selectedToProjectListID) {
+                                                    if (selectedWarehouseId ==
+                                                        selectedToProjectListID) {
                                                       if (!_validationInProgress) {
-                                                        _validationInProgress = true;
+                                                        _validationInProgress =
+                                                            true;
 
                                                         Fluttertoast.showToast(
-                                                          msg: "Project and Warehouse cannot be the same",
+                                                          msg:
+                                                              "Project and Warehouse cannot be the same",
                                                         );
 
-                                                        Future.delayed(const Duration(milliseconds: 300), () {
-                                                          _validationInProgress = false;
-                                                        });
+                                                        Future.delayed(
+                                                          const Duration(
+                                                            milliseconds: 300,
+                                                          ),
+                                                          () {
+                                                            _validationInProgress =
+                                                                false;
+                                                          },
+                                                        );
                                                       }
                                                       return;
                                                     }
                                                     setState(() {
-                                                      if (i < err_materialEntry.length) {
-                                                        err_materialEntry[i] = null;
+                                                      if (i <
+                                                          err_materialEntry
+                                                              .length) {
+                                                        err_materialEntry[i] =
+                                                            null;
                                                       }
                                                       materialEntries[i]
-                                                              .selectedFromWarehouseId =
-                                                          val.godown_id?.toString();
+                                                          .selectedFromWarehouseId = val
+                                                              .godown_id
+                                                              ?.toString();
                                                       materialEntries[i]
                                                               .selectedFromWarehouseName =
                                                           val.godown_name ?? '';
@@ -1427,22 +1516,24 @@ class _AddGatePassState extends State<AddGatePass> {
                                                               .selectedMaterialId =
                                                           null;
                                                       materialEntries[i]
-                                                          .selectedGroupId = null;
+                                                              .selectedGroupId =
+                                                          null;
                                                       materialEntries[i]
                                                               .selectedSubgroupId =
                                                           null;
 
                                                       // dispose & clear existing lines
                                                       for (final l in List<
-                                                              MaterialLine>.from(
-                                                          materialEntries[i]
-                                                              .lines)) {
+                                                        MaterialLine
+                                                      >.from(
+                                                        materialEntries[i]
+                                                            .lines,
+                                                      )) {
                                                         try {
                                                           l.dispose();
                                                         } catch (_) {}
                                                       }
-                                                      materialEntries[i]
-                                                          .lines
+                                                      materialEntries[i].lines
                                                           .clear();
 
                                                       materialEntries[i]
@@ -1455,129 +1546,150 @@ class _AddGatePassState extends State<AddGatePass> {
                                                     });
 
                                                     // fetch materials for the selected warehouse
-                                                    final godown_id = materialEntries[
-                                                                i]
+                                                    final godown_id =
+                                                        materialEntries[i]
                                                             .selectedFromWarehouseId ??
                                                         "";
-                                                    print("godown_id $godown_id");
+                                                    print(
+                                                      "godown_id $godown_id",
+                                                    );
                                                     if (godown_id.isNotEmpty) {
                                                       context
                                                           .read<
-                                                              MaterialIssuedBloc>()
+                                                            MaterialIssuedBloc
+                                                          >()
                                                           .add(
                                                             FetchMaterialIssuedEvent(
-                                                                godownId:
-                                                                    godown_id),
+                                                              godownId:
+                                                                  godown_id,
+                                                            ),
                                                           );
                                                     }
                                                   },
                                                 ),
-
                                               ],
                                             );
                                           }
                                           return const SizedBox.shrink();
                                         },
                                       ),
-                                      Builder(builder: (context) {
-                                        final hasSelectedWarehouse =
-                                            (materialEntries[i]
-                                                        .selectedFromWarehouseId ??
-                                                    '')
-                                                .isNotEmpty;
-                                        if (!hasSelectedWarehouse) {
-                                          // show hint to user to select warehouse first
-                                          return Padding(
-                                            padding: const EdgeInsets.symmetric(
-                                                vertical: 8.0, horizontal: 10),
-                                            child: Text(
-                                              'Select a warehouse to choose category, sub-category and materials',
-                                              style: TextStyle(
+                                      Builder(
+                                        builder: (context) {
+                                          final hasSelectedWarehouse =
+                                              (materialEntries[i]
+                                                          .selectedFromWarehouseId ??
+                                                      '')
+                                                  .isNotEmpty;
+                                          if (!hasSelectedWarehouse) {
+                                            // show hint to user to select warehouse first
+                                            return Padding(
+                                              padding:
+                                                  const EdgeInsets.symmetric(
+                                                    vertical: 8.0,
+                                                    horizontal: 10,
+                                                  ),
+                                              child: Text(
+                                                'Select a warehouse to choose category, sub-category and materials',
+                                                style: TextStyle(
                                                   color: Colors.grey.shade600,
-                                                  fontSize: 13),
-                                            ),
-                                          );
-                                        }
+                                                  fontSize: 13,
+                                                ),
+                                              ),
+                                            );
+                                          }
 
-                                        // We have a warehouse — use MaterialIssuedBloc data to build stepwise lists
-                                        return BlocBuilder<MaterialIssuedBloc,
-                                            MaterialIssuedState>(
-                                          builder: (context, state) {
-                                            if (state
-                                                is! MaterialIssuedLoadSuccess) {
-                                              // still loading or no materials yet
-                                              return const SizedBox.shrink();
-                                            }
+                                          // We have a warehouse — use MaterialIssuedBloc data to build stepwise lists
+                                          return BlocBuilder<
+                                            MaterialIssuedBloc,
+                                            MaterialIssuedState
+                                          >(
+                                            builder: (context, state) {
+                                              if (state
+                                                  is! MaterialIssuedLoadSuccess) {
+                                                // still loading or no materials yet
+                                                return const SizedBox.shrink();
+                                              }
 
-                                            final allMaterials =
-                                                state.materials;
+                                              final allMaterials =
+                                                  state.materials;
 
-                                            // build unique category list preserving order
-                                            final Map<String,
-                                                    MaterialIssuedData>
-                                                uniqueByGroup = {};
-                                            for (final m in allMaterials) {
-                                              final key = (m.groupid
-                                                          ?.toString()
-                                                          .isNotEmpty ??
-                                                      false)
-                                                  ? m.groupid!.toString()
-                                                  : (m.groupname ?? '');
-                                              if (!uniqueByGroup.containsKey(
-                                                  key)) uniqueByGroup[key] = m;
-                                            }
-                                            final uniqueCategories =
-                                                uniqueByGroup.values.toList();
+                                              // build unique category list preserving order
+                                              final Map<
+                                                String,
+                                                MaterialIssuedData
+                                              >
+                                              uniqueByGroup = {};
+                                              for (final m in allMaterials) {
+                                                final key =
+                                                    (m.groupid
+                                                                ?.toString()
+                                                                .isNotEmpty ??
+                                                            false)
+                                                        ? m.groupid!.toString()
+                                                        : (m.groupname ?? '');
+                                                if (!uniqueByGroup.containsKey(
+                                                  key,
+                                                ))
+                                                  uniqueByGroup[key] = m;
+                                              }
+                                              final uniqueCategories =
+                                                  uniqueByGroup.values.toList();
 
-                                            final selectedCategoryId =
-                                                materialEntries[i]
-                                                    .selectedCategoryId;
-                                            final selectedSubCategoryId =
-                                                materialEntries[i]
-                                                    .selectedSubCategoryId;
+                                              final selectedCategoryId =
+                                                  materialEntries[i]
+                                                      .selectedCategoryId;
+                                              final selectedSubCategoryId =
+                                                  materialEntries[i]
+                                                      .selectedSubCategoryId;
 
-                                            // subcategories under selected category (unique subgroupid)
-                                            final List<MaterialIssuedData>
-                                                subCategories =
-                                                selectedCategoryId != null
-                                                    ? allMaterials
-                                                        .where((m) =>
+                                              // subcategories under selected category (unique subgroupid)
+                                              final List<MaterialIssuedData>
+                                              subCategories =
+                                                  selectedCategoryId != null
+                                                      ? allMaterials
+                                                          .where(
+                                                            (m) =>
+                                                                (m.groupid
+                                                                        ?.toString() ??
+                                                                    '') ==
+                                                                selectedCategoryId
+                                                                    .toString(),
+                                                          )
+                                                          .fold<
+                                                            List<
+                                                              MaterialIssuedData
+                                                            >
+                                                          >([], (acc, m) {
+                                                            final existing = acc.indexWhere(
+                                                              (e) =>
+                                                                  (e.subgroupid
+                                                                          ?.toString() ??
+                                                                      '') ==
+                                                                  (m.subgroupid
+                                                                          ?.toString() ??
+                                                                      ''),
+                                                            );
+                                                            if (existing == -1)
+                                                              acc.add(m);
+                                                            return acc;
+                                                          })
+                                                      : [];
+
+                                              // issued materials under the selected category+subcategory
+                                              final List<MaterialIssuedData>
+                                              issuedMaterials =
+                                                  (selectedCategoryId != null &&
+                                                          selectedSubCategoryId !=
+                                                              null)
+                                                      ? allMaterials.where((m) {
+                                                        final matchCategory =
                                                             (m.groupid
                                                                     ?.toString() ??
                                                                 '') ==
                                                             selectedCategoryId
-                                                                .toString())
-                                                        .fold<List<MaterialIssuedData>>(
-                                                            [], (acc, m) {
-                                                        final existing = acc
-                                                            .indexWhere((e) =>
-                                                                (e.subgroupid
-                                                                        ?.toString() ??
-                                                                    '') ==
-                                                                (m.subgroupid
-                                                                        ?.toString() ??
-                                                                    ''));
-                                                        if (existing == -1)
-                                                          acc.add(m);
-                                                        return acc;
-                                                      })
-                                                    : [];
-
-                                            // issued materials under the selected category+subcategory
-                                            final List<MaterialIssuedData>
-                                                issuedMaterials =
-                                                (selectedCategoryId != null &&
-                                                        selectedSubCategoryId !=
-                                                            null)
-                                                    ? allMaterials.where((m) {
-                                                        final matchCategory = (m
-                                                                    .groupid
-                                                                    ?.toString() ??
-                                                                '') ==
-                                                            selectedCategoryId
                                                                 .toString();
-                                                        final matchSub = (m
-                                                                    .subgroupid
+                                                        final matchSub =
+                                                            (m.subgroupid
                                                                     ?.toString() ??
                                                                 '') ==
                                                             selectedSubCategoryId
@@ -1585,135 +1697,64 @@ class _AddGatePassState extends State<AddGatePass> {
                                                         return matchCategory &&
                                                             matchSub;
                                                       }).toList()
-                                                    : [];
+                                                      : [];
 
-                                            return Column(
-                                              crossAxisAlignment:
-                                                  CrossAxisAlignment.start,
-                                              children: [
-                                                // 1) CATEGORY — visible because warehouse selected
-                                                TransferDropdown<
-                                                    MaterialIssuedData>(
-                                                  title: 'Category',
-                                                  hint: 'Select Category',
-                                                  selectedVal: materialEntries[
-                                                              i]
-                                                          .selectedCategoryName
-                                                          .isNotEmpty
-                                                      ? materialEntries[i]
-                                                          .selectedCategoryName
-                                                      : (uniqueCategories
-                                                              .firstWhere(
-                                                                  (w) =>
-                                                                      w.groupid ==
-                                                                      materialEntries[
-                                                                              i]
-                                                                          .selectedCategoryId,
-                                                                  orElse: () =>
-                                                                      MaterialIssuedData(
-                                                                          groupid:
-                                                                              "",
-                                                                          groupname:
-                                                                              ""))
-                                                              .groupname ??
-                                                          'Select Category'),
-                                                  data: uniqueCategories,
-                                                  displayText: (data) =>
-                                                      data.groupname ?? '',
-                                                  onChanged: (val) {
-                                                    setState(() {
-                                                      err_materialEntry[i]=null;
-                                                      materialEntries[i]
-                                                              .selectedCategoryId =
-                                                          val.groupid
-                                                              ?.toString();
-                                                      materialEntries[i]
-                                                              .selectedCategoryName =
-                                                          val.groupname ??
-                                                              'Select Category';
-
-                                                      // clear downstream: subcategory, materials, lines
-                                                      materialEntries[i]
-                                                              .selectedSubCategoryId =
-                                                          null;
-                                                      materialEntries[i]
-                                                          .selectedSubCategoryName = '';
-                                                      materialEntries[i]
-                                                          .selectedMaterialsList = [];
-                                                      materialEntries[i]
-                                                          .selectedMaterialIds = [];
-                                                      materialEntries[i]
-                                                          .selectedGroupIds = [];
-                                                      materialEntries[i]
-                                                          .selectedSubgroupIds = [];
-
-                                                      for (final l in List<
-                                                              MaterialLine>.from(
-                                                          materialEntries[i]
-                                                              .lines)) {
-                                                        try {
-                                                          l.dispose();
-                                                        } catch (_) {}
-                                                      }
-                                                      materialEntries[i]
-                                                          .lines
-                                                          .clear();
-                                                      materialEntries[i]
-                                                          .currentBalance = 0;
-                                                      materialEntries[i]
-                                                          .remainingBalance = 0;
-                                                    });
-                                                  },
-                                                ),
-
-                                                const SizedBox(height: 8),
-
-                                                // 2) SUB CATEGORY — visible only when a category is selected
-                                                if (materialEntries[i]
-                                                            .selectedCategoryId !=
-                                                        null &&
-                                                    materialEntries[i]
-                                                        .selectedCategoryId!
-                                                        .isNotEmpty) ...[
+                                              return Column(
+                                                crossAxisAlignment:
+                                                    CrossAxisAlignment.start,
+                                                children: [
+                                                  // 1) CATEGORY — visible because warehouse selected
                                                   TransferDropdown<
-                                                      MaterialIssuedData>(
-                                                    title: 'Sub Category',
-                                                    hint: 'Select Sub Category',
-                                                    selectedVal: materialEntries[
-                                                                i]
-                                                            .selectedSubCategoryName
-                                                            .isNotEmpty
-                                                        ? materialEntries[i]
-                                                            .selectedSubCategoryName
-                                                        : (subCategories
-                                                                .firstWhere(
-                                                                    (w) =>
-                                                                        w.subgroupid ==
-                                                                        materialEntries[i]
-                                                                            .selectedSubCategoryId,
-                                                                    orElse: () => MaterialIssuedData(
-                                                                        groupid:
-                                                                            "",
-                                                                        groupname:
-                                                                            ""))
-                                                                .subgroupname ??
-                                                            'Select Sub Category'),
-                                                    data: subCategories,
-                                                    displayText: (data) =>
-                                                        data.subgroupname ?? '',
+                                                    MaterialIssuedData
+                                                  >(
+                                                    title: 'Category',
+                                                    hint: 'Select Category',
+                                                    selectedVal:
+                                                        materialEntries[i]
+                                                                .selectedCategoryName
+                                                                .isNotEmpty
+                                                            ? materialEntries[i]
+                                                                .selectedCategoryName
+                                                            : (uniqueCategories
+                                                                    .firstWhere(
+                                                                      (w) =>
+                                                                          w.groupid ==
+                                                                          materialEntries[i]
+                                                                              .selectedCategoryId,
+                                                                      orElse:
+                                                                          () => MaterialIssuedData(
+                                                                            groupid:
+                                                                                "",
+                                                                            groupname:
+                                                                                "",
+                                                                          ),
+                                                                    )
+                                                                    .groupname ??
+                                                                'Select Category'),
+                                                    data: uniqueCategories,
+                                                    displayText:
+                                                        (data) =>
+                                                            data.groupname ??
+                                                            '',
                                                     onChanged: (val) {
                                                       setState(() {
-                                                        err_materialEntry[i]=null;
+                                                        err_materialEntry[i] =
+                                                            null;
                                                         materialEntries[i]
-                                                                .selectedSubCategoryId =
-                                                            val.subgroupid
+                                                            .selectedCategoryId = val
+                                                                .groupid
                                                                 ?.toString();
                                                         materialEntries[i]
-                                                            .selectedSubCategoryName = val
-                                                                .subgroupname ??
-                                                            'Select Sub Category';
+                                                                .selectedCategoryName =
+                                                            val.groupname ??
+                                                            'Select Category';
 
-                                                        // clear downstream when subcategory changes
+                                                        // clear downstream: subcategory, materials, lines
+                                                        materialEntries[i]
+                                                                .selectedSubCategoryId =
+                                                            null;
+                                                        materialEntries[i]
+                                                            .selectedSubCategoryName = '';
                                                         materialEntries[i]
                                                             .selectedMaterialsList = [];
                                                         materialEntries[i]
@@ -1722,16 +1763,18 @@ class _AddGatePassState extends State<AddGatePass> {
                                                             .selectedGroupIds = [];
                                                         materialEntries[i]
                                                             .selectedSubgroupIds = [];
+
                                                         for (final l in List<
-                                                                MaterialLine>.from(
-                                                            materialEntries[i]
-                                                                .lines)) {
+                                                          MaterialLine
+                                                        >.from(
+                                                          materialEntries[i]
+                                                              .lines,
+                                                        )) {
                                                           try {
                                                             l.dispose();
                                                           } catch (_) {}
                                                         }
-                                                        materialEntries[i]
-                                                            .lines
+                                                        materialEntries[i].lines
                                                             .clear();
                                                         materialEntries[i]
                                                             .currentBalance = 0;
@@ -1740,226 +1783,383 @@ class _AddGatePassState extends State<AddGatePass> {
                                                       });
                                                     },
                                                   ),
+
                                                   const SizedBox(height: 8),
-                                                ],
 
-                                                // 3) ISSUED MATERIAL — visible only when subcategory is selected
-                                                if (materialEntries[i]
-                                                            .selectedSubCategoryId !=
-                                                        null &&
-                                                    materialEntries[i]
-                                                        .selectedSubCategoryId!
-                                                        .isNotEmpty) ...[
-                                                  MultiSelectDropdown<MaterialIssuedData>(
-                                                    title: 'Issued Material',
-                                                    hint: 'Select Material',
-                                                    data: issuedMaterials,
-                                                    displayText: (d) =>
-                                                        d.item ?? '',
-                                                    selectedValues:
-                                                        materialEntries[i]
-                                                            .selectedMaterialsList,
-                                                    onChanged: (List<
-                                                            MaterialIssuedData>
-                                                        selectedList) {
-                                                      setState(() {
-                                                        err_materialEntry[i]=null;
-                                                        final entry =
-                                                            materialEntries[i];
+                                                  // 2) SUB CATEGORY — visible only when a category is selected
+                                                  if (materialEntries[i]
+                                                              .selectedCategoryId !=
+                                                          null &&
+                                                      materialEntries[i]
+                                                          .selectedCategoryId!
+                                                          .isNotEmpty) ...[
+                                                    TransferDropdown<
+                                                      MaterialIssuedData
+                                                    >(
+                                                      title: 'Sub Category',
+                                                      hint:
+                                                          'Select Sub Category',
+                                                      selectedVal:
+                                                          materialEntries[i]
+                                                                  .selectedSubCategoryName
+                                                                  .isNotEmpty
+                                                              ? materialEntries[i]
+                                                                  .selectedSubCategoryName
+                                                              : (subCategories
+                                                                      .firstWhere(
+                                                                        (w) =>
+                                                                            w.subgroupid ==
+                                                                            materialEntries[i].selectedSubCategoryId,
+                                                                        orElse:
+                                                                            () => MaterialIssuedData(
+                                                                              groupid:
+                                                                                  "",
+                                                                              groupname:
+                                                                                  "",
+                                                                            ),
+                                                                      )
+                                                                      .subgroupname ??
+                                                                  'Select Sub Category'),
+                                                      data: subCategories,
+                                                      displayText:
+                                                          (data) =>
+                                                              data.subgroupname ??
+                                                              '',
+                                                      onChanged: (val) {
+                                                        setState(() {
+                                                          err_materialEntry[i] =
+                                                              null;
+                                                          materialEntries[i]
+                                                              .selectedSubCategoryId = val
+                                                                  .subgroupid
+                                                                  ?.toString();
+                                                          materialEntries[i]
+                                                                  .selectedSubCategoryName =
+                                                              val.subgroupname ??
+                                                              'Select Sub Category';
 
-                                                        String keyOf(
-                                                            MaterialIssuedData
-                                                                d) {
-                                                          if ((d.item_id
-                                                                  ?.isNotEmpty ??
-                                                              false))
-                                                            return d.item_id!;
-                                                          if ((d.item ?? '')
-                                                              .isNotEmpty)
-                                                            return d.item!;
-                                                          return '${d.groupid}_${d.subgroupid}_${d.item}_${d.item_id}';
-                                                        }
-
-                                                        final selectedKeys =
-                                                            selectedList
-                                                                .map(keyOf)
-                                                                .toSet();
-                                                        final existingKeys =
-                                                            entry
-                                                                .lines
-                                                                .map((l) =>
-                                                                    keyOf(
-                                                                        l.data))
-                                                                .toSet();
-
-                                                        final added = selectedList
-                                                            .where((s) =>
-                                                                !existingKeys
-                                                                    .contains(
-                                                                        keyOf(
-                                                                            s)));
-                                                        final removed = entry
-                                                            .lines
-                                                            .where((l) =>
-                                                                !selectedKeys
-                                                                    .contains(
-                                                                        keyOf(l
-                                                                            .data)))
-                                                            .toList();
-
-                                                        for (final r
-                                                            in removed) {
-                                                          try {
-                                                            r.dispose();
-                                                          } catch (_) {}
-                                                          entry.lines.remove(r);
-                                                        }
-
-                                                        for (final a in added) {
-                                                          final newLine =
-                                                              MaterialLine(data: a);
-                                                          // final key =
-                                                          //     a.item ?? '';
-                                                          final key = a.item_id ?? '';
-                                                          print("key item_id ${key}");
-                                                          final cached = unitsByItem[key];
-                                                          if (cached != null &&
-                                                              cached
-                                                                  .isNotEmpty) {
-                                                            final defaultUnit =
-                                                                cached.first;
-                                                            newLine.selectedUnit =
-                                                                defaultUnit
-                                                                        .unit_name ??
-                                                                    '';
-                                                            newLine.selectedUnitId =
-                                                                defaultUnit
-                                                                    .hsncode
-                                                                    ?.toString();
+                                                          // clear downstream when subcategory changes
+                                                          materialEntries[i]
+                                                              .selectedMaterialsList = [];
+                                                          materialEntries[i]
+                                                              .selectedMaterialIds = [];
+                                                          materialEntries[i]
+                                                              .selectedGroupIds = [];
+                                                          materialEntries[i]
+                                                              .selectedSubgroupIds = [];
+                                                          for (final l in List<
+                                                            MaterialLine
+                                                          >.from(
+                                                            materialEntries[i]
+                                                                .lines,
+                                                          )) {
+                                                            try {
+                                                              l.dispose();
+                                                            } catch (_) {}
                                                           }
-                                                          entry.lines
-                                                              .add(newLine);
-                                                          if (key.isNotEmpty &&
-                                                              !unitsByItem
-                                                                  .containsKey(
-                                                                      key) &&
-                                                              !unitsLoadingFor
-                                                                  .contains(
-                                                                      key)) {
-                                                            unitsLoadingFor
-                                                                .add(key);
-                                                            // context
-                                                            //     .read<
-                                                            //         UnitsBloc>()
-                                                            //     .add(FetchUnitsEvent(
-                                                            //         itemName: key,));
-                                                            print("key : ${key}");
-                                                            context
-                                                                .read<
-                                                                BasicUnitsBloc>()
-                                                                .add(FetchBasicUnitsEvent(
-                                                              itemName: key,));
-                                                          }
-                                                        }
-
-                                                        // preserve selected order
-                                                        entry.lines
-                                                            .sort((a, b) {
-                                                          final ai = selectedList
-                                                              .indexWhere((s) =>
-                                                                  keyOf(s) ==
-                                                                  keyOf(
-                                                                      a.data));
-                                                          final bi = selectedList
-                                                              .indexWhere((s) =>
-                                                                  keyOf(s) ==
-                                                                  keyOf(
-                                                                      b.data));
-                                                          return ai
-                                                              .compareTo(bi);
+                                                          materialEntries[i]
+                                                              .lines
+                                                              .clear();
+                                                          materialEntries[i]
+                                                              .currentBalance = 0;
+                                                          materialEntries[i]
+                                                              .remainingBalance = 0;
                                                         });
+                                                      },
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                  ],
 
-                                                        entry.selectedMaterialsList =
-                                                            List.from(
-                                                                selectedList);
-                                                        entry.selectedMaterial =
-                                                            selectedList
-                                                                .map((e) =>
-                                                                    e.item ??
-                                                                    '')
-                                                                .join(', ');
-                                                        entry.selectedMaterialIds =
-                                                            selectedList
-                                                                .map((e) =>
-                                                                    keyOf(e))
-                                                                .toList();
-                                                        entry.selectedGroupIds =
-                                                            selectedList
-                                                                .map((e) =>
-                                                                    e.groupid
-                                                                        ?.toString() ??
-                                                                    '')
-                                                                .toList();
-                                                        entry.selectedSubgroupIds =
-                                                            selectedList
-                                                                .map((e) =>
-                                                                    e.subgroupid
-                                                                        ?.toString() ??
-                                                                    '')
-                                                                .toList();
-                                                        entry.currentBalance =
-                                                            entry.lines.fold<double>(
-                                                              0.0,
-                                                                  (acc, l) => acc + l.currentBalance,
-                                                            );
+                                                  // 3) ISSUED MATERIAL — visible only when subcategory is selected
+                                                  if (materialEntries[i]
+                                                              .selectedSubCategoryId !=
+                                                          null &&
+                                                      materialEntries[i]
+                                                          .selectedSubCategoryId!
+                                                          .isNotEmpty) ...[
+                                                    MultiSelectDropdown<
+                                                      MaterialIssuedData
+                                                    >(
+                                                      title: 'Issued Material',
+                                                      hint: 'Select Material',
+                                                      data: issuedMaterials,
+                                                      displayText:
+                                                          (d) => d.item ?? '',
+                                                      selectedValues:
+                                                          materialEntries[i]
+                                                              .selectedMaterialsList,
+                                                      onChanged: (
+                                                        List<MaterialIssuedData>
+                                                        selectedList,
+                                                      ) {
+                                                        setState(() {
+                                                          err_materialEntry[i] =
+                                                              null;
+                                                          final entry =
+                                                              materialEntries[i];
 
-                                                        entry.remainingBalance =
-                                                            entry.lines.fold<double>(
-                                                              0.0,
-                                                                  (acc, l) => acc + l.remainingBalance,
+                                                          String keyOf(
+                                                            MaterialIssuedData
+                                                            d,
+                                                          ) {
+                                                            if ((d
+                                                                    .item_id
+                                                                    ?.isNotEmpty ??
+                                                                false))
+                                                              return d.item_id!;
+                                                            if ((d.item ?? '')
+                                                                .isNotEmpty)
+                                                              return d.item!;
+                                                            return '${d.groupid}_${d.subgroupid}_${d.item}_${d.item_id}';
+                                                          }
+
+                                                          final selectedKeys =
+                                                              selectedList
+                                                                  .map(keyOf)
+                                                                  .toSet();
+                                                          final existingKeys =
+                                                              entry.lines
+                                                                  .map(
+                                                                    (
+                                                                      l,
+                                                                    ) => keyOf(
+                                                                      l.data,
+                                                                    ),
+                                                                  )
+                                                                  .toSet();
+
+                                                          final added =
+                                                              selectedList.where(
+                                                                (s) =>
+                                                                    !existingKeys
+                                                                        .contains(
+                                                                          keyOf(
+                                                                            s,
+                                                                          ),
+                                                                        ),
+                                                              );
+                                                          final removed =
+                                                              entry.lines
+                                                                  .where(
+                                                                    (l) =>
+                                                                        !selectedKeys.contains(
+                                                                          keyOf(
+                                                                            l.data,
+                                                                          ),
+                                                                        ),
+                                                                  )
+                                                                  .toList();
+
+                                                          for (final r
+                                                              in removed) {
+                                                            try {
+                                                              r.dispose();
+                                                            } catch (_) {}
+                                                            entry.lines.remove(
+                                                              r,
                                                             );
-                                                        // entry.currentBalance =
-                                                        //     entry.lines.fold<
-                                                        //             int>(
-                                                        //         0,
-                                                        //         (acc, l) =>
-                                                        //             acc +
-                                                        //             l.currentBalance);
-                                                        // entry.remainingBalance =
-                                                        //     entry.lines.fold<
-                                                        //             int>(
-                                                        //         0,
-                                                        //         (acc, l) =>
-                                                        //             acc +
-                                                        //             l.remainingBalance);
-                                                      });
-                                                    },
-                                                  ),
-                                                  const SizedBox(height: 8),
+                                                          }
+
+                                                          for (final a
+                                                              in added) {
+                                                            final newLine =
+                                                                MaterialLine(
+                                                                  data: a,
+                                                                );
+                                                            // final key =
+                                                            //     a.item ?? '';
+                                                            final key =
+                                                                a.item_id ?? '';
+                                                            print(
+                                                              "key item_id ${key}",
+                                                            );
+                                                            final cached =
+                                                                unitsByItem[key];
+                                                            if (cached !=
+                                                                    null &&
+                                                                cached
+                                                                    .isNotEmpty) {
+                                                              final defaultUnit =
+                                                                  cached.first;
+                                                              newLine.selectedUnit =
+                                                                  defaultUnit
+                                                                      .unit_name ??
+                                                                  '';
+                                                              newLine.selectedUnitId =
+                                                                  defaultUnit
+                                                                      .hsncode
+                                                                      ?.toString();
+                                                            }
+                                                            entry.lines.add(
+                                                              newLine,
+                                                            );
+                                                            if (key.isNotEmpty &&
+                                                                !unitsByItem
+                                                                    .containsKey(
+                                                                      key,
+                                                                    ) &&
+                                                                !unitsLoadingFor
+                                                                    .contains(
+                                                                      key,
+                                                                    )) {
+                                                              unitsLoadingFor
+                                                                  .add(key);
+                                                              // context
+                                                              //     .read<
+                                                              //         UnitsBloc>()
+                                                              //     .add(FetchUnitsEvent(
+                                                              //         itemName: key,));
+                                                              print(
+                                                                "key : ${key}",
+                                                              );
+                                                              context
+                                                                  .read<
+                                                                    BasicUnitsBloc
+                                                                  >()
+                                                                  .add(
+                                                                    FetchBasicUnitsEvent(
+                                                                      itemName: key,
+                                                                      itemId: key
+                                                                    ),
+                                                                  );
+                                                            }
+                                                          }
+
+                                                          // preserve selected order
+                                                          entry.lines.sort((
+                                                            a,
+                                                            b,
+                                                          ) {
+                                                            final ai = selectedList
+                                                                .indexWhere(
+                                                                  (s) =>
+                                                                      keyOf(
+                                                                        s,
+                                                                      ) ==
+                                                                      keyOf(
+                                                                        a.data,
+                                                                      ),
+                                                                );
+                                                            final bi = selectedList
+                                                                .indexWhere(
+                                                                  (s) =>
+                                                                      keyOf(
+                                                                        s,
+                                                                      ) ==
+                                                                      keyOf(
+                                                                        b.data,
+                                                                      ),
+                                                                );
+                                                            return ai.compareTo(
+                                                              bi,
+                                                            );
+                                                          });
+
+                                                          entry.selectedMaterialsList =
+                                                              List.from(
+                                                                selectedList,
+                                                              );
+                                                          entry.selectedMaterial =
+                                                              selectedList
+                                                                  .map(
+                                                                    (e) =>
+                                                                        e.item ??
+                                                                        '',
+                                                                  )
+                                                                  .join(', ');
+                                                          entry.selectedMaterialIds =
+                                                              selectedList
+                                                                  .map(
+                                                                    (e) =>
+                                                                        keyOf(
+                                                                          e,
+                                                                        ),
+                                                                  )
+                                                                  .toList();
+                                                          entry.selectedGroupIds =
+                                                              selectedList
+                                                                  .map(
+                                                                    (e) =>
+                                                                        e.groupid
+                                                                            ?.toString() ??
+                                                                        '',
+                                                                  )
+                                                                  .toList();
+                                                          entry.selectedSubgroupIds =
+                                                              selectedList
+                                                                  .map(
+                                                                    (e) =>
+                                                                        e.subgroupid
+                                                                            ?.toString() ??
+                                                                        '',
+                                                                  )
+                                                                  .toList();
+                                                          entry.currentBalance =
+                                                              entry.lines.fold<
+                                                                double
+                                                              >(
+                                                                0.0,
+                                                                (acc, l) =>
+                                                                    acc +
+                                                                    l.currentBalance,
+                                                              );
+
+                                                          entry.remainingBalance =
+                                                              entry.lines.fold<
+                                                                double
+                                                              >(
+                                                                0.0,
+                                                                (acc, l) =>
+                                                                    acc +
+                                                                    l.remainingBalance,
+                                                              );
+                                                          // entry.currentBalance =
+                                                          //     entry.lines.fold<
+                                                          //             int>(
+                                                          //         0,
+                                                          //         (acc, l) =>
+                                                          //             acc +
+                                                          //             l.currentBalance);
+                                                          // entry.remainingBalance =
+                                                          //     entry.lines.fold<
+                                                          //             int>(
+                                                          //         0,
+                                                          //         (acc, l) =>
+                                                          //             acc +
+                                                          //             l.remainingBalance);
+                                                        });
+                                                      },
+                                                    ),
+                                                    const SizedBox(height: 8),
+                                                  ],
                                                 ],
-                                              ],
-                                            );
-                                          },
-                                        );
-                                      }), // end Builder
+                                              );
+                                            },
+                                          );
+                                        },
+                                      ), // end Builder
                                       const SizedBox(height: 8),
                                       Column(
                                         children: [
-                                          for (int m = 0;
-                                              m <
-                                                  materialEntries[i]
-                                                      .lines
-                                                      .length;
-                                              m++)
+                                          for (
+                                            int m = 0;
+                                            m < materialEntries[i].lines.length;
+                                            m++
+                                          )
                                             _buildMaterialLine(i, m),
                                         ],
                                       ),
                                       if (i < err_materialEntry.length &&
                                           err_materialEntry[i] != null)
-                                      Padding(
-                                          padding: const EdgeInsets.only(left: 10, bottom: 8),
-                                          child: errorText(err_materialEntry[i]),
-                                      ),
+                                        Padding(
+                                          padding: const EdgeInsets.only(
+                                            left: 10,
+                                            bottom: 8,
+                                          ),
+                                          child: errorText(
+                                            err_materialEntry[i],
+                                          ),
+                                        ),
                                       const SizedBox(height: 10),
                                       // Out time + remove button row
                                       Row(
@@ -1980,15 +2180,17 @@ class _AddGatePassState extends State<AddGatePass> {
                                               ),
                                               CustomDateTimeTextField(
                                                 showTitle: false,
-                                                onTap: () =>
-                                                    _pickTimeForEntry(i),
-                                                hint: materialEntries[i]
-                                                            .outTime ==
-                                                        null
-                                                    ? '-- Time:--'
-                                                    : formatTimeWithSpace(
-                                                        materialEntries[i]
-                                                            .outTime!),
+                                                onTap:
+                                                    () => _pickTimeForEntry(i),
+                                                hint:
+                                                    materialEntries[i]
+                                                                .outTime ==
+                                                            null
+                                                        ? '-- Time:--'
+                                                        : formatTimeWithSpace(
+                                                          materialEntries[i]
+                                                              .outTime!,
+                                                        ),
                                                 icon:
                                                     Icons.watch_later_outlined,
                                               ),
@@ -2002,25 +2204,31 @@ class _AddGatePassState extends State<AddGatePass> {
                                               height: 40,
                                               padding:
                                                   const EdgeInsets.symmetric(
-                                                      horizontal: 10),
+                                                    horizontal: 10,
+                                                  ),
                                               decoration: BoxDecoration(
-                                                  border: Border.all(
-                                                      width: 1,
-                                                      color: ColorConstants
-                                                          .primary
-                                                          .withOpacity(.3)),
-                                                  borderRadius:
-                                                      BorderRadius.circular(5)),
+                                                border: Border.all(
+                                                  width: 1,
+                                                  color: ColorConstants.primary
+                                                      .withOpacity(.3),
+                                                ),
+                                                borderRadius:
+                                                    BorderRadius.circular(5),
+                                              ),
                                               child: Row(
                                                 children: [
-                                                  cText("Remove",
-                                                      color: ColorConstants
-                                                          .primary),
+                                                  cText(
+                                                    "Remove",
+                                                    color:
+                                                        ColorConstants.primary,
+                                                  ),
                                                   const SizedBox(width: 10),
-                                                  Icon(Icons.close,
-                                                      color: ColorConstants
-                                                          .primary,
-                                                      size: 15),
+                                                  Icon(
+                                                    Icons.close,
+                                                    color:
+                                                        ColorConstants.primary,
+                                                    size: 15,
+                                                  ),
                                                 ],
                                               ),
                                             ),
@@ -2030,13 +2238,14 @@ class _AddGatePassState extends State<AddGatePass> {
                                       const SizedBox(height: 8),
                                     ],
                                   ),
-                              ),
+                                ),
                               Row(
                                 mainAxisAlignment: MainAxisAlignment.end,
                                 children: [
                                   SecondaryButton(
-                                      title: "Add Material",
-                                      onAction: addMaterialField),
+                                    title: "Add Material",
+                                    onAction: addMaterialField,
+                                  ),
                                 ],
                               ),
                               const SizedBox(height: 20),
@@ -2054,8 +2263,9 @@ class _AddGatePassState extends State<AddGatePass> {
                 ),
               ),
             );
-          }),
-        )
+          },
+        ),
+      ),
     );
   }
 
@@ -2067,7 +2277,8 @@ class _AddGatePassState extends State<AddGatePass> {
     // local helper to recalculate effects of used + scrap WITHOUT changing Quantity
     void _recalcFromUsedAndScrap() {
       final double currentBalance = line.currentBalance; // immutable
-      final int issued = int.tryParse(line.quantityController.text) ?? 0; // keep quantity
+      final int issued =
+          int.tryParse(line.quantityController.text) ?? 0; // keep quantity
       int used = int.tryParse(line.usedQuantityController.text) ?? 0;
       int scrap = int.tryParse(line.scrapController.text) ?? 0;
 
@@ -2076,8 +2287,9 @@ class _AddGatePassState extends State<AddGatePass> {
         final newUsedStr = issued.toString();
         if (line.usedQuantityController.text != newUsedStr) {
           line.usedQuantityController.text = newUsedStr;
-          line.usedQuantityController.selection =
-              TextSelection.collapsed(offset: newUsedStr.length);
+          line.usedQuantityController.selection = TextSelection.collapsed(
+            offset: newUsedStr.length,
+          );
         }
         used = issued;
       }
@@ -2087,8 +2299,9 @@ class _AddGatePassState extends State<AddGatePass> {
         final newScrapStr = issued.toString();
         if (line.scrapController.text != newScrapStr) {
           line.scrapController.text = newScrapStr;
-          line.scrapController.selection =
-              TextSelection.collapsed(offset: newScrapStr.length);
+          line.scrapController.selection = TextSelection.collapsed(
+            offset: newScrapStr.length,
+          );
         }
         scrap = issued;
       }
@@ -2100,8 +2313,9 @@ class _AddGatePassState extends State<AddGatePass> {
         final newScrapStr = scrap.toString();
         if (line.scrapController.text != newScrapStr) {
           line.scrapController.text = newScrapStr;
-          line.scrapController.selection =
-              TextSelection.collapsed(offset: newScrapStr.length);
+          line.scrapController.selection = TextSelection.collapsed(
+            offset: newScrapStr.length,
+          );
         }
       }
 
@@ -2109,8 +2323,10 @@ class _AddGatePassState extends State<AddGatePass> {
       // remainingBalance remains based on the quantity (not on used/scrap)
       final int displayedIssued = issued;
       line.remainingBalance = currentBalance - displayedIssued;
-      entry.remainingBalance =
-          entry.lines.fold<double>(0, (acc, l) => acc + l.remainingBalance);
+      entry.remainingBalance = entry.lines.fold<double>(
+        0,
+        (acc, l) => acc + l.remainingBalance,
+      );
 
       setState(() {});
     }
@@ -2118,7 +2334,7 @@ class _AddGatePassState extends State<AddGatePass> {
     return Container(
       margin: const EdgeInsets.symmetric(vertical: 6),
       // padding: const EdgeInsets.all(8),
-      padding:EdgeInsets.symmetric(vertical: 5,horizontal: 5),
+      padding: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
       decoration: BoxDecoration(
         color: ColorConstants.primary.withOpacity(.01),
         borderRadius: BorderRadius.circular(6),
@@ -2132,7 +2348,10 @@ class _AddGatePassState extends State<AddGatePass> {
             children: [
               cText("Issued Material : ", color: Colors.black),
               Expanded(
-                child: Text(line.data.item ?? '', style: const TextStyle(fontWeight: FontWeight.w600),),
+                child: Text(
+                  line.data.item ?? '',
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
               ),
               GestureDetector(
                 onTap: () {
@@ -2162,25 +2381,35 @@ class _AddGatePassState extends State<AddGatePass> {
                     entry.selectedMaterial = entry.selectedMaterialsList
                         .map((e) => e.item ?? '')
                         .join(', ');
-                    entry.selectedMaterialIds = entry.selectedMaterialsList
-                        .map((e) => keyOf(e))
-                        .toList();
-                    entry.selectedGroupIds = entry.selectedMaterialsList
-                        .map((e) => e.groupid?.toString() ?? '')
-                        .toList();
-                    entry.selectedSubgroupIds = entry.selectedMaterialsList
-                        .map((e) => e.subgroupid?.toString() ?? '')
-                        .toList();
+                    entry.selectedMaterialIds =
+                        entry.selectedMaterialsList
+                            .map((e) => keyOf(e))
+                            .toList();
+                    entry.selectedGroupIds =
+                        entry.selectedMaterialsList
+                            .map((e) => e.groupid?.toString() ?? '')
+                            .toList();
+                    entry.selectedSubgroupIds =
+                        entry.selectedMaterialsList
+                            .map((e) => e.subgroupid?.toString() ?? '')
+                            .toList();
 
                     // Recompute aggregates
-                    entry.currentBalance = entry.lines
-                        .fold<double>(0, (acc, l) => acc + l.currentBalance);
-                    entry.remainingBalance = entry.lines
-                        .fold<double>(0, (acc, l) => acc + l.remainingBalance);
+                    entry.currentBalance = entry.lines.fold<double>(
+                      0,
+                      (acc, l) => acc + l.currentBalance,
+                    );
+                    entry.remainingBalance = entry.lines.fold<double>(
+                      0,
+                      (acc, l) => acc + l.remainingBalance,
+                    );
                   });
                 },
-                child: const Icon(Icons.close,
-                    size: 18, color: ColorConstants.primary),
+                child: const Icon(
+                  Icons.close,
+                  size: 18,
+                  color: ColorConstants.primary,
+                ),
               ),
             ],
           ),
@@ -2192,8 +2421,10 @@ class _AddGatePassState extends State<AddGatePass> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Balance",
-                      style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  const Text(
+                    "Balance",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                   const SizedBox(height: 6),
                   Container(
                     width: 90,
@@ -2207,7 +2438,9 @@ class _AddGatePassState extends State<AddGatePass> {
                       child: Text(
                         "${line.currentBalance}",
                         style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -2218,8 +2451,10 @@ class _AddGatePassState extends State<AddGatePass> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Current Bal",
-                      style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  const Text(
+                    "Current Bal",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                   const SizedBox(height: 6),
                   Container(
                     height: 35,
@@ -2234,7 +2469,9 @@ class _AddGatePassState extends State<AddGatePass> {
                       child: Text(
                         "${line.remainingBalance}",
                         style: const TextStyle(
-                            fontSize: 14, fontWeight: FontWeight.w600),
+                          fontSize: 14,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),
@@ -2245,8 +2482,10 @@ class _AddGatePassState extends State<AddGatePass> {
               Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const Text("Quantity",
-                      style: TextStyle(fontSize: 12, color: Colors.grey)),
+                  const Text(
+                    "Quantity",
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
                   const SizedBox(height: 6),
                   Container(
                     height: 35,
@@ -2273,8 +2512,10 @@ class _AddGatePassState extends State<AddGatePass> {
                         enabledBorder: InputBorder.none,
                         errorBorder: InputBorder.none,
                         disabledBorder: InputBorder.none,
-                        contentPadding:
-                            EdgeInsets.symmetric(horizontal: 10, vertical: 8),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 10,
+                          vertical: 8,
+                        ),
                       ),
                       onChanged: (val) {
                         print("val ${val}");
@@ -2290,9 +2531,11 @@ class _AddGatePassState extends State<AddGatePass> {
                           final enteredStr = entered.toString();
                           if (line.quantityController.text != enteredStr) {
                             line.quantityController.text = enteredStr;
-                            line.quantityController.selection =
-                                TextSelection.collapsed(
-                                    offset: enteredStr.length);
+                            line
+                                .quantityController
+                                .selection = TextSelection.collapsed(
+                              offset: enteredStr.length,
+                            );
                           }
                         }
 
@@ -2303,9 +2546,11 @@ class _AddGatePassState extends State<AddGatePass> {
                           final newUsedStr = entered.toString();
                           if (line.usedQuantityController.text != newUsedStr) {
                             line.usedQuantityController.text = newUsedStr;
-                            line.usedQuantityController.selection =
-                                TextSelection.collapsed(
-                                    offset: newUsedStr.length);
+                            line
+                                .usedQuantityController
+                                .selection = TextSelection.collapsed(
+                              offset: newUsedStr.length,
+                            );
                           }
                         }
 
@@ -2315,9 +2560,11 @@ class _AddGatePassState extends State<AddGatePass> {
                           final newScrapStr = entered.toString();
                           if (line.scrapController.text != newScrapStr) {
                             line.scrapController.text = newScrapStr;
-                            line.scrapController.selection =
-                                TextSelection.collapsed(
-                                    offset: newScrapStr.length);
+                            line
+                                .scrapController
+                                .selection = TextSelection.collapsed(
+                              offset: newScrapStr.length,
+                            );
                           }
                         }
 
@@ -2326,11 +2573,13 @@ class _AddGatePassState extends State<AddGatePass> {
                           line.remainingBalance =
                               (line.currentBalance - entered);
                           entry.remainingBalance = entry.lines.fold<double>(
-                              0, (acc, l) => acc + l.remainingBalance);
+                            0,
+                            (acc, l) => acc + l.remainingBalance,
+                          );
                         });
                       },
                     ),
-                  )
+                  ),
                 ],
               ),
 
@@ -2574,13 +2823,12 @@ class _AddGatePassState extends State<AddGatePass> {
                   List<UnitsData> combinedUnits = [];
 
                   for (var unit in fetchedUnits) {
-
                     /// ✅ BASIC UNIT (no conversion)
                     if (unit.basic_unit_name != null &&
                         unit.basic_unit_name!.isNotEmpty &&
                         !combinedUnits.any(
-                                (e) => e.alt_unit_name == unit.basic_unit_name)) {
-
+                          (e) => e.alt_unit_name == unit.basic_unit_name,
+                        )) {
                       combinedUnits.add(
                         UnitsData(
                           alt_unit_name: unit.basic_unit_name,
@@ -2593,7 +2841,6 @@ class _AddGatePassState extends State<AddGatePass> {
                     /// ✅ ALT UNIT (actual conversion)
                     if (unit.alt_unit_name != null &&
                         unit.alt_unit_name!.isNotEmpty) {
-
                       combinedUnits.add(
                         UnitsData(
                           alt_unit_name: unit.alt_unit_name,
@@ -2604,14 +2851,68 @@ class _AddGatePassState extends State<AddGatePass> {
                     }
                   }
 
-                  /// assign units
-                  unitsByItem[itemNameFromState] = combinedUnits;
-                  unitsLoadingFor.remove(itemNameFromState);
+                  // /// assign units
+                  // unitsByItem[itemNameFromState] = combinedUnits;
+                  //
+                  //
+                  // unitsLoadingFor.remove(itemNameFromState);
+                  //
+                  // /// ✅ SAFE DEFAULT UNIT SET (NO DOUBLE CONVERSION)
+                  // for (final ent in materialEntries) {
+                  //   for (final ln in ent.lines) {
+                  //     if ((ln.data.item ?? '') == itemNameFromState &&
+                  //         combinedUnits.isNotEmpty &&
+                  //         (ln.selectedUnit == null ||
+                  //             ln.selectedUnit!.isEmpty)) {
+                  //       final defaultUnit = combinedUnits.first;
+                  //
+                  //       ln.selectedUnit = defaultUnit.alt_unit_name ?? '';
+                  //       ln.selectedUnitId = defaultUnit.alt_unit_name ?? '';
+                  //
+                  //       print('''
+                  //         Selected units from dropdown ${ln.selectedUnit}, ${ln.selectedUnitId}
+                  //         ''');
+                  //
+                  //       double basic =
+                  //           double.tryParse(
+                  //             defaultUnit.basic_value?.toString() ?? '1',
+                  //           ) ??
+                  //           1;
+                  //
+                  //       double alt =
+                  //           double.tryParse(
+                  //             defaultUnit.alt_value?.toString() ?? '1',
+                  //           ) ??
+                  //           1;
+                  //
+                  //       /// 🔥 FIX: ALWAYS CALCULATE FROM ORIGINAL
+                  //       if (alt != 0) {
+                  //         ln.conversionFactor = basic / alt;
+                  //         ln.currentBalance =
+                  //             ln.originalBalance / ln.conversionFactor;
+                  //       } else {
+                  //         ln.conversionFactor = 1;
+                  //         ln.currentBalance = ln.originalBalance;
+                  //       }
+                  //
+                  //       double issued =
+                  //           double.tryParse(ln.quantityController.text) ?? 0;
+                  //
+                  //       ln.remainingBalance = ln.currentBalance - issued;
+                  //     }
+                  //   }
+                  // }
+                  final itemIdFromState = state.itemId; // ✅ USE ID
 
-                  /// ✅ SAFE DEFAULT UNIT SET (NO DOUBLE CONVERSION)
+                  /// assign units using item_id
+                  unitsByItem[itemIdFromState] = combinedUnits;
+
+                  unitsLoadingFor.remove(itemIdFromState);
+
+                  /// ✅ MATCH USING item_id (NOT NAME)
                   for (final ent in materialEntries) {
                     for (final ln in ent.lines) {
-                      if ((ln.data.item ?? '') == itemNameFromState &&
+                      if ((ln.data.item_id ?? '') == itemIdFromState &&
                           combinedUnits.isNotEmpty &&
                           (ln.selectedUnit == null || ln.selectedUnit!.isEmpty)) {
 
@@ -2626,7 +2927,6 @@ class _AddGatePassState extends State<AddGatePass> {
                         double alt =
                             double.tryParse(defaultUnit.alt_value?.toString() ?? '1') ?? 1;
 
-                        /// 🔥 FIX: ALWAYS CALCULATE FROM ORIGINAL
                         if (alt != 0) {
                           ln.conversionFactor = basic / alt;
                           ln.currentBalance =
@@ -2650,56 +2950,68 @@ class _AddGatePassState extends State<AddGatePass> {
             /// ✅ UPDATED CHILD SECTION
             child: Builder(
               builder: (context) {
-
                 return TransferDropdown<UnitsData>(
                   title: 'Units',
-                  hint: availableUnits.isEmpty
-                      ? 'No units available'
-                      : 'Select Units',
+                  hint:
+                      availableUnits.isEmpty
+                          ? 'No units available'
+                          : 'Select Units',
 
                   /// ✅ UI fallback
-                  selectedVal: line.selectedUnit.isNotEmpty
-                      ? line.selectedUnit
-                      : (availableUnits.isNotEmpty
-                      ? availableUnits.first.alt_unit_name ?? ''
-                      : ''),
+                  selectedVal:
+                      line.selectedUnit.isNotEmpty
+                          ? line.selectedUnit
+                          : (availableUnits.isNotEmpty
+                              ? availableUnits.first.alt_unit_name ?? ''
+                              : ''),
 
                   data: availableUnits,
                   displayText: (u) => u.alt_unit_name ?? '',
 
                   onChanged: (UnitsData u) {
                     setState(() {
-                      line.selectedUnit = u.alt_unit_name ?? '';
-                      line.selectedUnitId = u.alt_unit_name ?? '';
+                      if ((line.selectedUnit == null ||
+                              line.selectedUnit.isEmpty) &&
+                          availableUnits.isNotEmpty) {
+                        final defaultUnit = availableUnits.first;
+                        line.selectedUnit = defaultUnit.alt_unit_name ?? '';
+                        line.selectedUnitId = defaultUnit.alt_unit_name ?? '';
 
-                      double basic =
-                          double.tryParse(u.basic_value?.toString() ?? '1') ?? 1;
+                        double basic =
+                            double.tryParse(defaultUnit.basic_value?.toString() ?? '1') ??
+                            1;
 
-                      double alt =
-                          double.tryParse(u.alt_value?.toString() ?? '1') ?? 1;
+                        double alt =
+                            double.tryParse(defaultUnit.alt_value?.toString() ?? '1') ??
+                            1;
 
-                      /// 🔥 MAIN FIX: ALWAYS USE ORIGINAL BALANCE
-                      if (alt != 0) {
-                        double conversionFactor = basic / alt;
+                        /// 🔥 MAIN FIX: ALWAYS USE ORIGINAL BALANCE
+                        if (alt != 0) {
+                          double conversionFactor = basic / alt;
 
-                        line.conversionFactor = conversionFactor;
-                        line.currentBalance =
-                            line.originalBalance / conversionFactor;
-                      } else {
-                        line.conversionFactor = 1;
-                        line.currentBalance = line.originalBalance;
+                          line.conversionFactor = conversionFactor;
+                          line.currentBalance =
+                              line.originalBalance / conversionFactor;
+                        } else {
+                          line.conversionFactor = 1;
+                          line.currentBalance = line.originalBalance;
+                        }
+
+                        double issued =
+                            double.tryParse(line.quantityController.text) ?? 0;
+
+                        line.remainingBalance = line.currentBalance - issued;
+
+                        entry.currentBalance = entry.lines.fold(
+                          0,
+                          (sum, l) => sum + l.currentBalance,
+                        );
+
+                        entry.remainingBalance = entry.lines.fold(
+                          0,
+                          (sum, l) => sum + l.remainingBalance,
+                        );
                       }
-
-                      double issued =
-                          double.tryParse(line.quantityController.text) ?? 0;
-
-                      line.remainingBalance = line.currentBalance - issued;
-
-                      entry.currentBalance =
-                          entry.lines.fold(0, (sum, l) => sum + l.currentBalance);
-
-                      entry.remainingBalance =
-                          entry.lines.fold(0, (sum, l) => sum + l.remainingBalance);
                     });
                   },
                 );
@@ -2722,17 +3034,22 @@ class _AddGatePassState extends State<AddGatePass> {
                     height: 18,
                     decoration: BoxDecoration(
                       border: Border.all(
-                          color: line.showQualityFields
-                              ? ColorConstants.primary
-                              : Colors.grey),
+                        color:
+                            line.showQualityFields
+                                ? ColorConstants.primary
+                                : Colors.grey,
+                      ),
                       borderRadius: BorderRadius.circular(4),
                     ),
                     child: Center(
-                      child: Icon(Icons.check,
-                          size: 12,
-                          color: line.showQualityFields
-                              ? ColorConstants.primary
-                              : Colors.transparent),
+                      child: Icon(
+                        Icons.check,
+                        size: 12,
+                        color:
+                            line.showQualityFields
+                                ? ColorConstants.primary
+                                : Colors.transparent,
+                      ),
                     ),
                   ),
                   const SizedBox(width: 8),
@@ -2743,19 +3060,34 @@ class _AddGatePassState extends State<AddGatePass> {
             if (line.showQualityFields) ...[
               const SizedBox(height: 20),
               // Used Quantity: on change recalc (does NOT change quantity)
-              txtField(context, "Used Quantity", line.usedQuantityController,
-                  onChange: (_) => _recalcFromUsedAndScrap()),
+              txtField(
+                context,
+                "Used Quantity",
+                line.usedQuantityController,
+                onChange: (_) => _recalcFromUsedAndScrap(),
+              ),
               // Scrap: on change recalc (does NOT change quantity)
-              txtField(context, "Scrap", line.scrapController,
-                  onChange: (_) => _recalcFromUsedAndScrap()),
-              txtField(context, "Rate", line.rateController, onChange: (val) {
-                setState(() {});
-              }),
+              txtField(
+                context,
+                "Scrap",
+                line.scrapController,
+                onChange: (_) => _recalcFromUsedAndScrap(),
+              ),
+              txtField(
+                context,
+                "Rate",
+                line.rateController,
+                onChange: (val) {
+                  setState(() {});
+                },
+              ),
               Row(
                 mainAxisAlignment: MainAxisAlignment.end,
                 children: [
-                  Text("Amount: ${_computeAmount(line)}",
-                      style: const TextStyle(fontWeight: FontWeight.w600)),
+                  Text(
+                    "Amount: ${_computeAmount(line)}",
+                    style: const TextStyle(fontWeight: FontWeight.w600),
+                  ),
                 ],
               ),
             ],
@@ -2770,7 +3102,7 @@ class _AddGatePassState extends State<AddGatePass> {
     final usedqty = int.tryParse(line.usedQuantityController.text) ?? 0;
     final scrap = int.tryParse(line.scrapController.text) ?? 0;
     final r = double.tryParse(line.rateController.text) ?? 0;
-    final amt = (usedqty+scrap) * r;
+    final amt = (usedqty + scrap) * r;
     if (amt == amt.roundToDouble()) return amt.toInt().toString();
     return amt.toStringAsFixed(2);
   }

@@ -15,11 +15,12 @@ abstract class BasicUnitsEvent extends Equatable {
 
 class FetchBasicUnitsEvent extends BasicUnitsEvent {
   final String itemName;
+  final String itemId;
 
-  const FetchBasicUnitsEvent({required this.itemName});
+  const FetchBasicUnitsEvent({required this.itemName,required this.itemId});
 
   @override
-  List<Object?> get props => [itemName];
+  List<Object?> get props => [itemName,itemId];
 }
 
 
@@ -38,11 +39,12 @@ class BasicUnitsLoading extends BasicUnitsState {}
 class BasicUnitsLoadSuccess extends BasicUnitsState {
   final List<UnitsData> basicUnits;
   final String itemName; // item these BasicUnits belong to
+  final String itemId;
 
-  const BasicUnitsLoadSuccess(this.basicUnits, this.itemName);
+  const BasicUnitsLoadSuccess(this.basicUnits, this.itemName,this.itemId);
 
   @override
-  List<Object?> get props => [basicUnits, itemName];
+  List<Object?> get props => [basicUnits, itemName,itemId];
 }
 
 
@@ -119,7 +121,7 @@ class BasicUnitsBloc extends Bloc<BasicUnitsEvent, BasicUnitsState> {
           .map<UnitsData>((e) => UnitsData.fromJson(e as Map<String, dynamic>))
           .toList();
 
-      emit(BasicUnitsLoadSuccess(basicUnits,event.itemName));
+      emit(BasicUnitsLoadSuccess(basicUnits,event.itemName,event.itemId));
     } catch (e) {
       emit(BasicUnitsFailure(e.toString()));
     }
